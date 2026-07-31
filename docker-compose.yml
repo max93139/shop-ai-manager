@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shop_ai_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: shop_ai_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: shop_ai_api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
+      PORT: 3000
+    depends_on:
+      - postgres
+    restart: always
+
+  admin:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.admin
+    container_name: shop_ai_admin
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      PORT: 3001
+    depends_on:
+      - api
+    restart: always
+
+  bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.bot
+    container_name: shop_ai_bot
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
+      TELEGRAM_BOT_TOKEN: your_telegram_bot_token_here
+      API_URL: http://api:3000
+    depends_on:
+      - postgres
+      - api
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: shop_ai_redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    container_name: shop_ai_worker
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+
+volumes:
+  postgres_data:
+

@@ -1,0 +1,17 @@
+{
+  "name": "@shop-ai/config",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "tsconfig.base.json",
+    "tsconfig.nextjs.json",
+    "tsconfig.node.json"
+  ],
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.nextjs.json": "./tsconfig.nextjs.json",
+    "./tsconfig.node.json": "./tsconfig.node.json",
+    "./*": "./*"
+  }
+}

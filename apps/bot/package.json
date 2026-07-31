@@ -1,0 +1,24 @@
+{
+  "name": "@shop-ai/bot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shop-ai/database": "workspace:*",
+    "@shop-ai/types": "workspace:*",
+    "dotenv": "^16.4.5",
+    "grammy": "^1.23.0"
+  },
+  "devDependencies": {
+    "@shop-ai/config": "workspace:*",
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
