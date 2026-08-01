@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import BaseModal from '../../../../../common/BaseModal';
 import type { ColorOption } from './VariantBuilder';
 
@@ -46,24 +47,24 @@ export default function AddColorModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Add custom color"
-      description="Choose a color swatch or select from popular presets."
+      description="Drag the color picker or select a preset color."
     >
-      <div className="flex flex-col gap-5 pt-1">
-        {/* Color Swatch Picker */}
-        <div className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
-          <label className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[var(--border-strong)] bg-[var(--surface)] p-0.5 shadow-sm transition-transform hover:scale-105">
-            <span
-              className="h-full w-full rounded-full transition-colors"
-              style={{ backgroundColor: hex }}
-            />
-            <input
-              type="color"
-              value={hex}
-              onChange={(e) => setHex(e.target.value)}
-              className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-            />
-          </label>
+      <div className="flex flex-col gap-4 pt-1">
+        {/* Visual Color Picker (react-colorful) */}
+        <div className="flex flex-col items-center gap-2">
+          <HexColorPicker
+            color={hex}
+            onChange={setHex}
+            className="custom-color-picker"
+          />
+        </div>
 
+        {/* Hex Code & Color Preview Bar */}
+        <div className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3">
+          <span
+            className="h-9 w-9 rounded-full border border-black/15 shrink-0 shadow-sm transition-colors"
+            style={{ backgroundColor: hex }}
+          />
           <div className="flex flex-1 flex-col gap-0.5">
             <label className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
               Hex Code
