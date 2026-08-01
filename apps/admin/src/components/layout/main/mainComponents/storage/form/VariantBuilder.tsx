@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import AddColorModal from './AddColorModal';
 
 export interface ColorOption {
   name: string;
@@ -69,9 +70,8 @@ export default function VariantBuilder({
   const [showAddSizeInput, setShowAddSizeInput] = useState(false);
   const [newSizeInput, setNewSizeInput] = useState('');
 
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [newColorHex, setNewColorHex] = useState('#7A6A54');
-  const [newColorName, setNewColorName] = useState('');
+  // Add Color Modal State
+  const [isAddColorModalOpen, setIsAddColorModalOpen] = useState(false);
 
   // Pointer / Drag Swipe Selection for Size Chips
   const [isSwipingSizes, setIsSwipingSizes] = useState(false);
@@ -151,16 +151,13 @@ export default function VariantBuilder({
     );
   };
 
-  const handleAddColorConfirm = () => {
-    const nameToUse = newColorName.trim() || newColorHex;
-    if (!colors.some((c) => c.name.toLowerCase() === nameToUse.toLowerCase())) {
-      onColorsChange((prev) => [...prev, { name: nameToUse, hex: newColorHex }]);
+  const handleAddColorFromModal = (newColor: ColorOption) => {
+    if (!colors.some((c) => c.name.toLowerCase() === newColor.name.toLowerCase())) {
+      onColorsChange((prev) => [...prev, newColor]);
     }
-    if (!selectedColors.includes(nameToUse)) {
-      onSelectedColorsChange((prev) => [...prev, nameToUse]);
+    if (!selectedColors.includes(newColor.name)) {
+      onSelectedColorsChange((prev) => [...prev, newColor.name]);
     }
-    setNewColorName('');
-    setShowColorPicker(false);
   };
 
   const handleRemoveColor = (colorName: string) => {
@@ -176,6 +173,13 @@ export default function VariantBuilder({
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col select-none">
+      {/* Add Color Modal */}
+      <AddColorModal
+        isOpen={isAddColorModalOpen}
+        onClose={() => setIsAddColorModalOpen(false)}
+        onAddColor={handleAddColorFromModal}
+      />
+
       {/* Product Type */}
       <div>
         <h2 className="text-[15px] font-bold text-[var(--text)]">Product type</h2>
@@ -354,50 +358,11 @@ export default function VariantBuilder({
 
         <button
           type="button"
-          onClick={() => setShowColorPicker(true)}
+          onClick={() => setIsAddColorModalOpen(true)}
           className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--border-strong)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--text-tertiary)] hover:text-[var(--text)] hover:border-[var(--text-tertiary)] transition-colors"
         >
           + Add color
         </button>
-
-        {/* Color Picker Row */}
-        {showColorPicker && (
-          <div className="mt-3 flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3">
-            <label className="relative flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[var(--border-strong)] bg-[var(--surface)] p-0.5 shadow-sm transition-transform hover:scale-105">
-              <span
-                className="h-full w-full rounded-full transition-colors"
-                style={{ backgroundColor: newColorHex }}
-              />
-              <input
-                type="color"
-                value={newColorHex}
-                onChange={(e) => setNewColorHex(e.target.value)}
-                className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-              />
-            </label>
-            <input
-              type="text"
-              value={newColorName}
-              onChange={(e) => setNewColorName(e.target.value)}
-              placeholder="Color name, e.g. Camel"
-              className="flex-1 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={handleAddColorConfirm}
-              className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-[var(--accent-hover)]"
-            >
-              Add
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowColorPicker(false)}
-              className="rounded-[var(--radius-sm)] px-2.5 py-2 text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text)]"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Dotted Divider */}
