@@ -363,12 +363,18 @@ export default function VariantBuilder({
         {/* Color Picker Row */}
         {showColorPicker && (
           <div className="mt-3 flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3">
-            <input
-              type="color"
-              value={newColorHex}
-              onChange={(e) => setNewColorHex(e.target.value)}
-              className="h-9 w-9 cursor-pointer rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] p-0.5"
-            />
+            <label className="relative h-9 w-9 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] p-0.5 shadow-sm transition-transform hover:scale-105">
+              <span
+                className="block h-full w-full rounded-[6px] transition-colors"
+                style={{ backgroundColor: newColorHex }}
+              />
+              <input
+                type="color"
+                value={newColorHex}
+                onChange={(e) => setNewColorHex(e.target.value)}
+                className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+              />
+            </label>
             <input
               type="text"
               value={newColorName}
