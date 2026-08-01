@@ -363,9 +363,9 @@ export default function VariantBuilder({
         {/* Color Picker Row */}
         {showColorPicker && (
           <div className="mt-3 flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3">
-            <label className="relative h-9 w-9 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] p-0.5 shadow-sm transition-transform hover:scale-105">
+            <label className="relative flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[var(--border-strong)] bg-[var(--surface)] p-0.5 shadow-sm transition-transform hover:scale-105">
               <span
-                className="block h-full w-full rounded-[6px] transition-colors"
+                className="h-full w-full rounded-full transition-colors"
                 style={{ backgroundColor: newColorHex }}
               />
               <input
