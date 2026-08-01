@@ -3,6 +3,8 @@
 import React, { type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAppDispatch } from '../../../store';
+import { setSidebarOpen } from '../../../store/slices/uiSlice';
 
 interface SidebarItemProps {
   label: string;
@@ -13,11 +15,13 @@ interface SidebarItemProps {
 
 export default function SidebarItem({ label, href, icon, count }: SidebarItemProps) {
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
   const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
 
   return (
     <Link
       href={href}
+      onClick={() => dispatch(setSidebarOpen(false))}
       className={`group flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-[13.5px] font-medium transition-colors duration-150 ${
         isActive
           ? 'bg-[var(--accent-soft)] text-[var(--accent-hover)] font-semibold'

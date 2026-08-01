@@ -6,8 +6,8 @@ interface UiState {
 }
 
 const initialState: UiState = {
-  sidebarOpen: true,
-  theme: 'dark',
+  sidebarOpen: false,
+  theme: 'light',
 };
 
 export const uiSlice = createSlice({
