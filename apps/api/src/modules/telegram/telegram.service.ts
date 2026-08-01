@@ -10,27 +10,24 @@ export interface BroadcastPostDto {
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
 
-  async broadcastToChannel(dto: BroadcastPostDto) {
+  async broadcastToChannel(dto: BroadcastPostDto, file?: Express.Multer.File) {
     const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
     let channelId = (dto.channelId || process.env.TELEGRAM_CHANNEL_ID || '').trim();
 
     if (!botToken) {
-      this.logger.warn('TELEGRAM_BOT_TOKEN is not configured in .env');
       return {
         success: false,
-        message: 'TELEGRAM_BOT_TOKEN is not set in environment variables (.env)',
+        message: 'TELEGRAM_BOT_TOKEN is not configured in .env',
       };
     }
 
     if (!channelId) {
-      this.logger.warn('TELEGRAM_CHANNEL_ID is not configured in .env');
       return {
         success: false,
-        message: 'TELEGRAM_CHANNEL_ID is not set in environment variables (.env)',
+        message: 'TELEGRAM_CHANNEL_ID is not configured in .env',
       };
     }
 
-    // Auto-prefix @ if channel username lacks @ or -
     if (!channelId.startsWith('@') && !channelId.startsWith('-')) {
       channelId = `@${channelId}`;
     }
@@ -40,17 +37,40 @@ export class TelegramService {
       throw new BadRequestException('Message text is required');
     }
 
-    // Check if image URL is a public HTTP/HTTPS URL that Telegram servers can access
-    const isPublicImage =
-      dto.imageUrl &&
-      (dto.imageUrl.startsWith('https://') ||
-        (dto.imageUrl.startsWith('http://') && !dto.imageUrl.includes('localhost') && !dto.imageUrl.includes('127.0.0.1')));
-
     try {
-      if (isPublicImage) {
-        // Send Photo with caption
-        const photoUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
-        const res = await fetch(photoUrl, {
+      if (file && file.buffer) {
+        // Send Photo file via multipart/form-data to Telegram Bot API
+        const formData = new FormData();
+        formData.append('chat_id', channelId);
+        formData.append('caption', cleanText);
+
+        const blob = new Blob([new Uint8Array(file.buffer)], { type: file.mimetype || 'image/jpeg' });
+        formData.append('photo', blob, file.originalname || 'photo.jpg');
+
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          this.logger.error(`Telegram sendPhoto file upload failed: ${JSON.stringify(data)}`);
+          return {
+            success: false,
+            message: data.description || 'Failed to send photo file to Telegram channel',
+          };
+        }
+
+        return { success: true, messageId: data.result?.message_id };
+      } else if (
+        dto.imageUrl &&
+        (dto.imageUrl.startsWith('https://') ||
+          (dto.imageUrl.startsWith('http://') &&
+            !dto.imageUrl.includes('localhost') &&
+            !dto.imageUrl.includes('127.0.0.1')))
+      ) {
+        // Send Photo via public URL
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -62,18 +82,17 @@ export class TelegramService {
 
         const data = await res.json();
         if (!res.ok || !data.ok) {
-          this.logger.error(`Telegram sendPhoto failed for channel ${channelId}: ${JSON.stringify(data)}`);
+          this.logger.error(`Telegram sendPhoto URL failed: ${JSON.stringify(data)}`);
           return {
             success: false,
-            message: data.description || 'Failed to send photo to Telegram channel',
+            message: data.description || 'Failed to send photo URL to Telegram channel',
           };
         }
 
         return { success: true, messageId: data.result?.message_id };
       } else {
-        // Send Text Message (Fallback for text or local blob preview images)
-        const msgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        const res = await fetch(msgUrl, {
+        // Send Text Message
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -84,7 +103,7 @@ export class TelegramService {
 
         const data = await res.json();
         if (!res.ok || !data.ok) {
-          this.logger.error(`Telegram sendMessage failed for channel ${channelId}: ${JSON.stringify(data)}`);
+          this.logger.error(`Telegram sendMessage failed: ${JSON.stringify(data)}`);
           return {
             success: false,
             message: data.description || 'Failed to send message to Telegram channel',

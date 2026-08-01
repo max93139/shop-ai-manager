@@ -53,22 +53,27 @@ export default function TelegramPublishModal({
       setIsPublishing(true);
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      };
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const payload = {
-        text: postText,
-        imageUrl: imageUrls[selectedImageIndex] || null,
-        productName: name,
-      };
+      const formData = new FormData();
+      formData.append('text', postText);
+
+      const targetImg = imageUrls[selectedImageIndex];
+      if (targetImg) {
+        if (targetImg.startsWith('blob:') || targetImg.startsWith('data:')) {
+          const blobRes = await fetch(targetImg);
+          const blob = await blobRes.blob();
+          formData.append('photo', blob, 'product-image.jpg');
+        } else {
+          formData.append('imageUrl', targetImg);
+        }
+      }
 
       const res = await fetch(`${apiUrl}/telegram/broadcast`, {
         method: 'POST',
         headers,
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await res.json();
@@ -99,7 +104,7 @@ export default function TelegramPublishModal({
       description="Preview and customize your Telegram channel post."
       maxWidthClass="max-w-2xl"
     >
-      <div className="flex flex-col gap-5 pt-1">
+      <div className="flex flex-col gap-5 pt-1 select-none">
         {/* Main Grid: Left side editable controls, Right side Live Telegram Post Preview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Left Column: Editable Message Text & Image Selector */}

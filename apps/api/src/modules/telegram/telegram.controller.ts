@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { TelegramService, type BroadcastPostDto } from './telegram.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -8,7 +16,11 @@ export class TelegramController {
 
   @Post('broadcast')
   @UseGuards(JwtAuthGuard)
-  async broadcast(@Body() dto: BroadcastPostDto) {
-    return this.telegramService.broadcastToChannel(dto);
+  @UseInterceptors(FileInterceptor('photo'))
+  async broadcast(
+    @Body() dto: BroadcastPostDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.telegramService.broadcastToChannel(dto, file);
   }
 }
