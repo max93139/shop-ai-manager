@@ -1,3 +1,4 @@
 import StorageHeader from './StorageHeader';
+import CreateProductForm from './CreateProductForm';
 
-export { StorageHeader };
+export { StorageHeader, CreateProductForm };
