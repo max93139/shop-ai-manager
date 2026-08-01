@@ -80,9 +80,9 @@ export default function Sidebar() {
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               Catalog
             </div>
-            <SidebarItem label="Products" href="/products" icon={<Tag className="h-[17px] w-[17px]" />} count={248} />
+            <SidebarItem label="Products" href="/products" icon={<Tag className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Categories" href="/categories" icon={<Layers className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Inventory" href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} count={6} />
+            <SidebarItem label="Inventory" href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* Sales Group */}
@@ -90,7 +90,7 @@ export default function Sidebar() {
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               Sales
             </div>
-            <SidebarItem label="Orders" href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} count={14} />
+            <SidebarItem label="Orders" href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Customers" href="/customers" icon={<Users className="h-[17px] w-[17px]" />} />
             <SidebarItem label="CRM" href="/crm" icon={<Target className="h-[17px] w-[17px]" />} />
           </div>
@@ -110,7 +110,7 @@ export default function Sidebar() {
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               System
             </div>
-            <SidebarItem label="Notifications" href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} count={3} />
+            <SidebarItem label="Notifications" href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Staff" href="/staff" icon={<UserCheck className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Settings" href="/settings" icon={<Settings className="h-[17px] w-[17px]" />} />
           </div>
