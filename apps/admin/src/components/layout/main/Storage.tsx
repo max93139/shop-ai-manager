@@ -37,6 +37,12 @@ export default function Storage() {
 
   useEffect(() => {
     fetchStorageStats();
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('shop_ai_storage_mode');
+      if (mode === 'create') {
+        setIsCreating(true);
+      }
+    }
   }, []);
 
   const handleExport = () => {
@@ -45,6 +51,16 @@ export default function Storage() {
 
   const handleAddItem = () => {
     setIsCreating(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('shop_ai_storage_mode', 'create');
+    }
+  };
+
+  const handleBackFromCreate = () => {
+    setIsCreating(false);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('shop_ai_storage_mode');
+    }
   };
 
   const handleSaveProduct = async (formData: any) => {
@@ -66,6 +82,10 @@ export default function Storage() {
 
       if (res.ok) {
         setIsCreating(false);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('shop_ai_storage_mode');
+          localStorage.removeItem('shop_ai_create_product_draft');
+        }
         await fetchStorageStats();
       } else {
         const errorData = await res.json();
@@ -80,7 +100,7 @@ export default function Storage() {
   };
 
   if (isCreating) {
-    return <CreateProductForm onBack={() => setIsCreating(false)} onSave={handleSaveProduct} />;
+    return <CreateProductForm onBack={handleBackFromCreate} onSave={handleSaveProduct} />;
   }
 
   return (

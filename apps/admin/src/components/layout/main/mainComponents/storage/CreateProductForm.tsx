@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FormHeader,
   ImageUploader,
@@ -68,6 +68,8 @@ const CATEGORIES = [
   'Other',
 ];
 
+const DRAFT_STORAGE_KEY = 'shop_ai_create_product_draft';
+
 export default function CreateProductForm({ onBack, onSave }: CreateProductFormProps) {
   // Product Basic State
   const [name, setName] = useState('');
@@ -101,6 +103,65 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   // Brand Options State
   const [brandOptions, setBrandOptions] = useState<string[]>(DEFAULT_BRANDS);
 
+  // 1. Restore Draft State from LocalStorage on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.name !== undefined) setName(parsed.name);
+        if (parsed.category) setCategory(parsed.category);
+        if (parsed.brand !== undefined) setBrand(parsed.brand);
+        if (parsed.price !== undefined) setPrice(parsed.price);
+        if (parsed.productType) setProductType(parsed.productType);
+        if (parsed.sizeMode) setSizeMode(parsed.sizeMode);
+        if (parsed.selectedSizes) setSelectedSizes(parsed.selectedSizes);
+        if (parsed.customSizes) setCustomSizes(parsed.customSizes);
+        if (parsed.colors) setColors(parsed.colors);
+        if (parsed.selectedColors) setSelectedColors(parsed.selectedColors);
+        if (parsed.colorStocks) setColorStocks(parsed.colorStocks);
+      }
+    } catch (err) {
+      console.error('Failed to restore draft from localStorage:', err);
+    }
+  }, []);
+
+  // 2. Persist Draft State to LocalStorage on changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const draft = {
+        name,
+        category,
+        brand,
+        price,
+        productType,
+        sizeMode,
+        selectedSizes,
+        customSizes,
+        colors,
+        selectedColors,
+        colorStocks,
+      };
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch (err) {
+      // Ignore quota errors
+    }
+  }, [
+    name,
+    category,
+    brand,
+    price,
+    productType,
+    sizeMode,
+    selectedSizes,
+    customSizes,
+    colors,
+    selectedColors,
+    colorStocks,
+  ]);
+
   const handleProductTypeChange = (typeKey: string) => {
     setProductType(typeKey);
     const presetMode =
@@ -123,6 +184,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
 
   const handleAddBrandOption = (newBrand: string) => {
     setBrandOptions((prev) => (prev.includes(newBrand) ? prev : [...prev, newBrand]));
+  };
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.removeItem('shop_ai_storage_mode');
+    }
+    onBack();
   };
 
   const handleSave = () => {
@@ -159,7 +228,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         name={name}
         category={category}
         brand={brand}
-        onBack={onBack}
+        onBack={handleBack}
         onSave={handleSave}
         onPublishTelegram={() => setIsTelegramModalOpen(true)}
       />
