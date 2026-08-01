@@ -53,27 +53,36 @@ export default function TelegramPublishModal({
       setIsPublishing(true);
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const formData = new FormData();
-      formData.append('text', postText);
 
       const targetImg = imageUrls[selectedImageIndex];
+      let photoBase64: string | undefined = undefined;
+
       if (targetImg) {
-        if (targetImg.startsWith('blob:') || targetImg.startsWith('data:')) {
+        if (targetImg.startsWith('blob:')) {
           const blobRes = await fetch(targetImg);
           const blob = await blobRes.blob();
-          formData.append('photo', blob, 'product-image.jpg');
-        } else {
-          formData.append('imageUrl', targetImg);
+          photoBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+        } else if (targetImg.startsWith('data:')) {
+          photoBase64 = targetImg;
         }
       }
 
       const res = await fetch(`${apiUrl}/telegram/broadcast`, {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: 'include',
-        body: formData,
+        body: JSON.stringify({
+          text: postText,
+          photoBase64,
+          imageUrl: !photoBase64 ? targetImg : undefined,
+        }),
       });
 
       const data = await res.json();
