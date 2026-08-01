@@ -5,3 +5,5 @@
   1. All console, build, runtime, and TypeScript errors (`npx pnpm check-types`) are 100% resolved.
   2. The application features and pages render without errors or blank screens.
   3. Everything is verified to be fully working end-to-end.
+
+- **Mobile First Responsiveness Requirement**: Any frontend modifications, pages, components, or layout updates MUST be 100% responsive and work seamlessly on mobile devices and tablets (mobile drawer navigation, touch-friendly UI, zero horizontal scrolling, flexible grid layouts).

@@ -38,19 +38,22 @@ apps/admin/src/
 
 ## 3. Core Frontend Patterns
 
-### A. Server Components vs Client Components
+### A. Mobile-First Responsiveness Rule (Mandatory)
+- **Mobile Device Compatibility**: ALL frontend updates, layouts, pages, and components MUST be 100% responsive and tested to work flawlessly on mobile screen sizes (off-canvas drawers, touch-friendly buttons, responsive grids, zero horizontal overflow).
+
+### B. Server Components vs Client Components
 - **React Server Components (RSC)**: Used by default for initial page loads, layout composition, and SEO/performance.
 - **Client Components (`'use client'`)**: Used for interactive forms, modals, tables with filtering, and real-time updates.
 
-### B. Shared Component Design System (`packages/ui`)
+### C. Shared Component Design System (`packages/ui`)
 - Generic reusable UI primitives (Buttons, Inputs, Modals, Badges, Data Tables) live in `packages/ui`.
 - Business-logic components live in `apps/admin/src/components/`.
 
-### C. Type Safety & API Communication
+### D. Type Safety & API Communication
 - All API requests to NestJS (`apps/api`) consume shared DTO interfaces from `@shop-ai/types`.
 - Environment variable `NEXT_PUBLIC_API_URL` configures the backend base URL (Port `4000`).
 
-### D. Form Validation & Data Handling
+### E. Form Validation & Data Handling
 - Form handling via `react-hook-form` and schema validation using `zod`.
 - Data fetching and caching via TanStack Query (React Query) or SWR for automatic revalidation.
 
