@@ -63,6 +63,31 @@ export interface DashboardOverviewData {
   newCustomers: DashboardStatMetric;
 }
 
+export interface RevenueBarData {
+  day: string;
+  value: number;
+  formattedValue: string;
+  isHighlight?: boolean;
+}
+
+export interface LatestOrderItem {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  totalAmount: string;
+  paymentStatus: 'Paid' | 'Pending' | 'Failed';
+  fulfillmentStatus: 'Processing' | 'Shipped' | 'Unfulfilled' | 'Delivered';
+}
+
+export interface DashboardFullData {
+  stats: DashboardOverviewData;
+  revenueChart: {
+    peakInfo: string;
+    bars: RevenueBarData[];
+  };
+  latestOrders: LatestOrderItem[];
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

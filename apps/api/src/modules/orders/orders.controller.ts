@@ -9,6 +9,6 @@ export class OrdersController {
   @Get('stats')
   @UseGuards(JwtAuthGuard)
   async getStats() {
-    return this.ordersService.getDashboardStats();
+    return this.ordersService.getDashboardFullData();
   }
 }
