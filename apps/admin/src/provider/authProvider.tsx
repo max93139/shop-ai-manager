@@ -3,11 +3,12 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setCredentials, logout as logoutAction } from '../store/slices/authSlice';
+import type { UserProfile } from '@shop-ai/types';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: any;
+  user: UserProfile | null;
   logout: () => void;
 }
 

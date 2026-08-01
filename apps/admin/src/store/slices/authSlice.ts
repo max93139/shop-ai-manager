@@ -1,11 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface UserProfile {
-  id: string;
-  email: string | null;
-  name: string;
-  role: 'ADMIN' | 'MANAGER' | 'CUSTOMER';
-}
+import { UserProfile } from '@shop-ai/types';
 
 interface AuthState {
   user: UserProfile | null;

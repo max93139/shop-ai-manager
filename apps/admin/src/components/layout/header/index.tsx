@@ -4,6 +4,7 @@ import React from 'react';
 import { Search, Bell, HelpCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../provider/authProvider';
+import { getUserInitials } from '../../../utils/getUserInitials';
 
 export default function Header() {
   const pathname = usePathname();
@@ -46,12 +47,7 @@ export default function Header() {
   const currentTitle = getPageTitle(pathname || '/');
 
   const userName = user?.name || 'Maksym K.';
-  const userInitials = userName
-    .split(' ')
-    .map((part: string) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const userInitials = getUserInitials(userName);
 
   return (
     <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[28px]">

@@ -20,18 +20,14 @@ import {
 } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import { useAuth } from '../../../provider/authProvider';
+import { getUserInitials } from '../../../utils/getUserInitials';
 
 export default function Sidebar() {
   const { user } = useAuth();
 
   const userName = user?.name || 'Maksym K.';
   const userRole = user?.role || 'Owner';
-  const userInitials = userName
-    .split(' ')
-    .map((part: string) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const userInitials = getUserInitials(userName);
 
   return (
     <aside className="flex h-full w-[246px] shrink-0 flex-col gap-[22px] border-r border-[var(--border)] bg-[var(--surface)] p-[20px_12px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
