@@ -48,6 +48,21 @@ export interface Order {
   totalAmount: number;
 }
 
+export interface DashboardStatMetric {
+  title: string;
+  value: string;
+  change: string;
+  changeType: 'increase' | 'decrease';
+  timeframe: string;
+}
+
+export interface DashboardOverviewData {
+  todaySales: DashboardStatMetric;
+  revenue30d: DashboardStatMetric;
+  orders: DashboardStatMetric;
+  newCustomers: DashboardStatMetric;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

@@ -2,17 +2,35 @@
 
 import React from 'react';
 import { Download, Plus } from 'lucide-react';
+import { useAuth } from '../../../../../provider/authProvider';
 
-export default function DashboardHeader() {
+export interface DashboardHeaderProps {
+  userName?: string;
+  storeName?: string;
+  onExport?: () => void;
+  onNewProduct?: () => void;
+}
+
+export default function DashboardHeader({
+  userName,
+  storeName = 'Atelier',
+  onExport,
+  onNewProduct,
+}: DashboardHeaderProps) {
+  const { user } = useAuth();
+  const currentUserName = userName || user?.name;
+
   // Determine greeting based on current time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    let timeGreeting = 'Good afternoon';
+    if (hour < 12) timeGreeting = 'Good morning';
+    else if (hour >= 18) timeGreeting = 'Good evening';
+
+    return currentUserName ? `${timeGreeting}, ${currentUserName}` : timeGreeting;
   };
 
-  // Format today's date (e.g. "Aug 1")
+  // Format today's date dynamically (e.g. "Aug 1")
   const formattedDate = new Date().toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -26,7 +44,7 @@ export default function DashboardHeader() {
           {getGreeting()}
         </h1>
         <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)]">
-          Here's what's happening at Atelier today, {formattedDate}.
+          Here's what's happening at {storeName} today, {formattedDate}.
         </p>
       </div>
 
@@ -34,7 +52,8 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-3 shrink-0">
         <button
           type="button"
-          className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm transition-all duration-150 hover:bg-[var(--surface-soft)]"
+          onClick={onExport}
+          className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm transition-all duration-150 hover:bg-[var(--surface-soft)] active:scale-95"
         >
           <Download className="h-4 w-4 text-[var(--text-secondary)]" strokeWidth={1.8} />
           <span>Export</span>
@@ -42,7 +61,8 @@ export default function DashboardHeader() {
 
         <button
           type="button"
-          className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-[var(--accent-hover)]"
+          onClick={onNewProduct}
+          className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-[var(--accent-hover)] active:scale-95"
         >
           <Plus className="h-4 w-4 text-white" strokeWidth={2} />
           <span>New product</span>
