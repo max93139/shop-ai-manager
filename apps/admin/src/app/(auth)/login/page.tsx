@@ -5,7 +5,7 @@ import AuthHeader from '../../../components/auth/AuthHeader';
 import AuthCard from '../../../components/auth/AuthCard';
 import LoginForm from '../../../components/auth/LoginForm';
 import { useAuth } from '../../../provider/authProvider';
-import { LogOut, User, ShieldCheck } from 'lucide-react';
+import { LogOut, User, ShieldCheck, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -13,8 +13,11 @@ export default function LoginPage() {
   if (isLoading) {
     return (
       <main className="flex min-h-screen w-full items-center justify-center bg-[var(--bg)] p-6">
-        <div className="text-[14px] font-medium text-[var(--text-secondary)]">
-          Loading authentication state...
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-7 w-7 animate-spin text-[var(--accent)]" />
+          <div className="text-[13px] font-medium text-[var(--text-secondary)]">
+            Verifying authentication...
+          </div>
         </div>
       </main>
     );

@@ -21,34 +21,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-    fetch(`${API_BASE}/auth/me`, {
-      method: 'GET',
-      headers,
-      credentials: 'include',
-    })
-      .then(async (res) => {
+    const checkAuth = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
+      try {
+        const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          method: 'GET',
+          headers,
+          credentials: 'include',
+          signal: controller.signal,
+        });
+
         if (res.ok) {
           const data = await res.json();
-          dispatch(
-            setCredentials({
-              user: data.user,
-              token: token || 'session-token',
-            })
-          );
+          if (isMounted) {
+            dispatch(
+              setCredentials({
+                user: data.user,
+                token: token || 'session-token',
+              })
+            );
+          }
         } else {
-          localStorage.removeItem('access_token');
+          if (isMounted) {
+            if (typeof window !== 'undefined') localStorage.removeItem('access_token');
+            dispatch(logoutAction());
+          }
+        }
+      } catch {
+        if (isMounted) {
           dispatch(logoutAction());
         }
-      })
-      .catch(() => {
-        if (!token) {
-          dispatch(logoutAction());
+      } finally {
+        clearTimeout(timeoutId);
+        if (isMounted) {
+          setIsLoading(false);
         }
-      })
-      .finally(() => setIsLoading(false));
+      }
+    };
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
   }, [dispatch, API_BASE]);
 
   const logout = useCallback(() => {
