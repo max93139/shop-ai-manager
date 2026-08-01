@@ -1,14 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Search, Bell, HelpCircle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '../../../provider/authProvider';
-import { getUserInitials } from '../../../utils/getUserInitials';
 
 export default function Header() {
   const pathname = usePathname();
-  const { user } = useAuth();
 
   const getPageTitle = (path: string) => {
     switch (path) {
@@ -46,9 +43,6 @@ export default function Header() {
 
   const currentTitle = getPageTitle(pathname || '/');
 
-  const userName = user?.name || 'Maksym K.';
-  const userInitials = getUserInitials(userName);
-
   return (
     <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[28px]">
       {/* Breadcrumbs */}
@@ -69,30 +63,6 @@ export default function Header() {
         <kbd className="font-mono text-[10.5px] rounded-[5px] border border-[var(--border)] bg-[var(--surface)] px-[5px] py-[1px] text-[var(--text-tertiary)]">
           ⌘K
         </kbd>
-      </div>
-
-      {/* Topbar Actions */}
-      <div className="ml-auto flex items-center gap-[8px]">
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative flex h-[34px] w-[34px] items-center justify-center rounded-[var(--radius-sm)] text-[var(--text-secondary)] transition-colors hover:border hover:border-[var(--border)] hover:bg-[var(--surface-soft)]"
-        >
-          <Bell className="h-[17px] w-[17px]" />
-          <span className="absolute right-[7px] top-[7px] h-[6px] w-[6px] rounded-full border-[1.5px] border-[var(--surface)] bg-[var(--danger)]" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="Help"
-          className="flex h-[34px] w-[34px] items-center justify-center rounded-[var(--radius-sm)] text-[var(--text-secondary)] transition-colors hover:border hover:border-[var(--border)] hover:bg-[var(--surface-soft)]"
-        >
-          <HelpCircle className="h-[17px] w-[17px]" />
-        </button>
-
-        <div className="ml-1 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-gradient-to-br from-[#E7DFC9] to-[#CBB98A] font-['Fraunces',Georgia,serif] text-[12px] font-semibold text-[#4A3F1F]">
-          {userInitials}
-        </div>
       </div>
     </header>
   );
