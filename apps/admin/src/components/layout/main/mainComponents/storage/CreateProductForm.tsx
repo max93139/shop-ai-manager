@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Image as ImageIcon, Upload, Plus } from 'lucide-react';
 
 export interface CreateProductFormProps {
@@ -79,6 +79,10 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const [showAddSizeInput, setShowAddSizeInput] = useState(false);
   const [newSizeInput, setNewSizeInput] = useState('');
 
+  // Pointer / Drag Swipe Selection for Size Chips
+  const [isSwipingSizes, setIsSwipingSizes] = useState(false);
+  const swipeModeRef = useRef<'select' | 'deselect'>('select');
+
   // Colors State
   const [colors, setColors] = useState<ColorOption[]>(DEFAULT_COLORS);
   const [selectedColors, setSelectedColors] = useState<string[]>(['Charcoal']);
@@ -90,6 +94,56 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const [brandOptions, setBrandOptions] = useState<string[]>(DEFAULT_BRANDS);
   const [brandQuery, setBrandQuery] = useState('');
   const [isBrandListOpen, setIsBrandListOpen] = useState(false);
+
+  // Global Pointer Up Listener to stop swiping gesture
+  useEffect(() => {
+    const stopSwipe = () => setIsSwipingSizes(false);
+    window.addEventListener('pointerup', stopSwipe);
+    window.addEventListener('mouseup', stopSwipe);
+    window.addEventListener('touchend', stopSwipe);
+    return () => {
+      window.removeEventListener('pointerup', stopSwipe);
+      window.removeEventListener('mouseup', stopSwipe);
+      window.removeEventListener('touchend', stopSwipe);
+    };
+  }, []);
+
+  // Swipe Selection Handlers
+  const startSizeSwipe = (size: string) => {
+    setIsSwipingSizes(true);
+    const isCurrentlySelected = selectedSizes.includes(size);
+    const mode = isCurrentlySelected ? 'deselect' : 'select';
+    swipeModeRef.current = mode;
+
+    if (mode === 'select') {
+      setSelectedSizes((prev) => (prev.includes(size) ? prev : [...prev, size]));
+    } else {
+      setSelectedSizes((prev) => prev.filter((s) => s !== size));
+    }
+  };
+
+  const handleSizePointerOver = (size: string) => {
+    if (!isSwipingSizes) return;
+    const mode = swipeModeRef.current;
+    if (mode === 'select') {
+      setSelectedSizes((prev) => (prev.includes(size) ? prev : [...prev, size]));
+    } else {
+      setSelectedSizes((prev) => prev.filter((s) => s !== size));
+    }
+  };
+
+  const handleTouchMoveSizeGrid = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isSwipingSizes) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+    const sizeAttr =
+      targetEl?.getAttribute('data-size') ||
+      targetEl?.closest('[data-size]')?.getAttribute('data-size');
+    if (sizeAttr) {
+      handleSizePointerOver(sizeAttr);
+    }
+  };
 
   // Image Drag & Drop / File Select Handlers
   const handleFiles = (files: FileList | null) => {
@@ -149,12 +203,6 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const handleSizeModeChange = (modeKey: string) => {
     setSizeMode(modeKey);
     setSelectedSizes(modeKey === 'onesize' ? ['One size'] : []);
-  };
-
-  const toggleSizeSelection = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
-    );
   };
 
   const handleAddCustomSize = () => {
@@ -228,7 +276,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const variantCount = Math.max(selectedSizes.length, 1) * Math.max(selectedColors.length, 1);
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-7 lg:p-8 max-w-[1200px] mx-auto w-full">
+    <div className="flex flex-col gap-6 p-4 sm:p-7 lg:p-8 max-w-[1200px] mx-auto w-full select-none">
       {/* Hidden Native File Input */}
       <input
         type="file"
@@ -413,7 +461,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
             <div>
               <h2 className="text-[15px] font-bold text-[var(--text)] mb-1">Sizes</h2>
               <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-                Pick a size format, then select which sizes this product comes in.
+                Pick a size format, then select or swipe across sizes to toggle multiple at once.
               </p>
               {/* Segmented Control */}
               <div className="inline-flex rounded-[10px] bg-[var(--surface-sunken)] p-1 gap-1 mb-3.5 flex-wrap">
@@ -433,8 +481,11 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
                 ))}
               </div>
 
-              {/* Size Chips */}
-              <div className="flex flex-wrap gap-2 items-center">
+              {/* Size Chips Grid with Swipe Gesture Selection */}
+              <div
+                onTouchMove={handleTouchMoveSizeGrid}
+                className="flex flex-wrap gap-2 items-center touch-none select-none"
+              >
                 {sizeMode === 'onesize' ? (
                   <button
                     type="button"
@@ -452,8 +503,13 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
                         <button
                           key={s}
                           type="button"
-                          onClick={() => toggleSizeSelection(s)}
-                          className={`inline-flex items-center gap-1.5 rounded-[8px] border px-3.5 py-2 text-[12.5px] font-semibold transition-all ${
+                          data-size={s}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            startSizeSwipe(s);
+                          }}
+                          onPointerOver={() => handleSizePointerOver(s)}
+                          className={`inline-flex items-center gap-1.5 rounded-[8px] border px-3.5 py-2 text-[12.5px] font-semibold transition-all select-none ${
                             isSelected
                               ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-hover)]'
                               : 'border-[var(--border-strong)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--text-tertiary)]'
