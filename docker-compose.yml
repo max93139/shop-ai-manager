@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: shop_ai_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -20,10 +20,10 @@ services:
       dockerfile: docker/Dockerfile.api
     container_name: shop_ai_api
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
-      PORT: 3000
+      PORT: 4000
     depends_on:
       - postgres
     restart: always
@@ -36,7 +36,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
       PORT: 3001
     depends_on:
       - api
@@ -50,7 +50,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
       TELEGRAM_BOT_TOKEN: your_telegram_bot_token_here
-      API_URL: http://api:3000
+      API_URL: http://api:4000
     depends_on:
       - postgres
       - api
