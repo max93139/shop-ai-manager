@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../../../provider/authProvider';
 
 export default function Header() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const getPageTitle = (path: string) => {
     switch (path) {
@@ -63,6 +65,18 @@ export default function Header() {
         <kbd className="font-mono text-[10.5px] rounded-[5px] border border-[var(--border)] bg-[var(--surface)] px-[5px] py-[1px] text-[var(--text-tertiary)]">
           ⌘K
         </kbd>
+      </div>
+
+      {/* Topbar Actions / Logout */}
+      <div className="ml-auto flex items-center">
+        <button
+          type="button"
+          onClick={logout}
+          className="flex items-center gap-[7px] rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-[7px] text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]"
+        >
+          <LogOut className="h-[15px] w-[15px] text-[var(--text-secondary)]" />
+          <span>Log out</span>
+        </button>
       </div>
     </header>
   );
