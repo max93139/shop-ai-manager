@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 
 import Dashboard from './Dashboard';
 import Analytics from './Analytics';
-import Products from './Products';
 import Categories from './Categories';
 import Inventory from './Inventory';
 import Orders from './Orders';
