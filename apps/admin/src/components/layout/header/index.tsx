@@ -17,8 +17,9 @@ export default function Header() {
       case '/':
       case '/dashboard':
         return 'Dashboard';
+      case '/storage':
       case '/products':
-        return 'Products';
+        return 'Storage';
       case '/categories':
         return 'Categories';
       case '/inventory':

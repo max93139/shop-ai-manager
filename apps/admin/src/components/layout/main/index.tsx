@@ -17,6 +17,7 @@ import AIAssistant from './AIAssistant';
 import Notifications from './Notifications';
 import Staff from './Staff';
 import Settings from './Settings';
+import Storage from './Storage';
 
 interface MainProps {
   children?: ReactNode;
@@ -34,8 +35,9 @@ export default function Main({ children }: MainProps) {
         return <Dashboard />;
       case '/analytics':
         return <Analytics />;
+      case '/storage':
       case '/products':
-        return <Products />;
+        return <Storage />;
       case '/categories':
         return <Categories />;
       case '/inventory':

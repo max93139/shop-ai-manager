@@ -80,7 +80,7 @@ export default function Sidebar() {
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               Catalog
             </div>
-            <SidebarItem label="Products" href="/products" icon={<Tag className="h-[17px] w-[17px]" />} />
+            <SidebarItem label="Storage" href="/storage" icon={<Tag className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Categories" href="/categories" icon={<Layers className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Inventory" href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
           </div>

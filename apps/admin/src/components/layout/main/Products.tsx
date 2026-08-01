@@ -1,5 +1,3 @@
-import React from 'react';
+import Storage from './Storage';
 
-export default function Products() {
-  return null;
-}
+export default Storage;
