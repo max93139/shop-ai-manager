@@ -34,7 +34,7 @@ export default function Sidebar() {
     .toUpperCase();
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[246px] shrink-0 flex-col gap-[22px] border-r border-[var(--border)] bg-[var(--surface)] p-[20px_12px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <aside className="flex h-full w-[246px] shrink-0 flex-col gap-[22px] border-r border-[var(--border)] bg-[var(--surface)] p-[20px_12px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       {/* Brand Header */}
       <div className="flex items-center gap-[10px] px-2 pb-2 pt-1">
         <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[var(--text)] text-white shadow-sm">
