@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Send } from 'lucide-react';
 
 export interface FormHeaderProps {
   name: string;
@@ -9,6 +9,7 @@ export interface FormHeaderProps {
   brand: string;
   onBack: () => void;
   onSave?: () => void;
+  onPublishTelegram?: () => void;
 }
 
 export default function FormHeader({
@@ -17,6 +18,7 @@ export default function FormHeader({
   brand,
   onBack,
   onSave,
+  onPublishTelegram,
 }: FormHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -48,9 +50,11 @@ export default function FormHeader({
       <div className="flex items-center gap-3 shrink-0">
         <button
           type="button"
-          className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm hover:bg-[var(--surface-soft)] transition-all active:scale-95"
+          onClick={onPublishTelegram}
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm hover:bg-[var(--surface-soft)] transition-all active:scale-95"
         >
-          Publish to Telegram
+          <Send className="h-3.5 w-3.5 text-[#0088CC]" />
+          <span>Publish to Telegram</span>
         </button>
         <button
           type="button"

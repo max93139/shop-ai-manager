@@ -7,6 +7,7 @@ import {
   VariantBuilder,
   ProductDetails,
   ProductSummary,
+  TelegramPublishModal,
 } from './form';
 import type { ColorOption } from './form/VariantBuilder';
 
@@ -74,6 +75,9 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
 
+  // Telegram Publish Modal State
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
+
   // Per-color Stock State
   const [colorStocks, setColorStocks] = useState<Record<string, number>>({
     Charcoal: 20,
@@ -136,12 +140,28 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-7 lg:p-8 max-w-[1200px] mx-auto w-full select-none">
+      {/* Telegram Channel Publish Modal */}
+      <TelegramPublishModal
+        isOpen={isTelegramModalOpen}
+        onClose={() => setIsTelegramModalOpen(false)}
+        productData={{
+          name,
+          category,
+          brand,
+          price,
+          selectedSizes,
+          selectedColors,
+          imageUrls,
+        }}
+      />
+
       <FormHeader
         name={name}
         category={category}
         brand={brand}
         onBack={onBack}
         onSave={handleSave}
+        onPublishTelegram={() => setIsTelegramModalOpen(true)}
       />
 
       {/* Main Grid Layout (Left: 7 cols, Right: 5 cols) */}
