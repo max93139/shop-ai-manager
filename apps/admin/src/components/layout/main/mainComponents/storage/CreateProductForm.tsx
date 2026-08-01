@@ -20,7 +20,38 @@ const DEFAULT_COLORS: ColorOption[] = [
   { name: 'Camel', hex: '#7A6A54' },
 ];
 
-const DEFAULT_BRANDS = ['Atelier Line', 'Maison Nord', 'Rowe & Co'];
+const DEFAULT_BRANDS = [
+  'Nike',
+  'Adidas',
+  'New Balance',
+  'Puma',
+  'Jordan',
+  'Reebok',
+  'Vans',
+  'Converse',
+  'Under Armour',
+  'Champion',
+  'Zara',
+  'H&M',
+  'Tommy Hilfiger',
+  'Calvin Klein',
+  'Levi’s',
+  'Pull&Bear',
+  'Bershka',
+  'GAP',
+  'The North Face',
+  'Stone Island',
+  'Crocs',
+  'UGG',
+  'Lacoste',
+  'Balenciaga',
+  'Louis Vuitton',
+  'Gucci',
+  'Rick Owens',
+  'Atelier Line',
+  'Maison Nord',
+  'Rowe & Co',
+];
 
 const CATEGORIES = [
   'Outerwear',
