@@ -8,8 +8,8 @@ export interface CreateProductDto {
   price?: string | number;
   selectedSizes?: string[];
   selectedColors?: string[];
+  colorStocks?: Record<string, number>;
   inStock?: string | number;
-  reserved?: string | number;
 }
 
 @Injectable()
@@ -41,7 +41,11 @@ export class ProductsService {
 
     const categoryName = dto.category?.trim() || 'General';
     const rawPrice = typeof dto.price === 'number' ? dto.price : parseFloat(dto.price || '0') || 0;
-    const stockCount = typeof dto.inStock === 'number' ? dto.inStock : parseInt(dto.inStock || '0', 10) || 0;
+
+    let fallbackStock = typeof dto.inStock === 'number' ? dto.inStock : parseInt(dto.inStock || '0', 10) || 0;
+    if (dto.colorStocks && Object.keys(dto.colorStocks).length > 0) {
+      fallbackStock = Object.values(dto.colorStocks).reduce((acc, curr) => acc + (curr || 0), 0);
+    }
 
     // Generate unique slug
     const baseSlug = name
@@ -96,13 +100,18 @@ export class ProductsService {
         const cleanColor = color.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
         const sku = `SKU-${cleanSize}-${cleanColor}-${skuRandom}`;
 
+        const colorStock =
+          dto.colorStocks && color in dto.colorStocks
+            ? dto.colorStocks[color]
+            : fallbackStock;
+
         variantData.push({
           productId: product.id,
           sku,
           size,
           color,
           price: rawPrice,
-          stock: stockCount,
+          stock: colorStock,
         });
       }
     }

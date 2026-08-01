@@ -15,16 +15,16 @@ export interface VariantBuilderProps {
   customSizes: string[];
   colors: ColorOption[];
   selectedColors: string[];
-  inStock: string;
-  reserved: string;
+  colorStocks: Record<string, number>;
   onProductTypeChange: (typeKey: string) => void;
   onSizeModeChange: (modeKey: string) => void;
   onSelectedSizesChange: (sizes: string[] | ((prev: string[]) => string[])) => void;
   onCustomSizesChange: (sizes: string[] | ((prev: string[]) => string[])) => void;
   onColorsChange: (colors: ColorOption[] | ((prev: ColorOption[]) => ColorOption[])) => void;
   onSelectedColorsChange: (colors: string[] | ((prev: string[]) => string[])) => void;
-  onInStockChange: (val: string) => void;
-  onReservedChange: (val: string) => void;
+  onColorStocksChange: (
+    stocks: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
 }
 
 const PRODUCT_TYPES = [
@@ -56,16 +56,14 @@ export default function VariantBuilder({
   customSizes,
   colors,
   selectedColors,
-  inStock,
-  reserved,
+  colorStocks,
   onProductTypeChange,
   onSizeModeChange,
   onSelectedSizesChange,
   onCustomSizesChange,
   onColorsChange,
   onSelectedColorsChange,
-  onInStockChange,
-  onReservedChange,
+  onColorStocksChange,
 }: VariantBuilderProps) {
   const [showAddSizeInput, setShowAddSizeInput] = useState(false);
   const [newSizeInput, setNewSizeInput] = useState('');
@@ -144,11 +142,17 @@ export default function VariantBuilder({
   };
 
   const toggleColorSelection = (colorName: string) => {
-    onSelectedColorsChange((prev) =>
-      prev.includes(colorName)
+    onSelectedColorsChange((prev) => {
+      const isSelected = prev.includes(colorName);
+      const updated = isSelected
         ? prev.filter((c) => c !== colorName)
-        : [...prev, colorName]
-    );
+        : [...prev, colorName];
+
+      if (!isSelected && !(colorName in colorStocks)) {
+        onColorStocksChange((oldStocks) => ({ ...oldStocks, [colorName]: 10 }));
+      }
+      return updated;
+    });
   };
 
   const handleAddColorFromModal = (newColor: ColorOption) => {
@@ -158,11 +162,25 @@ export default function VariantBuilder({
     if (!selectedColors.includes(newColor.name)) {
       onSelectedColorsChange((prev) => [...prev, newColor.name]);
     }
+    if (!(newColor.name in colorStocks)) {
+      onColorStocksChange((prev) => ({ ...prev, [newColor.name]: 10 }));
+    }
   };
 
   const handleRemoveColor = (colorName: string) => {
     onColorsChange((prev) => prev.filter((c) => c.name !== colorName));
     onSelectedColorsChange((prev) => prev.filter((c) => c !== colorName));
+    onColorStocksChange((prev) => {
+      const copy = { ...prev };
+      delete copy[colorName];
+      return copy;
+    });
+  };
+
+  const handleStockValueChange = (colorName: string, value: string) => {
+    const parsed = parseInt(value, 10);
+    const num = isNaN(parsed) ? 0 : Math.max(0, parsed);
+    onColorStocksChange((prev) => ({ ...prev, [colorName]: num }));
   };
 
   const baseSizes = SIZE_PRESETS[sizeMode] || [];
@@ -170,6 +188,10 @@ export default function VariantBuilder({
     ...baseSizes,
     ...customSizes.filter((cs) => !baseSizes.includes(cs)),
   ];
+
+  const totalStockSum = selectedColors.reduce((acc, colName) => {
+    return acc + (colorStocks[colName] ?? 0);
+  }, 0);
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col select-none">
@@ -368,29 +390,61 @@ export default function VariantBuilder({
       {/* Dotted Divider */}
       <div className="my-5 h-[1px] w-full border-b border-dashed border-[var(--border-strong)]" />
 
-      {/* Inventory Inputs */}
+      {/* Inventory Section (Per-Color Stock Inputs) */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)] mb-3">Inventory</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">In stock</label>
-            <input
-              type="number"
-              value={inStock}
-              onChange={(e) => onInStockChange(e.target.value)}
-              className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">Reserved</label>
-            <input
-              type="number"
-              value={reserved}
-              onChange={(e) => onReservedChange(e.target.value)}
-              className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-            />
-          </div>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-[15px] font-bold text-[var(--text)]">Inventory</h2>
+          <span className="text-[12px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2.5 py-1 rounded-full">
+            Total: {totalStockSum} in stock
+          </span>
         </div>
+        <p className="text-[12px] text-[var(--text-tertiary)] mb-3.5">
+          Specify quantity in stock for each selected color.
+        </p>
+
+        {selectedColors.length === 0 ? (
+          <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 text-[13px] text-[var(--text-tertiary)]">
+            Select at least one color above to set stock quantity.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {selectedColors.map((colorName) => {
+              const matchedColorObj = colors.find((c) => c.name === colorName);
+              const hexVal = matchedColorObj?.hex || '#000000';
+              const stockVal = colorStocks[colorName] ?? 0;
+
+              return (
+                <div
+                  key={colorName}
+                  className="flex items-center justify-between rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 gap-3"
+                >
+                  <div className="flex items-center gap-2 shrink-0 overflow-hidden">
+                    <span
+                      className="h-4 w-4 rounded-full border border-black/15 shrink-0"
+                      style={{ backgroundColor: hexVal }}
+                    />
+                    <span className="text-[13px] font-semibold text-[var(--text)] truncate max-w-[120px]">
+                      {colorName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[11.5px] font-medium text-[var(--text-tertiary)]">
+                      Stock:
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={stockVal}
+                      onChange={(e) => handleStockValueChange(colorName, e.target.value)}
+                      className="w-20 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1.5 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

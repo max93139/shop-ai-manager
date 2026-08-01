@@ -73,8 +73,12 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   const [category, setCategory] = useState('Outerwear');
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
-  const [inStock, setInStock] = useState('34');
-  const [reserved, setReserved] = useState('5');
+
+  // Per-color Stock State
+  const [colorStocks, setColorStocks] = useState<Record<string, number>>({
+    Charcoal: 20,
+    Camel: 14,
+  });
 
   // Image Upload State
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -125,8 +129,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
       price,
       selectedSizes,
       selectedColors,
-      inStock,
-      reserved,
+      colorStocks,
       imageUrls,
     });
   };
@@ -158,16 +161,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
             customSizes={customSizes}
             colors={colors}
             selectedColors={selectedColors}
-            inStock={inStock}
-            reserved={reserved}
+            colorStocks={colorStocks}
             onProductTypeChange={handleProductTypeChange}
             onSizeModeChange={handleSizeModeChange}
             onSelectedSizesChange={setSelectedSizes}
             onCustomSizesChange={setCustomSizes}
             onColorsChange={setColors}
             onSelectedColorsChange={setSelectedColors}
-            onInStockChange={setInStock}
-            onReservedChange={setReserved}
+            onColorStocksChange={setColorStocks}
           />
         </div>
 
