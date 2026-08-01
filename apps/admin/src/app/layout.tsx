@@ -1,5 +1,6 @@
 import React from 'react';
 import './globals.css';
+import { StoreProvider } from '../store/provider';
 
 export const metadata = {
   title: 'Admin Panel',
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uk">
-      <body>{children}</body>
+      <body>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }
