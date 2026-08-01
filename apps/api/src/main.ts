@@ -1,11 +1,15 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
+import path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
+// Load env files from local and root workspace
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
