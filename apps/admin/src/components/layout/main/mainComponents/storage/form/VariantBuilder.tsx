@@ -435,7 +435,9 @@ export default function VariantBuilder({
                     <input
                       type="number"
                       min="0"
-                      value={stockVal}
+                      value={stockVal === 0 ? '' : stockVal}
+                      placeholder="0"
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => handleStockValueChange(colorName, e.target.value)}
                       className="w-20 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1.5 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                     />
