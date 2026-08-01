@@ -11,75 +11,48 @@ export interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ data, loading }: DashboardStatsProps) {
-  // Default values structured cleanly for API integration
-  const defaultData: DashboardOverviewData = {
-    todaySales: {
-      title: "Today's sales",
-      value: '$4,286',
-      change: '12.4%',
-      changeType: 'increase',
-      timeframe: 'vs yesterday',
-    },
-    revenue30d: {
-      title: 'Revenue (30d)',
-      value: '$96,410',
-      change: '8.1%',
-      changeType: 'increase',
-      timeframe: 'vs last month',
-    },
-    orders: {
-      title: 'Orders',
-      value: '14',
-      change: '3.2%',
-      changeType: 'decrease',
-      timeframe: 'vs yesterday',
-    },
-    newCustomers: {
-      title: 'New customers',
-      value: '7',
-      change: '21%',
-      changeType: 'increase',
-      timeframe: 'vs yesterday',
-    },
-  };
-
-  const activeData = data || defaultData;
-
-  const statItems: StatCardProps[] = [
-    {
-      ...activeData.todaySales,
-      icon: <Receipt className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
-      iconBgClass: 'bg-[#E7F2ED]',
-    },
-    {
-      ...activeData.revenue30d,
-      icon: <BarChart3 className="h-4 w-4 text-[#2B6CB0]" strokeWidth={1.8} />,
-      iconBgClass: 'bg-[#EBF8FF]',
-    },
-    {
-      ...activeData.orders,
-      icon: <Package className="h-4 w-4 text-[#B7791F]" strokeWidth={1.8} />,
-      iconBgClass: 'bg-[#FEFCBF]',
-    },
-    {
-      ...activeData.newCustomers,
-      icon: <Users className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
-      iconBgClass: 'bg-[#E7F2ED]',
-    },
-  ];
-
-  if (loading) {
+  if (loading || !data) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
         {[1, 2, 3, 4].map((idx) => (
           <div
             key={idx}
-            className="h-[140px] animate-pulse rounded-[18px] border border-[var(--border)] bg-[var(--surface-soft)] p-5"
-          />
+            className="flex h-[134px] flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface-soft)] p-5 animate-pulse"
+          >
+            <div className="flex items-center justify-between">
+              <div className="h-4 w-24 rounded bg-[var(--border)]" />
+              <div className="h-9 w-9 rounded-[10px] bg-[var(--border)]" />
+            </div>
+            <div className="h-7 w-28 rounded bg-[var(--border)]" />
+            <div className="h-3.5 w-20 rounded bg-[var(--border)]" />
+          </div>
         ))}
       </div>
     );
   }
+
+  const statItems: StatCardProps[] = [
+    {
+      ...data.todaySales,
+      icon: <Receipt className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
+      iconBgClass: 'bg-[#E7F2ED]',
+    },
+    {
+      ...data.revenue30d,
+      icon: <BarChart3 className="h-4 w-4 text-[#2B6CB0]" strokeWidth={1.8} />,
+      iconBgClass: 'bg-[#EBF8FF]',
+    },
+    {
+      ...data.orders,
+      icon: <Package className="h-4 w-4 text-[#B7791F]" strokeWidth={1.8} />,
+      iconBgClass: 'bg-[#FEFCBF]',
+    },
+    {
+      ...data.newCustomers,
+      icon: <Users className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
+      iconBgClass: 'bg-[#E7F2ED]',
+    },
+  ];
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
