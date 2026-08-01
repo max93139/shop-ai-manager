@@ -49,7 +49,7 @@ export default function Header() {
   const currentTitle = getPageTitle(pathname || '/');
 
   return (
-    <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[16px] lg:px-[28px]">
+    <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[12px] sm:gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[14px] sm:px-[20px] lg:px-[28px]">
       {/* Mobile Sidebar Toggle */}
       <button
         type="button"
@@ -60,32 +60,32 @@ export default function Header() {
         <Menu className="h-[18px] w-[18px]" />
       </button>
 
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-[6px] text-[13px] text-[var(--text-tertiary)] shrink-0">
+      {/* Breadcrumbs - Hidden on mobile (< md) to give full space to Search */}
+      <div className="hidden md:flex items-center gap-[6px] text-[13px] text-[var(--text-tertiary)] shrink-0">
         <span>Admin</span>
         <span>/</span>
         <span className="font-semibold text-[var(--text)]">{currentTitle}</span>
       </div>
 
       {/* Search Box */}
-      <div className="ml-[12px] flex flex-1 max-w-[420px] items-center gap-[8px] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-soft)] px-[12px] py-[8px] text-[13px] text-[var(--text-tertiary)] transition-colors focus-within:border-[var(--accent)] focus-within:bg-[var(--surface)]">
+      <div className="flex flex-1 max-w-[420px] items-center gap-[8px] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-soft)] px-[10px] sm:px-[12px] py-[8px] text-[13px] text-[var(--text-tertiary)] transition-colors focus-within:border-[var(--accent)] focus-within:bg-[var(--surface)]">
         <Search className="h-[15px] w-[15px] shrink-0 text-[var(--text-tertiary)]" />
         <input
           type="text"
-          placeholder="Search products, orders, customers..."
-          className="w-full bg-transparent text-[13px] text-[var(--text)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
+          placeholder="Search products, orders..."
+          className="w-full bg-transparent text-[13px] text-[var(--text)] placeholder:text-[var(--text-tertiary)] focus:outline-none min-w-0"
         />
-        <kbd className="font-mono text-[10.5px] rounded-[5px] border border-[var(--border)] bg-[var(--surface)] px-[5px] py-[1px] text-[var(--text-tertiary)]">
+        <kbd className="hidden sm:inline-block font-mono text-[10.5px] rounded-[5px] border border-[var(--border)] bg-[var(--surface)] px-[5px] py-[1px] text-[var(--text-tertiary)] shrink-0">
           ⌘K
         </kbd>
       </div>
 
       {/* Topbar Actions / Logout */}
-      <div className="ml-auto flex items-center">
+      <div className="ml-auto flex items-center shrink-0">
         <button
           type="button"
           onClick={logout}
-          className="flex items-center gap-[7px] rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-[7px] text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]"
+          className="flex items-center gap-[7px] rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 sm:px-3 py-[7px] text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]"
         >
           <LogOut className="h-[15px] w-[15px] text-[var(--text-secondary)]" />
           <span className="hidden sm:inline">Log out</span>
