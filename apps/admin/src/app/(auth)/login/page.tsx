@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import AuthHeader from '../components/auth/AuthHeader';
-import AuthCard from '../components/auth/AuthCard';
-import LoginForm from '../components/auth/LoginForm';
-import { useAuth } from '../provider/authProvider';
+import AuthHeader from '../../../components/auth/AuthHeader';
+import AuthCard from '../../../components/auth/AuthCard';
+import LoginForm from '../../../components/auth/LoginForm';
+import { useAuth } from '../../../provider/authProvider';
 import { LogOut, User, ShieldCheck } from 'lucide-react';
 
-export default function Page() {
+export default function LoginPage() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
 
   if (isLoading) {

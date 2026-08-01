@@ -10,6 +10,7 @@
     "check-types": "turbo run check-types",
     "db:generate": "pnpm --filter @shop-ai/database db:generate",
     "db:push": "pnpm --filter @shop-ai/database db:push",
+    "db:seed": "pnpm --filter @shop-ai/database db:seed",
     "db:studio": "pnpm --filter @shop-ai/database db:studio"
   },
   "devDependencies": {
