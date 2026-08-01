@@ -2,32 +2,24 @@
 
 import React from 'react';
 import { Download, Plus } from 'lucide-react';
-import { useAuth } from '../../../../../provider/authProvider';
 
 export interface DashboardHeaderProps {
-  userName?: string;
   storeName?: string;
   onExport?: () => void;
   onNewProduct?: () => void;
 }
 
 export default function DashboardHeader({
-  userName,
   storeName = 'Atelier',
   onExport,
   onNewProduct,
 }: DashboardHeaderProps) {
-  const { user } = useAuth();
-  const currentUserName = userName || user?.name;
-
-  // Determine greeting based on current time of day
+  // Determine greeting based on current time of day without user name
   const getGreeting = () => {
     const hour = new Date().getHours();
-    let timeGreeting = 'Good afternoon';
-    if (hour < 12) timeGreeting = 'Good morning';
-    else if (hour >= 18) timeGreeting = 'Good evening';
-
-    return currentUserName ? `${timeGreeting}, ${currentUserName}` : timeGreeting;
+    if (hour < 12) return 'Good morning';
+    if (hour >= 18) return 'Good evening';
+    return 'Good afternoon';
   };
 
   // Format today's date dynamically (e.g. "Aug 1")
