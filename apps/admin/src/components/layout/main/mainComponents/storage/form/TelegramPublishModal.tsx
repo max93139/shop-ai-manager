@@ -71,18 +71,19 @@ export default function TelegramPublishModal({
         body: JSON.stringify(payload),
       });
 
-      if (res.ok || res.status === 404 || res.status === 201) {
+      const data = await res.json();
+
+      if (res.ok && data.success !== false) {
         setIsPublished(true);
         setTimeout(() => {
           onClose();
         }, 1800);
+      } else {
+        alert(data.message || 'Telegram broadcast failed. Please check bot admin permissions in the channel.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error publishing to Telegram:', err);
-      setIsPublished(true);
-      setTimeout(() => {
-        onClose();
-      }, 1800);
+      alert(err.message || 'Network error publishing to Telegram');
     } finally {
       setIsPublishing(false);
     }
