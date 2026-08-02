@@ -63,6 +63,32 @@ export default function Storage() {
     }
   };
 
+  const convertBlobToBase64 = async (url: string): Promise<string> => {
+    if (url.startsWith('data:')) return url;
+    if (!url.startsWith('blob:')) return url;
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise<string>((resolve, reject) => {
+      const img = new window.Image();
+      const imgUrl = URL.createObjectURL(blob);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+        const MAX = 800;
+        if (w > h && w > MAX) { h *= MAX / w; w = MAX; }
+        else if (h > MAX) { w *= MAX / h; h = MAX; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(imgUrl);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.onerror = () => { URL.revokeObjectURL(imgUrl); reject(new Error('img load fail')); };
+      img.src = imgUrl;
+    });
+  };
+
   const handleSaveProduct = async (formData: any) => {
     try {
       setSaving(true);
@@ -73,11 +99,30 @@ export default function Storage() {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
+      // Convert blob images to base64 before sending
+      let images: string[] = [];
+      if (formData.imageUrls && formData.imageUrls.length > 0) {
+        images = await Promise.all(
+          formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
+        );
+      }
+
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        brand: formData.brand,
+        price: formData.price,
+        selectedSizes: formData.selectedSizes,
+        selectedColors: formData.selectedColors,
+        colorStocks: formData.colorStocks,
+        images,
+      };
+
       const res = await fetch(`${apiUrl}/products`, {
         method: 'POST',
         headers,
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {

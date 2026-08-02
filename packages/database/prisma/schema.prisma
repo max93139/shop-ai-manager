@@ -53,6 +53,7 @@ model Product {
   name        String
   slug        String           @unique
   description String?
+  images      String[]         @default([])
   categoryId  String
   category    Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   variants    ProductVariant[]

@@ -10,6 +10,7 @@ export interface CreateProductDto {
   selectedColors?: string[];
   colorStocks?: Record<string, number>;
   inStock?: string | number;
+  images?: string[];
 }
 
 export interface ProductsQueryDto {
@@ -149,6 +150,7 @@ export class ProductsService {
         stock: v.stock,
         price: Number(v.price),
         status,
+        images: v.product.images || [],
         createdAt: v.createdAt,
       };
     });
@@ -249,6 +251,7 @@ export class ProductsService {
         slug,
         categoryId: category.id,
         description: dto.brand ? `Brand: ${dto.brand}` : undefined,
+        images: dto.images || [],
       },
     });
 

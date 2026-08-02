@@ -100,44 +100,89 @@ function TableSkeleton() {
   );
 }
 
+/* ─── Product image thumbnail ─── */
+function ProductImage({ images, name }: { images: string[]; name: string }) {
+  const src = images?.[0];
+  if (!src) {
+    return (
+      <div className="flex items-center justify-center bg-[var(--surface-sunken)] rounded-[10px] w-full aspect-[4/3] text-[var(--text-tertiary)]">
+        <Package className="h-8 w-8" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="w-full aspect-[4/3] object-cover rounded-[10px] bg-[var(--surface-sunken)]"
+      loading="lazy"
+    />
+  );
+}
+
+/* ─── Small thumbnail for table rows ─── */
+function ProductThumb({ images, name }: { images: string[]; name: string }) {
+  const src = images?.[0];
+  if (!src) {
+    return (
+      <div className="flex items-center justify-center bg-[var(--surface-sunken)] rounded-[8px] h-10 w-10 shrink-0 text-[var(--text-tertiary)]">
+        <Package className="h-4 w-4" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="h-10 w-10 object-cover rounded-[8px] bg-[var(--surface-sunken)] shrink-0"
+      loading="lazy"
+    />
+  );
+}
+
 /* ─── Grid card ─── */
 function ProductCard({ item }: { item: ProductItem }) {
   return (
-    <div className="flex flex-col rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex flex-col min-w-0">
-          <span className="text-[14px] font-semibold text-[var(--text)] truncate">{item.name}</span>
-          <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
-        </div>
-        <StatusBadge status={item.status} />
-      </div>
+    <div className="flex flex-col rounded-[14px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+      {/* Product Image */}
+      <ProductImage images={item.images} name={item.name} />
 
-      <div className="flex items-center gap-2 mb-2.5">
-        <ColorSwatch color={item.color} />
-        <span className="text-[13px] text-[var(--text-secondary)]">{item.color}</span>
-        <span className="text-[var(--text-tertiary)]">·</span>
-        <span className="text-[13px] text-[var(--text-secondary)]">{item.size}</span>
-      </div>
-
-      <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)]">
-        <div className="flex flex-col">
-          <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Stock</span>
-          <span className="text-[14px] font-bold text-[var(--text)]">{item.stock}</span>
+      <div className="flex flex-col p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex flex-col min-w-0 flex-1 mr-2">
+            <span className="text-[14px] font-semibold text-[var(--text)] truncate">{item.name}</span>
+            <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
+          </div>
+          <StatusBadge status={item.status} />
         </div>
-        <div className="flex flex-col items-end">
-          <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Price</span>
-          <span className="text-[14px] font-bold text-[var(--text)]">${item.price}</span>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-[var(--border)]">
-        {item.brand && (
-          <>
-            <span className="text-[12px] text-[var(--text-secondary)] font-medium">{item.brand}</span>
-            <span className="text-[var(--text-tertiary)]">·</span>
-          </>
-        )}
-        <span className="text-[12px] text-[var(--text-secondary)]">{item.category}</span>
+        <div className="flex items-center gap-2 mb-2.5">
+          <ColorSwatch color={item.color} />
+          <span className="text-[13px] text-[var(--text-secondary)]">{item.color}</span>
+          <span className="text-[var(--text-tertiary)]">·</span>
+          <span className="text-[13px] text-[var(--text-secondary)]">{item.size}</span>
+        </div>
+
+        <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)]">
+          <div className="flex flex-col">
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Stock</span>
+            <span className="text-[14px] font-bold text-[var(--text)]">{item.stock}</span>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Price</span>
+            <span className="text-[14px] font-bold text-[var(--text)]">${item.price}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-[var(--border)]">
+          {item.brand && (
+            <>
+              <span className="text-[12px] text-[var(--text-secondary)] font-medium">{item.brand}</span>
+              <span className="text-[var(--text-tertiary)]">·</span>
+            </>
+          )}
+          <span className="text-[12px] text-[var(--text-secondary)]">{item.category}</span>
+        </div>
       </div>
     </div>
   );
@@ -228,11 +273,14 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                   <input type="checkbox" className="rounded border-[var(--border-strong)] accent-[var(--accent)]" />
                 </td>
 
-                {/* Product name + SKU */}
+                {/* Product image + name + SKU */}
                 <td className="py-3.5 pl-3">
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-[var(--text)] truncate max-w-[200px]">{item.name}</span>
-                    <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
+                  <div className="flex items-center gap-3">
+                    <ProductThumb images={item.images} name={item.name} />
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-[var(--text)] truncate max-w-[200px]">{item.name}</span>
+                      <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
+                    </div>
                   </div>
                 </td>
 

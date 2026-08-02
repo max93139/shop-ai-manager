@@ -13,6 +13,7 @@ export interface ProductItem {
   stock: number;
   price: number;
   status: 'active' | 'low_stock' | 'out_of_stock';
+  images: string[];
   createdAt: string;
 }
 
