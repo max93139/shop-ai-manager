@@ -61,10 +61,37 @@ export default function TelegramPublishModal({
         if (targetImg.startsWith('blob:')) {
           const blobRes = await fetch(targetImg);
           const blob = await blobRes.blob();
-          photoBase64 = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(blob);
+          photoBase64 = await new Promise<string>((resolve, reject) => {
+            const img = new Image();
+            const imgUrl = URL.createObjectURL(blob);
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              const MAX_SIZE = 1280;
+
+              if (width > height && width > MAX_SIZE) {
+                height *= MAX_SIZE / width;
+                width = MAX_SIZE;
+              } else if (height > MAX_SIZE) {
+                width *= MAX_SIZE / height;
+                height = MAX_SIZE;
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(img, 0, 0, width, height);
+              
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+              URL.revokeObjectURL(imgUrl);
+              resolve(dataUrl);
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(imgUrl);
+              reject(new Error('Failed to load image for compression'));
+            };
+            img.src = imgUrl;
           });
         } else if (targetImg.startsWith('data:')) {
           photoBase64 = targetImg;

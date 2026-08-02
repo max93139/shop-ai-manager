@@ -4,6 +4,7 @@ import path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 // Load env files from local and root workspace
@@ -14,6 +15,9 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
+  
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
