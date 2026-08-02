@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   UseGuards,
@@ -13,6 +14,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('telegram')
 export class TelegramController {
   constructor(private readonly telegramService: TelegramService) {}
+
+  @Get('stats')
+  @UseGuards(JwtAuthGuard)
+  async getStats() {
+    return this.telegramService.getBotStats();
+  }
 
   @Post('broadcast')
   @UseGuards(JwtAuthGuard)

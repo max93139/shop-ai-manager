@@ -10,70 +10,59 @@ import {
   type RecentOrderItem,
 } from './mainComponents/telegramBot';
 
+export interface TelegramBotData {
+  botStatus: {
+    handle: string;
+    uptime: string;
+    messagesToday: number;
+    activeChats: number;
+    isOnline: boolean;
+  };
+  connectedChannel: {
+    name: string;
+    handle: string;
+    subscribersCount: string;
+    isConnected: boolean;
+  };
+  queueStatus: {
+    pendingPosts: number;
+    scheduledToday: number;
+    failedCount: number;
+  };
+  recentOrders: RecentOrderItem[];
+}
+
 export default function TelegramBot() {
-  const [recentOrders, setRecentOrders] = useState<RecentOrderItem[]>([]);
+  const [data, setData] = useState<TelegramBotData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async () => {
+    const fetchBotData = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
-        const [ordersRes, productsRes] = await Promise.all([
-          fetch(`${apiUrl}/orders/stats`, { headers, credentials: 'include' }),
-          fetch(`${apiUrl}/products?limit=5`, { headers, credentials: 'include' }),
-        ]);
+        const res = await fetch(`${apiUrl}/telegram/stats`, {
+          method: 'GET',
+          headers,
+          credentials: 'include',
+        });
 
-        let fetchedProducts: any[] = [];
-        if (productsRes.ok) {
-          const prodData = await productsRes.json();
-          fetchedProducts = prodData.products || [];
-        }
-
-        if (ordersRes.ok) {
-          const orderData = await ordersRes.json();
-          const latest = orderData.latestOrders || [];
-
-          if (latest.length > 0) {
-            const mapped: RecentOrderItem[] = latest.map((ord: any, idx: number) => {
-              const matchedProd = fetchedProducts[idx % Math.max(1, fetchedProducts.length)];
-              const timeLabels = ['15m ago', '2h ago', '5h ago', 'Yesterday', '2d ago'];
-              return {
-                id: ord.id || String(idx),
-                name: matchedProd?.name || `Order ${ord.orderNumber || idx + 1}`,
-                sku: matchedProd?.sku || `SKU-${1000 + idx}`,
-                timeAgo: timeLabels[idx % timeLabels.length],
-                price: ord.totalAmount || `$${matchedProd?.price || 120}`,
-                status: ord.paymentStatus === 'Paid' ? 'Paid' : 'Processing',
-                image: matchedProd?.images?.[0],
-              };
-            });
-            if (isMounted) setRecentOrders(mapped);
-          } else if (fetchedProducts.length > 0) {
-            const mapped: RecentOrderItem[] = fetchedProducts.map((p: any, idx: number) => ({
-              id: p.variantId || String(idx),
-              name: p.name,
-              sku: p.sku,
-              timeAgo: `${(idx + 1) * 2}h ago`,
-              price: `$${p.price}`,
-              status: 'Paid',
-              image: p.images?.[0],
-            }));
-            if (isMounted) setRecentOrders(mapped);
-          }
+        if (res.ok) {
+          const stats = await res.json();
+          if (isMounted) setData(stats);
         }
       } catch (err) {
-        console.error('Failed to fetch Telegram Bot dashboard data:', err);
+        console.error('Failed to fetch Telegram Bot stats from backend API:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchData();
+    fetchBotData();
 
     return () => {
       isMounted = false;
@@ -87,14 +76,34 @@ export default function TelegramBot() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (Status & Queue) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <BotStatusCard />
-          <ConnectedChannelCard />
-          <QueueStatusCard />
+          <BotStatusCard
+            handle={data?.botStatus?.handle}
+            uptime={data?.botStatus?.uptime}
+            messagesToday={data?.botStatus?.messagesToday}
+            activeChats={data?.botStatus?.activeChats}
+            isOnline={data?.botStatus?.isOnline}
+          />
+
+          <ConnectedChannelCard
+            channelName={data?.connectedChannel?.name}
+            channelHandle={data?.connectedChannel?.handle}
+            subscribersCount={data?.connectedChannel?.subscribersCount}
+            isConnected={data?.connectedChannel?.isConnected}
+          />
+
+          <QueueStatusCard
+            pendingPosts={data?.queueStatus?.pendingPosts}
+            scheduledToday={data?.queueStatus?.scheduledToday}
+            failedCount={data?.queueStatus?.failedCount}
+          />
         </div>
 
         {/* Right Column (Recent Ordered Products) */}
         <div className="lg:col-span-5 flex flex-col">
-          <RecentOrderedProductsCard orders={recentOrders} loading={loading} />
+          <RecentOrderedProductsCard
+            orders={data?.recentOrders || []}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
