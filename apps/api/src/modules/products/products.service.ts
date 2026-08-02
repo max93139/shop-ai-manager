@@ -296,7 +296,7 @@ export class ProductsService {
     });
   }
 
-  async updateVariantStock(variantId: string, stock: number) {
+  async updateVariant(variantId: string, dto: { stock?: number; price?: number }) {
     const variant = await prisma.productVariant.findUnique({
       where: { id: variantId },
     });
@@ -305,11 +305,17 @@ export class ProductsService {
       throw new BadRequestException('Product variant not found');
     }
 
-    const newStock = Math.max(0, Number(stock) || 0);
+    const dataToUpdate: any = {};
+    if (dto.stock !== undefined) {
+      dataToUpdate.stock = Math.max(0, Number(dto.stock) || 0);
+    }
+    if (dto.price !== undefined) {
+      dataToUpdate.price = Math.max(0, Number(dto.price) || 0);
+    }
 
     const updated = await prisma.productVariant.update({
       where: { id: variantId },
-      data: { stock: newStock },
+      data: dataToUpdate,
       include: {
         product: {
           include: {

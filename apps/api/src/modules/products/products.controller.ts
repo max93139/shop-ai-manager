@@ -30,13 +30,13 @@ export class ProductsController {
     return this.productsService.createProduct(dto);
   }
 
-  @Patch('variants/:id/stock')
+  @Patch('variants/:id')
   @UseGuards(JwtAuthGuard)
-  async updateVariantStock(
+  async updateVariant(
     @Param('id') id: string,
-    @Body('stock') stock: number,
+    @Body() dto: { stock?: number; price?: number },
   ) {
-    return this.productsService.updateVariantStock(id, stock);
+    return this.productsService.updateVariant(id, dto);
   }
 
   @Delete('variants/:id')

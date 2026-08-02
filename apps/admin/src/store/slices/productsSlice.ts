@@ -126,26 +126,28 @@ export const fetchFilterOptions = createAsyncThunk(
   },
 );
 
-export const updateVariantStock = createAsyncThunk(
-  'products/updateVariantStock',
-  async ({ variantId, stock }: { variantId: string; stock: number }) => {
+export const updateVariant = createAsyncThunk(
+  'products/updateVariant',
+  async ({ variantId, stock, price }: { variantId: string; stock?: number; price?: number }) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-    const res = await fetch(`${apiUrl}/products/variants/${variantId}/stock`, {
+    const res = await fetch(`${apiUrl}/products/variants/${variantId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       credentials: 'include',
-      body: JSON.stringify({ stock }),
+      body: JSON.stringify({ stock, price }),
     });
 
-    if (!res.ok) throw new Error('Failed to update variant stock');
+    if (!res.ok) throw new Error('Failed to update variant');
     return res.json() as Promise<ProductItem>;
   },
 );
+
+export const updateVariantStock = updateVariant;
 
 export const deleteVariant = createAsyncThunk(
   'products/deleteVariant',
@@ -210,7 +212,7 @@ export const productsSlice = createSlice({
       .addCase(fetchFilterOptions.rejected, (state) => {
         state.filtersLoading = false;
       })
-      .addCase(updateVariantStock.fulfilled, (state, action) => {
+      .addCase(updateVariant.fulfilled, (state, action) => {
         const updatedItem = action.payload;
         const index = state.items.findIndex((i) => i.variantId === updatedItem.variantId);
         if (index !== -1) {

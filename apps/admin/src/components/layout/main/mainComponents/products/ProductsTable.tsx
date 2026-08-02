@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Package, Trash2 } from 'lucide-react';
 import { useAppDispatch } from '../../../../../store';
 import {
+  updateVariant,
   updateVariantStock,
   deleteVariant,
   type ProductItem,
@@ -187,6 +188,58 @@ function StockControl({ item }: { item: ProductItem }) {
   );
 }
 
+/* ─── Interactive Price Control (click to edit / inline input) ─── */
+function PriceControl({ item }: { item: ProductItem }) {
+  const dispatch = useAppDispatch();
+  const [isEditing, setIsEditing] = useState(false);
+  const [val, setVal] = useState(String(item.price));
+
+  const handleSave = () => {
+    setIsEditing(false);
+    const parsed = parseFloat(val);
+    if (!isNaN(parsed) && parsed >= 0 && parsed !== item.price) {
+      dispatch(updateVariant({ variantId: item.variantId, price: parsed }));
+    } else {
+      setVal(String(item.price));
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-0.5">
+        <span className="text-[13px] font-bold text-[var(--text-secondary)]">$</span>
+        <input
+          type="number"
+          step="0.01"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSave();
+            }
+          }}
+          autoFocus
+          className="w-16 text-[13px] font-bold text-[var(--text)] bg-[var(--surface)] border border-[var(--accent)] rounded px-1.5 py-0.5 shadow-sm"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <span
+      onClick={() => {
+        setVal(String(item.price));
+        setIsEditing(true);
+      }}
+      className="cursor-pointer font-bold text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
+      title="Click to edit price"
+    >
+      ${item.price}
+    </span>
+  );
+}
+
 /* ─── Delete Button with Confirmation ─── */
 function DeleteButton({ variantId, productName }: { variantId: string; productName: string }) {
   const dispatch = useAppDispatch();
@@ -288,8 +341,8 @@ function ProductCard({ item }: { item: ProductItem }) {
             <StockControl item={item} />
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Price</span>
-            <span className="text-[14px] font-bold text-[var(--text)]">${item.price}</span>
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">Price</span>
+            <PriceControl item={item} />
           </div>
         </div>
 
@@ -427,8 +480,10 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                   <StockControl item={item} />
                 </td>
 
-                {/* Price */}
-                <td className="py-3.5 font-semibold text-[var(--text)]">${item.price}</td>
+                {/* Price - Interactive click to edit */}
+                <td className="py-3.5 font-semibold text-[var(--text)]">
+                  <PriceControl item={item} />
+                </td>
 
                 {/* Status */}
                 <td className="py-3.5">
