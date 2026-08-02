@@ -12,6 +12,19 @@ export interface CreateProductDto {
   inStock?: string | number;
 }
 
+export interface ProductsQueryDto {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  brand?: string;
+  color?: string;
+  size?: string;
+  status?: 'all' | 'active' | 'low_stock' | 'out_of_stock';
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
 @Injectable()
 export class ProductsService {
   async getStorageStats() {
@@ -30,6 +43,157 @@ export class ProductsService {
       totalItems,
       totalCategories,
       products,
+    };
+  }
+
+  async getProducts(query: ProductsQueryDto) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(query.limit) || 12));
+    const skip = (page - 1) * limit;
+
+    // Build WHERE clause for ProductVariant
+    const where: any = {};
+    const productWhere: any = {};
+
+    // Search by product name
+    if (query.search?.trim()) {
+      productWhere.name = { contains: query.search.trim(), mode: 'insensitive' };
+    }
+
+    // Category filter (by category name)
+    if (query.category?.trim()) {
+      productWhere.category = { name: { equals: query.category.trim(), mode: 'insensitive' } };
+    }
+
+    // Brand filter (stored in product.description as "Brand: XYZ")
+    if (query.brand?.trim()) {
+      productWhere.description = { contains: query.brand.trim(), mode: 'insensitive' };
+    }
+
+    if (Object.keys(productWhere).length > 0) {
+      where.product = productWhere;
+    }
+
+    // Color filter
+    if (query.color?.trim()) {
+      where.color = { equals: query.color.trim(), mode: 'insensitive' };
+    }
+
+    // Size filter
+    if (query.size?.trim()) {
+      where.size = { equals: query.size.trim(), mode: 'insensitive' };
+    }
+
+    // Status filter (by stock level)
+    if (query.status && query.status !== 'all') {
+      switch (query.status) {
+        case 'out_of_stock':
+          where.stock = { equals: 0 };
+          break;
+        case 'low_stock':
+          where.stock = { gt: 0, lte: 5 };
+          break;
+        case 'active':
+          where.stock = { gt: 5 };
+          break;
+      }
+    }
+
+    const [items, totalCount] = await Promise.all([
+      prisma.productVariant.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          product: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      }),
+      prisma.productVariant.count({ where }),
+    ]);
+
+    // Compute status counts for the tabs
+    const baseWhere = { ...where };
+    delete baseWhere.stock;
+
+    const [activeCount, lowStockCount, outOfStockCount] = await Promise.all([
+      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: 5 } } }),
+      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: 0, lte: 5 } } }),
+      prisma.productVariant.count({ where: { ...baseWhere, stock: { equals: 0 } } }),
+    ]);
+
+    const allCount = activeCount + lowStockCount + outOfStockCount;
+
+    // Map items to a flat structure for the frontend
+    const products = items.map((v) => {
+      const brandMatch = v.product.description?.match(/Brand:\s*(.+)/i);
+      const brand = brandMatch ? brandMatch[1].trim() : '';
+
+      let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
+      if (v.stock === 0) status = 'out_of_stock';
+      else if (v.stock <= 5) status = 'low_stock';
+
+      return {
+        variantId: v.id,
+        productId: v.product.id,
+        name: v.product.name,
+        sku: v.sku,
+        category: v.product.category.name,
+        brand,
+        color: v.color,
+        size: v.size,
+        stock: v.stock,
+        price: Number(v.price),
+        status,
+        createdAt: v.createdAt,
+      };
+    });
+
+    return {
+      products,
+      totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+      statusCounts: {
+        all: allCount,
+        active: activeCount,
+        low_stock: lowStockCount,
+        out_of_stock: outOfStockCount,
+      },
+    };
+  }
+
+  async getFilterOptions() {
+    const [categories, variants] = await Promise.all([
+      prisma.category.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
+      prisma.productVariant.findMany({
+        select: { color: true, size: true, product: { select: { description: true } } },
+      }),
+    ]);
+
+    const categoryNames = categories.map((c) => c.name);
+
+    const brands = new Set<string>();
+    const colors = new Set<string>();
+    const sizes = new Set<string>();
+
+    for (const v of variants) {
+      if (v.color && v.color !== 'Standard') colors.add(v.color);
+      if (v.size && v.size !== 'One size') sizes.add(v.size);
+      const brandMatch = v.product.description?.match(/Brand:\s*(.+)/i);
+      if (brandMatch) brands.add(brandMatch[1].trim());
+    }
+
+    return {
+      categories: categoryNames,
+      brands: Array.from(brands).sort(),
+      colors: Array.from(colors).sort(),
+      sizes: Array.from(sizes).sort(),
     };
   }
 

@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
-import { ProductsService, type CreateProductDto } from './products.service';
+import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { ProductsService, type CreateProductDto, type ProductsQueryDto } from './products.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('products')
@@ -10,6 +10,18 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   async getStats() {
     return this.productsService.getStorageStats();
+  }
+
+  @Get('filters')
+  @UseGuards(JwtAuthGuard)
+  async getFilterOptions() {
+    return this.productsService.getFilterOptions();
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getProducts(@Query() query: ProductsQueryDto) {
+    return this.productsService.getProducts(query);
   }
 
   @Post()
