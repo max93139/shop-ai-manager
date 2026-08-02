@@ -54,47 +54,49 @@ export default function TelegramPublishModal({
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-      const targetImg = imageUrls[selectedImageIndex];
-      let photoBase64: string | undefined = undefined;
+      const photosBase64: string[] = [];
 
-      if (targetImg) {
-        if (targetImg.startsWith('blob:')) {
-          const blobRes = await fetch(targetImg);
-          const blob = await blobRes.blob();
-          photoBase64 = await new Promise<string>((resolve, reject) => {
-            const img = new Image();
-            const imgUrl = URL.createObjectURL(blob);
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
-              const MAX_SIZE = 1280;
+      for (const targetImg of imageUrls.slice(0, 10)) {
+        if (targetImg) {
+          if (targetImg.startsWith('blob:')) {
+            const blobRes = await fetch(targetImg);
+            const blob = await blobRes.blob();
+            const b64 = await new Promise<string>((resolve, reject) => {
+              const img = new Image();
+              const imgUrl = URL.createObjectURL(blob);
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_SIZE = 1280;
 
-              if (width > height && width > MAX_SIZE) {
-                height *= MAX_SIZE / width;
-                width = MAX_SIZE;
-              } else if (height > MAX_SIZE) {
-                width *= MAX_SIZE / height;
-                height = MAX_SIZE;
-              }
+                if (width > height && width > MAX_SIZE) {
+                  height *= MAX_SIZE / width;
+                  width = MAX_SIZE;
+                } else if (height > MAX_SIZE) {
+                  width *= MAX_SIZE / height;
+                  height = MAX_SIZE;
+                }
 
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx?.drawImage(img, 0, 0, width, height);
-              
-              const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-              URL.revokeObjectURL(imgUrl);
-              resolve(dataUrl);
-            };
-            img.onerror = () => {
-              URL.revokeObjectURL(imgUrl);
-              reject(new Error('Failed to load image for compression'));
-            };
-            img.src = imgUrl;
-          });
-        } else if (targetImg.startsWith('data:')) {
-          photoBase64 = targetImg;
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                URL.revokeObjectURL(imgUrl);
+                resolve(dataUrl);
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(imgUrl);
+                reject(new Error('Failed to load image for compression'));
+              };
+              img.src = imgUrl;
+            });
+            photosBase64.push(b64);
+          } else if (targetImg.startsWith('data:')) {
+            photosBase64.push(targetImg);
+          }
         }
       }
 
@@ -107,8 +109,8 @@ export default function TelegramPublishModal({
         credentials: 'include',
         body: JSON.stringify({
           text: postText,
-          photoBase64,
-          imageUrl: !photoBase64 ? targetImg : undefined,
+          photosBase64: photosBase64.length > 0 ? photosBase64 : undefined,
+          imageUrl: photosBase64.length === 0 && imageUrls[0] ? imageUrls[0] : undefined,
         }),
       });
 
