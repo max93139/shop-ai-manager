@@ -295,4 +295,79 @@ export class ProductsService {
       },
     });
   }
+
+  async updateVariantStock(variantId: string, stock: number) {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!variant) {
+      throw new BadRequestException('Product variant not found');
+    }
+
+    const newStock = Math.max(0, Number(stock) || 0);
+
+    const updated = await prisma.productVariant.update({
+      where: { id: variantId },
+      data: { stock: newStock },
+      include: {
+        product: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    const brandMatch = updated.product.description?.match(/Brand:\s*(.+)/i);
+    const brand = brandMatch ? brandMatch[1].trim() : '';
+
+    let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
+    if (updated.stock === 0) status = 'out_of_stock';
+    else if (updated.stock <= 5) status = 'low_stock';
+
+    return {
+      variantId: updated.id,
+      productId: updated.product.id,
+      name: updated.product.name,
+      sku: updated.sku,
+      category: updated.product.category.name,
+      brand,
+      color: updated.color,
+      size: updated.size,
+      stock: updated.stock,
+      price: Number(updated.price),
+      status,
+      images: updated.product.images || [],
+      createdAt: updated.createdAt,
+    };
+  }
+
+  async deleteVariant(variantId: string) {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!variant) {
+      throw new BadRequestException('Product variant not found');
+    }
+
+    const productId = variant.productId;
+
+    await prisma.productVariant.delete({
+      where: { id: variantId },
+    });
+
+    const remainingCount = await prisma.productVariant.count({
+      where: { productId },
+    });
+
+    if (remainingCount === 0) {
+      await prisma.product.delete({
+        where: { id: productId },
+      });
+    }
+
+    return { success: true, variantId, productId };
+  }
 }

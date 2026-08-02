@@ -126,6 +126,44 @@ export const fetchFilterOptions = createAsyncThunk(
   },
 );
 
+export const updateVariantStock = createAsyncThunk(
+  'products/updateVariantStock',
+  async ({ variantId, stock }: { variantId: string; stock: number }) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+    const res = await fetch(`${apiUrl}/products/variants/${variantId}/stock`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify({ stock }),
+    });
+
+    if (!res.ok) throw new Error('Failed to update variant stock');
+    return res.json() as Promise<ProductItem>;
+  },
+);
+
+export const deleteVariant = createAsyncThunk(
+  'products/deleteVariant',
+  async (variantId: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+    const res = await fetch(`${apiUrl}/products/variants/${variantId}`, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+
+    if (!res.ok) throw new Error('Failed to delete variant');
+    return { variantId };
+  },
+);
+
 /* ─── Slice ─── */
 export const productsSlice = createSlice({
   name: 'products',
@@ -171,6 +209,18 @@ export const productsSlice = createSlice({
       })
       .addCase(fetchFilterOptions.rejected, (state) => {
         state.filtersLoading = false;
+      })
+      .addCase(updateVariantStock.fulfilled, (state, action) => {
+        const updatedItem = action.payload;
+        const index = state.items.findIndex((i) => i.variantId === updatedItem.variantId);
+        if (index !== -1) {
+          state.items[index] = updatedItem;
+        }
+      })
+      .addCase(deleteVariant.fulfilled, (state, action) => {
+        const deletedId = action.payload.variantId;
+        state.items = state.items.filter((i) => i.variantId !== deletedId);
+        state.totalCount = Math.max(0, state.totalCount - 1);
       });
   },
 });

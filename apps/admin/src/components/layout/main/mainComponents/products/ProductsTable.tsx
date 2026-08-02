@@ -1,8 +1,13 @@
 'use client';
 
-import React from 'react';
-import { Package } from 'lucide-react';
-import type { ProductItem } from '../../../../../store/slices/productsSlice';
+import React, { useState } from 'react';
+import { Package, Trash2 } from 'lucide-react';
+import { useAppDispatch } from '../../../../../store';
+import {
+  updateVariantStock,
+  deleteVariant,
+  type ProductItem,
+} from '../../../../../store/slices/productsSlice';
 
 export interface ProductsTableProps {
   items: ProductItem[];
@@ -74,32 +79,6 @@ function ColorSwatch({ color }: { color: string }) {
   );
 }
 
-/* ─── Skeleton rows ─── */
-function TableSkeleton() {
-  return (
-    <>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <tr key={i} className="animate-pulse">
-          <td className="py-3.5 pl-4"><div className="h-4 w-4 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5 pl-3">
-            <div className="flex flex-col gap-1.5">
-              <div className="h-4 w-28 rounded bg-[var(--border)]" />
-              <div className="h-3 w-20 rounded bg-[var(--surface-sunken)]" />
-            </div>
-          </td>
-          <td className="py-3.5"><div className="h-4 w-20 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-4 w-20 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-5 w-5 rounded-full bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-4 w-12 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-4 w-10 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-4 w-14 rounded bg-[var(--border)]" /></td>
-          <td className="py-3.5"><div className="h-5 w-16 rounded-full bg-[var(--border)]" /></td>
-        </tr>
-      ))}
-    </>
-  );
-}
-
 /* ─── Product image thumbnail ─── */
 function ProductImage({ images, name }: { images: string[]; name: string }) {
   const src = images?.[0];
@@ -140,6 +119,143 @@ function ProductThumb({ images, name }: { images: string[]; name: string }) {
   );
 }
 
+/* ─── Interactive Stock Control (+ / - / click edit) ─── */
+function StockControl({ item }: { item: ProductItem }) {
+  const dispatch = useAppDispatch();
+  const [isEditing, setIsEditing] = useState(false);
+  const [val, setVal] = useState(String(item.stock));
+
+  const handleUpdate = (newStock: number) => {
+    if (newStock < 0) return;
+    dispatch(updateVariantStock({ variantId: item.variantId, stock: newStock }));
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => handleUpdate(item.stock - 1)}
+        disabled={item.stock <= 0}
+        className="flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed"
+        title="Decrease stock"
+      >
+        -
+      </button>
+      {isEditing ? (
+        <input
+          type="number"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onBlur={() => {
+            setIsEditing(false);
+            const parsed = parseInt(val, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed !== item.stock) {
+              handleUpdate(parsed);
+            } else {
+              setVal(String(item.stock));
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          autoFocus
+          className="w-12 text-center text-[13px] font-bold text-[var(--text)] bg-[var(--surface)] border border-[var(--accent)] rounded px-1 py-0.5"
+        />
+      ) : (
+        <span
+          onClick={() => {
+            setVal(String(item.stock));
+            setIsEditing(true);
+          }}
+          className="cursor-pointer min-w-[24px] text-center font-bold text-[var(--text)] hover:underline"
+          title="Click to edit stock"
+        >
+          {item.stock}
+        </span>
+      )}
+      <button
+        type="button"
+        onClick={() => handleUpdate(item.stock + 1)}
+        className="flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]"
+        title="Increase stock"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
+/* ─── Delete Button with Confirmation ─── */
+function DeleteButton({ variantId, productName }: { variantId: string; productName: string }) {
+  const dispatch = useAppDispatch();
+  const [confirming, setConfirming] = useState(false);
+
+  const handleDelete = () => {
+    dispatch(deleteVariant(variantId));
+  };
+
+  if (confirming) {
+    return (
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="rounded bg-[#B84343] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
+        >
+          Delete
+        </button>
+        <button
+          type="button"
+          onClick={() => setConfirming(false)}
+          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setConfirming(true)}
+      className="p-1.5 text-[var(--text-tertiary)] transition-colors hover:text-[#B84343] rounded hover:bg-[var(--surface-soft)]"
+      title={`Delete ${productName}`}
+    >
+      <Trash2 className="h-4 w-4" />
+    </button>
+  );
+}
+
+/* ─── Skeleton rows ─── */
+function TableSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <tr key={i} className="animate-pulse">
+          <td className="py-3.5 pl-4"><div className="h-4 w-4 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5 pl-3">
+            <div className="flex flex-col gap-1.5">
+              <div className="h-4 w-28 rounded bg-[var(--border)]" />
+              <div className="h-3 w-20 rounded bg-[var(--surface-sunken)]" />
+            </div>
+          </td>
+          <td className="py-3.5"><div className="h-4 w-20 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-4 w-20 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-5 w-5 rounded-full bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-4 w-12 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-4 w-10 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-4 w-14 rounded bg-[var(--border)]" /></td>
+          <td className="py-3.5"><div className="h-5 w-16 rounded-full bg-[var(--border)]" /></td>
+          <td className="py-3.5 pr-4"><div className="h-4 w-6 rounded bg-[var(--border)] ml-auto" /></td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
 /* ─── Grid card ─── */
 function ProductCard({ item }: { item: ProductItem }) {
   return (
@@ -153,7 +269,10 @@ function ProductCard({ item }: { item: ProductItem }) {
             <span className="text-[14px] font-semibold text-[var(--text)] truncate">{item.name}</span>
             <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
           </div>
-          <StatusBadge status={item.status} />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <StatusBadge status={item.status} />
+            <DeleteButton variantId={item.variantId} productName={item.name} />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 mb-2.5">
@@ -165,8 +284,8 @@ function ProductCard({ item }: { item: ProductItem }) {
 
         <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)]">
           <div className="flex flex-col">
-            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Stock</span>
-            <span className="text-[14px] font-bold text-[var(--text)]">{item.stock}</span>
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">Stock</span>
+            <StockControl item={item} />
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold">Price</span>
@@ -194,7 +313,7 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-[180px] rounded-[14px] bg-[var(--surface-soft)] border border-[var(--border)]" />
+            <div key={i} className="h-[220px] rounded-[14px] bg-[var(--surface-soft)] border border-[var(--border)]" />
           ))}
         </div>
       );
@@ -203,7 +322,7 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
     return (
       <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.03)] overflow-hidden">
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
               <tr className="border-b border-[var(--border)] text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                 <th className="pb-3 pt-4 pl-4 w-10" />
@@ -214,7 +333,8 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                 <th className="pb-3 pt-4 font-bold">Size</th>
                 <th className="pb-3 pt-4 font-bold">Stock</th>
                 <th className="pb-3 pt-4 font-bold">Price</th>
-                <th className="pb-3 pt-4 pr-4 font-bold">Status</th>
+                <th className="pb-3 pt-4 font-bold">Status</th>
+                <th className="pb-3 pt-4 pr-4 font-bold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -249,7 +369,7 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.03)] overflow-hidden">
       <div className="overflow-x-auto no-scrollbar">
-        <table className="w-full text-left border-collapse min-w-[800px]">
+        <table className="w-full text-left border-collapse min-w-[850px]">
           <thead>
             <tr className="border-b border-[var(--border)] text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               <th className="pb-3 pt-4 pl-4 w-10">
@@ -262,7 +382,8 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
               <th className="pb-3 pt-4 font-bold">Size</th>
               <th className="pb-3 pt-4 font-bold">Stock</th>
               <th className="pb-3 pt-4 font-bold">Price</th>
-              <th className="pb-3 pt-4 pr-4 font-bold">Status</th>
+              <th className="pb-3 pt-4 font-bold">Status</th>
+              <th className="pb-3 pt-4 pr-4 font-bold text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)] text-[13.5px]">
@@ -301,15 +422,22 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                 {/* Size */}
                 <td className="py-3.5 text-[var(--text-secondary)]">{item.size}</td>
 
-                {/* Stock */}
-                <td className="py-3.5 font-semibold text-[var(--text)]">{item.stock}</td>
+                {/* Stock - Interactive +/- and click to edit */}
+                <td className="py-3.5 font-semibold text-[var(--text)]">
+                  <StockControl item={item} />
+                </td>
 
                 {/* Price */}
                 <td className="py-3.5 font-semibold text-[var(--text)]">${item.price}</td>
 
                 {/* Status */}
-                <td className="py-3.5 pr-4">
+                <td className="py-3.5">
                   <StatusBadge status={item.status} />
+                </td>
+
+                {/* Actions (Delete) */}
+                <td className="py-3.5 pr-4 text-right">
+                  <DeleteButton variantId={item.variantId} productName={item.name} />
                 </td>
               </tr>
             ))}
