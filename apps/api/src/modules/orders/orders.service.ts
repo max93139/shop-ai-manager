@@ -129,7 +129,7 @@ export class OrdersService {
 
     const latestOrders = rawOrders.map((ord, index) => {
       const shortId = (10482 - index).toString();
-      const customerName = ord.user?.name || 'Customer';
+      const customerName = ord.fullName || ord.user?.name || 'Customer';
       const formattedTotal = detailedCurrencyFormatter.format(Number(ord.totalAmount));
 
       let paymentStatus: 'Paid' | 'Pending' | 'Failed' = 'Paid';
@@ -145,6 +145,9 @@ export class OrdersService {
         id: ord.id,
         orderNumber: `#${shortId}`,
         customerName,
+        phone: ord.phone || undefined,
+        city: ord.city || undefined,
+        postOffice: ord.postOffice || undefined,
         totalAmount: formattedTotal,
         paymentStatus,
         fulfillmentStatus,
