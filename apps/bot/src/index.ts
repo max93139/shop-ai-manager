@@ -1,8 +1,10 @@
 import { Bot, session, Context, SessionFlavor, Keyboard, InlineKeyboard } from 'grammy';
 import dotenv from 'dotenv';
+import path from 'path';
 import { prisma } from '@shop-ai/database';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const token = process.env.TELEGRAM_BOT_TOKEN || '';
 
