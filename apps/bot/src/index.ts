@@ -2,6 +2,7 @@ import { Bot, session, Context, SessionFlavor, Keyboard, InlineKeyboard, InputFi
 import dotenv from 'dotenv';
 import path from 'path';
 import { prisma } from '@shop-ai/database';
+import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
@@ -25,7 +26,11 @@ export interface CheckoutData {
   fullName?: string;
   phone?: string;
   city?: string;
+  cityRef?: string;
   postOffice?: string;
+  warehouseRef?: string;
+  candidateCities?: { ref: string; present: string; mainDescription: string; area: string; deliveryCityRef: string }[];
+  candidateWarehouses?: { ref: string; number: string; description: string; shortAddress: string }[];
 }
 
 export type CheckoutStep =
@@ -884,27 +889,136 @@ bot.on('message:text', async (ctx) => {
     if (text.length < 2) {
       return ctx.reply('Будь ласка, введіть коректну назву міста (щонайменше 2 символи):');
     }
+
+    try {
+      const settlements = await searchNpSettlements(text, 5);
+      if (settlements.length > 0) {
+        ctx.session.checkoutData.candidateCities = settlements;
+        const keyboard = new InlineKeyboard();
+        settlements.forEach((s, idx) => {
+          const regionSuffix = s.area ? ` (${s.area} обл.)` : '';
+          keyboard.text(`📍 ${s.mainDescription}${regionSuffix}`.slice(0, 36), `np_c_${idx}`).row();
+        });
+        keyboard.text(`✍️ Залишити "${text}" як є`, 'np_c_manual').row();
+        keyboard.text('❌ Скасувати', 'cancel_order_final');
+
+        return ctx.reply(
+          `🏙 **Знайдено населені пункти Нової Пошти:**\n\n` +
+            `Оберіть ваше місто або підтвердіть введений текст:`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: keyboard,
+          },
+        );
+      }
+    } catch (err) {
+      console.error('Error querying Nova Poshta settlements:', err);
+    }
+
     ctx.session.checkoutData.city = text;
     ctx.session.checkoutStep = 'AWAITING_POST_OFFICE';
 
     return ctx.reply(
       `🚚 **Оформлення замовлення (Крок 4/4)**\n\n` +
-        `Введіть **номер або адресу відділення Нової Пошти**:\n` +
-        `_Приклад: Відділення №15 (вул. Хрещатик, 22)_`,
+        `Введіть **номер відділення або поштомату Нової Пошти**:\n` +
+        `_Приклад: 12 (або номер поштомату чи адресу)_`,
       { parse_mode: 'Markdown' },
     );
   }
 
   if (step === 'AWAITING_POST_OFFICE') {
-    if (text.length < 2) {
+    if (text.length < 1) {
       return ctx.reply('Будь ласка, введіть номер або адресу відділення:');
     }
+
+    const cityRefOrName = ctx.session.checkoutData.cityRef || ctx.session.checkoutData.city;
+    if (cityRefOrName) {
+      try {
+        const warehouses = await getNpWarehouses(cityRefOrName, text, 5);
+        if (warehouses.length > 0) {
+          ctx.session.checkoutData.candidateWarehouses = warehouses;
+          const keyboard = new InlineKeyboard();
+          warehouses.forEach((w, idx) => {
+            const label = `🏢 №${w.number}: ${w.shortAddress || w.description}`;
+            keyboard.text(label.slice(0, 36), `np_w_${idx}`).row();
+          });
+          keyboard.text(`✍️ Залишити "${text}" як є`, 'np_w_manual').row();
+          keyboard.text('❌ Скасувати', 'cancel_order_final');
+
+          return ctx.reply(
+            `📦 **Знайдено відділення Нової Пошти:**\n\n` +
+              `Оберіть відповідне відділення зі списку:`,
+            {
+              parse_mode: 'Markdown',
+              reply_markup: keyboard,
+            },
+          );
+        }
+      } catch (err) {
+        console.error('Error querying Nova Poshta warehouses:', err);
+      }
+    }
+
     ctx.session.checkoutData.postOffice = text;
     ctx.session.checkoutStep = 'AWAITING_CONFIRMATION';
 
     await sendOrderConfirmation(ctx);
     return;
   }
+});
+
+bot.callbackQuery(/^np_c_(\d+)$/, async (ctx) => {
+  await ctx.answerCallbackQuery();
+  const idx = parseInt(ctx.match[1], 10);
+  const candidate = ctx.session.checkoutData.candidateCities?.[idx];
+
+  if (candidate) {
+    ctx.session.checkoutData.city = candidate.present || candidate.mainDescription;
+    ctx.session.checkoutData.cityRef = candidate.deliveryCityRef || candidate.ref;
+  }
+
+  ctx.session.checkoutStep = 'AWAITING_POST_OFFICE';
+
+  const cityName = candidate?.mainDescription || ctx.session.checkoutData.city || '';
+  await ctx.reply(
+    `✅ Обрано місто: **${cityName}**\n\n` +
+      `🚚 **Оформлення замовлення (Крок 4/4)**\n\n` +
+      `Введіть **номер відділення або поштомату** у м. ${cityName}:\n` +
+      `_Приклад: 12 (або номер поштомату чи вулицю)_`,
+    { parse_mode: 'Markdown' },
+  );
+});
+
+bot.callbackQuery('np_c_manual', async (ctx) => {
+  await ctx.answerCallbackQuery();
+  ctx.session.checkoutStep = 'AWAITING_POST_OFFICE';
+
+  await ctx.reply(
+    `🚚 **Оформлення замовлення (Крок 4/4)**\n\n` +
+      `Введіть **номер або адресу відділення Нової Пошти**:\n` +
+      `_Приклад: Відділення №12_`,
+    { parse_mode: 'Markdown' },
+  );
+});
+
+bot.callbackQuery(/^np_w_(\d+)$/, async (ctx) => {
+  await ctx.answerCallbackQuery();
+  const idx = parseInt(ctx.match[1], 10);
+  const candidate = ctx.session.checkoutData.candidateWarehouses?.[idx];
+
+  if (candidate) {
+    ctx.session.checkoutData.postOffice = candidate.description;
+    ctx.session.checkoutData.warehouseRef = candidate.ref;
+  }
+
+  ctx.session.checkoutStep = 'AWAITING_CONFIRMATION';
+  await sendOrderConfirmation(ctx);
+});
+
+bot.callbackQuery('np_w_manual', async (ctx) => {
+  await ctx.answerCallbackQuery();
+  ctx.session.checkoutStep = 'AWAITING_CONFIRMATION';
+  await sendOrderConfirmation(ctx);
 });
 
 // Contact Handler for Phone Share
@@ -1023,6 +1137,8 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
             phone: checkoutData.phone,
             city: checkoutData.city,
             postOffice: checkoutData.postOffice,
+            deliveryCityRef: checkoutData.cityRef,
+            deliveryWarehouseRef: checkoutData.warehouseRef,
             items: {
               create: cart.map((i) => ({
                 variantId: i.variantId,
