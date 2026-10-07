@@ -9,11 +9,11 @@ import {
   Truck,
   AlertCircle,
   Phone,
-  MapPin,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 import type { AdminOrder, OrderStatus } from '@shop-ai/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrdersTableProps {
   orders: AdminOrder[];
@@ -36,42 +36,44 @@ export default function OrdersTable({
   onViewOrder,
   onUpdateStatus,
 }: OrdersTableProps) {
+  const { t } = useTranslation();
+
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case 'PENDING':
         return {
           bg: 'bg-[#FEF6E7] text-[#B87A00] border-[#FBE3B5]',
-          label: 'Pending',
+          label: t.orderStatusPending,
           icon: <Clock className="h-3 w-3" />,
         };
       case 'PAID':
         return {
           bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
-          label: 'Paid',
+          label: t.orderStatusPaid,
           icon: <CheckCircle2 className="h-3 w-3" />,
         };
       case 'PROCESSING':
         return {
           bg: 'bg-[#EBF2FC] text-[#1E60B5] border-[#C3DCF8]',
-          label: 'Processing',
+          label: t.orderStatusProcessing,
           icon: <Package className="h-3 w-3" />,
         };
       case 'SHIPPED':
         return {
           bg: 'bg-[#F2EDFB] text-[#6938B8] border-[#D9C8F5]',
-          label: 'Shipped',
+          label: t.orderStatusShipped,
           icon: <Truck className="h-3 w-3" />,
         };
       case 'DELIVERED':
         return {
           bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
-          label: 'Delivered',
+          label: t.orderStatusDelivered,
           icon: <CheckCircle2 className="h-3 w-3" />,
         };
       case 'CANCELLED':
         return {
           bg: 'bg-[#FBECEC] text-[#B84343] border-[#F5C4C4]',
-          label: 'Cancelled',
+          label: t.orderStatusCancelled,
           icon: <AlertCircle className="h-3 w-3" />,
         };
       default:
@@ -119,9 +121,9 @@ export default function OrdersTable({
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-soft)] text-[var(--text-tertiary)] mb-3">
           <Package className="h-7 w-7" />
         </div>
-        <h3 className="text-[16px] font-bold text-[var(--text)]">No orders found</h3>
+        <h3 className="text-[16px] font-bold text-[var(--text)]">{t.noOrdersFound}</h3>
         <p className="mt-1 text-[13px] text-[var(--text-secondary)] max-w-sm">
-          Orders placed by customers in the Telegram store will automatically appear here in real-time.
+          {t.noOrdersFoundSub}
         </p>
       </div>
     );
@@ -129,19 +131,19 @@ export default function OrdersTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Desktop Table View (Hidden on mobile) */}
+      {/* Desktop Table View */}
       <div className="hidden lg:block overflow-hidden rounded-[18px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.02)]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-              <th className="py-3.5 px-5">Order #</th>
-              <th className="py-3.5 px-4">Customer</th>
-              <th className="py-3.5 px-4">Delivery</th>
-              <th className="py-3.5 px-4">Items</th>
-              <th className="py-3.5 px-4">Date</th>
-              <th className="py-3.5 px-4">Total</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-5 text-right">Actions</th>
+              <th className="py-3.5 px-5">{t.thOrder}</th>
+              <th className="py-3.5 px-4">{t.thCustomer}</th>
+              <th className="py-3.5 px-4">{t.thDelivery}</th>
+              <th className="py-3.5 px-4">{t.thItems}</th>
+              <th className="py-3.5 px-4">{t.thDate}</th>
+              <th className="py-3.5 px-4">{t.thTotal}</th>
+              <th className="py-3.5 px-4">{t.thStatus}</th>
+              <th className="py-3.5 px-5 text-right">{t.thActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)] text-[13px]">
@@ -155,12 +157,10 @@ export default function OrdersTable({
                   className="transition-colors hover:bg-[var(--surface-soft)]/60 cursor-pointer"
                   onClick={() => onViewOrder(ord)}
                 >
-                  {/* Order Number */}
                   <td className="py-4 px-5 font-mono font-bold text-[var(--text)]">
                     {ord.orderNumber}
                   </td>
 
-                  {/* Customer */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col">
                       <span className="font-semibold text-[var(--text)]">
@@ -175,7 +175,6 @@ export default function OrdersTable({
                     </div>
                   </td>
 
-                  {/* Delivery Info */}
                   <td className="py-4 px-4">
                     <div className="flex flex-col max-w-[200px]">
                       <span className="font-medium text-[var(--text)] truncate">
@@ -198,7 +197,6 @@ export default function OrdersTable({
                     </div>
                   </td>
 
-                  {/* Items Preview */}
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-2">
                       {firstItem?.image ? (
@@ -217,39 +215,35 @@ export default function OrdersTable({
                           {firstItem?.productName || 'Item'}
                         </span>
                         <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                          {ord.itemsCount} pc{ord.itemsCount === 1 ? '' : 's'} ({ord.items.length} sku)
+                          {ord.itemsCount} {t.itemsCountSuffix} ({ord.items.length} sku)
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Date */}
                   <td className="py-4 px-4 text-[12px] text-[var(--text-secondary)] whitespace-nowrap">
                     {formatDate(ord.createdAt)}
                   </td>
 
-                  {/* Total */}
                   <td className="py-4 px-4 font-bold text-[var(--text)] whitespace-nowrap">
-                    {ord.totalAmount.toFixed(2)} ₴
+                    ₴{ord.totalAmount.toFixed(2)}
                   </td>
 
-                  {/* Status Dropdown / Badge */}
                   <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={ord.status}
                       onChange={(e) => onUpdateStatus(ord.id, e.target.value as OrderStatus)}
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold focus:outline-none cursor-pointer w-[110px] truncate ${badge.bg}`}
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold focus:outline-none cursor-pointer w-[120px] truncate ${badge.bg}`}
                     >
-                      <option value="PENDING">Pending</option>
-                      <option value="PAID">Paid</option>
-                      <option value="PROCESSING">Processing</option>
-                      <option value="SHIPPED">Shipped</option>
-                      <option value="DELIVERED">Delivered</option>
-                      <option value="CANCELLED">Cancelled</option>
+                      <option value="PENDING">{t.orderStatusPending}</option>
+                      <option value="PAID">{t.orderStatusPaid}</option>
+                      <option value="PROCESSING">{t.orderStatusProcessing}</option>
+                      <option value="SHIPPED">{t.orderStatusShipped}</option>
+                      <option value="DELIVERED">{t.orderStatusDelivered}</option>
+                      <option value="CANCELLED">{t.orderStatusCancelled}</option>
                     </select>
                   </td>
 
-                  {/* Actions */}
                   <td className="py-4 px-5 text-right" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
@@ -257,7 +251,7 @@ export default function OrdersTable({
                       className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all"
                     >
                       <Eye className="h-3.5 w-3.5 text-[var(--accent)]" />
-                      <span>Details</span>
+                      <span>{t.viewDetailsBtn}</span>
                     </button>
                   </td>
                 </tr>
@@ -267,7 +261,7 @@ export default function OrdersTable({
         </table>
       </div>
 
-      {/* Mobile & Tablet Card List View (Visible on screens < lg) */}
+      {/* Mobile & Tablet Card List View */}
       <div className="flex flex-col gap-3 lg:hidden">
         {orders.map((ord) => {
           const badge = getStatusBadge(ord.status);
@@ -293,19 +287,18 @@ export default function OrdersTable({
                   <select
                     value={ord.status}
                     onChange={(e) => onUpdateStatus(ord.id, e.target.value as OrderStatus)}
-                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold focus:outline-none w-[95px] truncate ${badge.bg}`}
+                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold focus:outline-none w-[110px] truncate ${badge.bg}`}
                   >
-                    <option value="PENDING">Pending</option>
-                    <option value="PAID">Paid</option>
-                    <option value="PROCESSING">Processing</option>
-                    <option value="SHIPPED">Shipped</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
+                    <option value="PENDING">{t.orderStatusPending}</option>
+                    <option value="PAID">{t.orderStatusPaid}</option>
+                    <option value="PROCESSING">{t.orderStatusProcessing}</option>
+                    <option value="SHIPPED">{t.orderStatusShipped}</option>
+                    <option value="DELIVERED">{t.orderStatusDelivered}</option>
+                    <option value="CANCELLED">{t.orderStatusCancelled}</option>
                   </select>
                 </div>
               </div>
 
-              {/* Customer & Location */}
               <div className="flex items-start justify-between text-[13px] gap-2">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[var(--text)]">
@@ -339,7 +332,6 @@ export default function OrdersTable({
                 </div>
               </div>
 
-              {/* Product preview & total price */}
               <div className="flex items-center justify-between border-t border-[var(--border)] pt-2.5">
                 <div className="flex items-center gap-2">
                   {firstItem?.image ? (
@@ -354,13 +346,13 @@ export default function OrdersTable({
                     </div>
                   )}
                   <span className="text-[12.5px] text-[var(--text-secondary)] font-medium">
-                    {ord.itemsCount} pc{ord.itemsCount === 1 ? '' : 's'} ({ord.items.length} items)
+                    {ord.itemsCount} {t.itemsCountSuffix} ({ord.items.length} sku)
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span className="font-['Fraunces',Georgia,serif] text-[16px] font-[650] text-[var(--text)]">
-                    {ord.totalAmount.toFixed(2)} ₴
+                    ₴{ord.totalAmount.toFixed(2)}
                   </span>
                   <button
                     type="button"
@@ -383,7 +375,7 @@ export default function OrdersTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 pt-2 text-[13px] text-[var(--text-secondary)]">
           <span>
-            Showing <strong>{orders.length}</strong> of <strong>{totalCount}</strong> orders
+            {t.showingPrefix} <strong>{orders.length}</strong> {t.showingOf} <strong>{totalCount}</strong>
           </span>
 
           <div className="flex items-center gap-2">
@@ -394,11 +386,11 @@ export default function OrdersTable({
               className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span>Previous</span>
+              <span>{t.btnPrevious}</span>
             </button>
 
             <span className="px-2 font-medium">
-              Page {page} of {totalPages}
+              {t.pageLabel} {page} {t.pageOf} {totalPages}
             </span>
 
             <button
@@ -407,7 +399,7 @@ export default function OrdersTable({
               onClick={() => onPageChange(page + 1)}
               className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
             >
-              <span>Next</span>
+              <span>{t.btnNext}</span>
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

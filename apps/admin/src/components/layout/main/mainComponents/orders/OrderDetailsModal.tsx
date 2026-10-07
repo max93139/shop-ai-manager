@@ -5,17 +5,16 @@ import {
   Package,
   User,
   Phone,
-  MapPin,
   Truck,
   Trash2,
   ExternalLink,
   CheckCircle2,
   Clock,
-  Send,
   AlertCircle,
 } from 'lucide-react';
 import BaseModal from '../../../../common/BaseModal';
 import { OrderStatus, type AdminOrder } from '@shop-ai/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrderDetailsModalProps {
   order: AdminOrder | null;
@@ -32,6 +31,7 @@ export default function OrderDetailsModal({
   onUpdateStatus,
   onDeleteOrder,
 }: OrderDetailsModalProps) {
+  const { t } = useTranslation();
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [ttnInput, setTtnInput] = useState(order?.ttn || '');
@@ -104,7 +104,7 @@ export default function OrderDetailsModal({
   };
 
   const handleDelete = async () => {
-    if (confirm(`Are you sure you want to delete order ${order.orderNumber}?`)) {
+    if (confirm(t.confirmDeleteOrder)) {
       try {
         setDeleting(true);
         await onDeleteOrder(order.id);
@@ -120,37 +120,37 @@ export default function OrderDetailsModal({
       case 'PENDING':
         return {
           bg: 'bg-[#FEF6E7] text-[#B87A00] border-[#FBE3B5]',
-          label: 'Pending',
+          label: t.orderStatusPending,
           icon: <Clock className="h-3.5 w-3.5" />,
         };
       case 'PAID':
         return {
           bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
-          label: 'Paid',
+          label: t.orderStatusPaid,
           icon: <CheckCircle2 className="h-3.5 w-3.5" />,
         };
       case 'PROCESSING':
         return {
           bg: 'bg-[#EBF2FC] text-[#1E60B5] border-[#C3DCF8]',
-          label: 'Processing',
+          label: t.orderStatusProcessing,
           icon: <Package className="h-3.5 w-3.5" />,
         };
       case 'SHIPPED':
         return {
           bg: 'bg-[#F2EDFB] text-[#6938B8] border-[#D9C8F5]',
-          label: 'Shipped',
+          label: t.orderStatusShipped,
           icon: <Truck className="h-3.5 w-3.5" />,
         };
       case 'DELIVERED':
         return {
           bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
-          label: 'Delivered',
+          label: t.orderStatusDelivered,
           icon: <CheckCircle2 className="h-3.5 w-3.5" />,
         };
       case 'CANCELLED':
         return {
           bg: 'bg-[#FBECEC] text-[#B84343] border-[#F5C4C4]',
-          label: 'Cancelled',
+          label: t.orderStatusCancelled,
           icon: <AlertCircle className="h-3.5 w-3.5" />,
         };
       default:
@@ -175,8 +175,8 @@ export default function OrderDetailsModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Order ${order.orderNumber}`}
-      description={`Created on ${formattedDate}`}
+      title={`${t.orderDetailsTitle}: ${order.orderNumber}`}
+      description={`${formattedDate}`}
       maxWidthClass="max-w-3xl"
     >
       <div className="flex flex-col gap-6 pt-2 select-none">
@@ -184,7 +184,7 @@ export default function OrderDetailsModal({
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
           <div className="flex items-center gap-2">
             <span className="text-[12.5px] font-semibold text-[var(--text-secondary)]">
-              Current Status:
+              {t.currentStatusLabel}
             </span>
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-0.5 text-[12px] font-bold ${badge.bg}`}
@@ -197,7 +197,7 @@ export default function OrderDetailsModal({
           {/* Quick status selector */}
           <div className="flex items-center gap-2">
             <span className="text-[12px] font-medium text-[var(--text-tertiary)]">
-              Change status:
+              {t.changeStatusLabel}
             </span>
             <select
               value={order.status}
@@ -205,12 +205,12 @@ export default function OrderDetailsModal({
               onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
               className="rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-50"
             >
-              <option value="PENDING">Pending</option>
-              <option value="PAID">Paid</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="SHIPPED">Shipped</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="CANCELLED">Cancelled</option>
+              <option value="PENDING">{t.orderStatusPending}</option>
+              <option value="PAID">{t.orderStatusPaid}</option>
+              <option value="PROCESSING">{t.orderStatusProcessing}</option>
+              <option value="SHIPPED">{t.orderStatusShipped}</option>
+              <option value="DELIVERED">{t.orderStatusDelivered}</option>
+              <option value="CANCELLED">{t.orderStatusCancelled}</option>
             </select>
           </div>
         </div>
@@ -221,18 +221,18 @@ export default function OrderDetailsModal({
           <div className="flex flex-col gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4">
             <div className="flex items-center gap-2 text-[13px] font-bold text-[var(--text)] border-b border-[var(--border)] pb-2">
               <User className="h-4 w-4 text-[var(--accent)]" />
-              <span>Customer Details</span>
+              <span>{t.customerDetailsTitle}</span>
             </div>
 
             <div className="flex flex-col gap-2 text-[13px]">
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Name:</span>
+                <span className="text-[var(--text-tertiary)]">{t.nameLabel}</span>
                 <span className="font-semibold text-[var(--text)]">{order.customerName}</span>
               </div>
 
               {order.phone && (
                 <div className="flex justify-between items-center">
-                  <span className="text-[var(--text-tertiary)]">Phone:</span>
+                  <span className="text-[var(--text-tertiary)]">{t.phoneLabel}:</span>
                   <a
                     href={`tel:${order.phone}`}
                     className="inline-flex items-center gap-1 font-semibold text-[var(--accent)] hover:underline"
@@ -258,22 +258,22 @@ export default function OrderDetailsModal({
           <div className="flex flex-col gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4">
             <div className="flex items-center gap-2 text-[13px] font-bold text-[var(--text)] border-b border-[var(--border)] pb-2">
               <Truck className="h-4 w-4 text-[var(--accent)]" />
-              <span>Delivery & Shipping</span>
+              <span>{t.deliveryTitle}</span>
             </div>
 
             <div className="flex flex-col gap-2 text-[13px]">
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">Carrier:</span>
+                <span className="text-[var(--text-tertiary)]">{t.carrierLabel}:</span>
                 <span className="font-semibold text-[var(--text)]">Нова Пошта (Nova Poshta)</span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[var(--text-tertiary)]">City:</span>
+                <span className="text-[var(--text-tertiary)]">{t.cityLabel}:</span>
                 <span className="font-semibold text-[var(--text)]">{order.city || '—'}</span>
               </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[var(--text-tertiary)] shrink-0">Branch:</span>
+                <span className="text-[var(--text-tertiary)] shrink-0">{t.warehouseLabel}:</span>
                 <span className="font-semibold text-[var(--text)] text-right max-w-[200px]">
                   {order.postOffice || '—'}
                 </span>
@@ -281,7 +281,7 @@ export default function OrderDetailsModal({
 
               <div className="flex flex-col gap-1.5 pt-2 border-t border-[var(--border)]">
                 <div className="flex justify-between items-center">
-                  <span className="text-[var(--text-tertiary)]">ТТН (Накладна):</span>
+                  <span className="text-[var(--text-tertiary)]">{t.ttnLabel}:</span>
                   {currentTtn ? (
                     <a
                       href={`https://tracking.novaposhta.ua/#/uk/cargo/${currentTtn}`}
@@ -294,7 +294,7 @@ export default function OrderDetailsModal({
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
-                    <span className="text-[12px] text-[var(--text-tertiary)]">Не згенеровано</span>
+                    <span className="text-[12px] text-[var(--text-tertiary)]">{t.notGeneratedText}</span>
                   )}
                 </div>
 
@@ -302,7 +302,7 @@ export default function OrderDetailsModal({
                   <div className="flex items-center gap-1.5 mt-1">
                     <input
                       type="text"
-                      placeholder="Введіть ТТН або натисніть Створити"
+                      placeholder={t.enterTtnPlaceholder}
                       value={ttnInput}
                       onChange={(e) => setTtnInput(e.target.value)}
                       className="flex-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-2.5 py-1 text-[12px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
@@ -313,7 +313,7 @@ export default function OrderDetailsModal({
                       onClick={handleSaveTtn}
                       className="rounded-[6px] bg-[var(--accent)] px-2.5 py-1 text-[11.5px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
-                      {isSavingTtn ? '...' : 'Зберегти'}
+                      {isSavingTtn ? '...' : t.saveBtn}
                     </button>
                     <button
                       type="button"
@@ -321,7 +321,7 @@ export default function OrderDetailsModal({
                       onClick={handleGenerateTtn}
                       className="rounded-[6px] border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] disabled:opacity-50"
                     >
-                      Створити
+                      {t.createBtn}
                     </button>
                   </div>
                 )}
@@ -333,9 +333,9 @@ export default function OrderDetailsModal({
         {/* Order Items Table */}
         <div className="flex flex-col gap-3">
           <h3 className="text-[14px] font-bold text-[var(--text)] flex items-center justify-between">
-            <span>Ordered Items ({order.itemsCount} pcs)</span>
+            <span>{t.orderedItemsSection} ({order.itemsCount} {t.itemsCountSuffix})</span>
             <span className="text-[12px] font-semibold text-[var(--text-tertiary)]">
-              {order.items.length} unique variant{order.items.length === 1 ? '' : 's'}
+              {order.items.length} {t.uniqueVariantsSuffix}
             </span>
           </h3>
 
@@ -367,9 +367,9 @@ export default function OrderDetailsModal({
                           {item.productName}
                         </span>
                         <div className="flex flex-wrap items-center gap-2 text-[12px] text-[var(--text-secondary)] mt-0.5">
-                          <span>Color: <strong>{item.color}</strong></span>
+                          <span>{t.colorLabel}: <strong>{item.color}</strong></span>
                           <span>•</span>
-                          <span>Size: <strong>{item.size}</strong></span>
+                          <span>{t.sizeLabel}: <strong>{item.size}</strong></span>
                           {item.sku && (
                             <>
                               <span>•</span>
@@ -384,10 +384,10 @@ export default function OrderDetailsModal({
 
                     <div className="flex items-center justify-between sm:justify-end gap-5 shrink-0 pl-15 sm:pl-0">
                       <span className="text-[12.5px] font-medium text-[var(--text-secondary)]">
-                        {item.quantity} × ${item.price.toFixed(2)}
+                        {item.quantity} × ₴{item.price.toFixed(2)}
                       </span>
                       <span className="text-[14px] font-bold text-[var(--text)] min-w-[70px] text-right">
-                        ${itemTotal.toFixed(2)}
+                        ₴{itemTotal.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -397,9 +397,9 @@ export default function OrderDetailsModal({
 
             {/* Total Footer */}
             <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)] p-4">
-              <span className="text-[14px] font-bold text-[var(--text)]">Total Amount:</span>
+              <span className="text-[14px] font-bold text-[var(--text)]">{t.totalAmountLabel}:</span>
               <span className="font-['Fraunces',Georgia,serif] text-[20px] font-[650] text-[var(--text)]">
-                ${order.totalAmount.toFixed(2)}
+                ₴{order.totalAmount.toFixed(2)}
               </span>
             </div>
           </div>
@@ -414,7 +414,7 @@ export default function OrderDetailsModal({
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[#F5C4C4] bg-[#FBECEC] px-3.5 py-2 text-[12.5px] font-semibold text-[#B84343] hover:bg-[#F8DADA] transition-all disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            <span>{deleting ? 'Deleting…' : 'Delete order'}</span>
+            <span>{deleting ? t.deletingText : t.deleteOrderBtn}</span>
           </button>
 
           <button
@@ -422,7 +422,7 @@ export default function OrderDetailsModal({
             onClick={onClose}
             className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[var(--accent-hover)] transition-all"
           >
-            Close
+            {t.closeBtn}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Search, X, Archive } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrdersFiltersProps {
   selectedStatus: string;
@@ -28,22 +29,22 @@ export default function OrdersFilters({
   searchQuery,
   onSearchChange,
 }: OrdersFiltersProps) {
+  const { t } = useTranslation();
+
   const tabs = [
-    { key: 'ACTIVE', label: 'Active orders', count: statusCounts.active ?? (statusCounts.pending + statusCounts.paid + statusCounts.processing + statusCounts.shipped) },
-    { key: 'PENDING', label: 'Pending', count: statusCounts.pending },
-    { key: 'PAID', label: 'Paid', count: statusCounts.paid },
-    { key: 'PROCESSING', label: 'Processing', count: statusCounts.processing },
-    { key: 'SHIPPED', label: 'Shipped', count: statusCounts.shipped },
-    { key: 'ARCHIVE', label: 'Archive', count: statusCounts.archive ?? (statusCounts.delivered + statusCounts.cancelled) },
-    { key: 'ALL', label: 'All orders', count: statusCounts.all },
+    { key: 'ACTIVE', label: t.tabActiveOrders, count: statusCounts.active ?? (statusCounts.pending + statusCounts.paid + statusCounts.processing + statusCounts.shipped) },
+    { key: 'PENDING', label: t.tabPending, count: statusCounts.pending },
+    { key: 'PAID', label: t.tabPaid, count: statusCounts.paid },
+    { key: 'PROCESSING', label: t.tabProcessing, count: statusCounts.processing },
+    { key: 'SHIPPED', label: t.tabShipped, count: statusCounts.shipped },
+    { key: 'ARCHIVE', label: t.tabArchive, count: statusCounts.archive ?? (statusCounts.delivered + statusCounts.cancelled) },
+    { key: 'ALL', label: t.tabAllOrders, count: statusCounts.all },
   ];
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Top row: Status Tabs & Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        {/* Status Scrollable Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {tabs.map((tab) => {
             const isSelected = selectedStatus === tab.key;
             const isArchive = tab.key === 'ARCHIVE';
@@ -77,14 +78,13 @@ export default function OrdersFilters({
           })}
         </div>
 
-        {/* Search input */}
         <div className="relative min-w-[240px] sm:min-w-[280px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by customer, phone, city, #ID…"
+            placeholder={t.searchOrdersPlaceholder}
             className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-8 text-[13px] text-[var(--text)] placeholder-[var(--text-tertiary)] focus:border-[var(--accent)] focus:outline-none transition-colors"
           />
           {searchQuery && (

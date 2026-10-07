@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { DollarSign, ShoppingBag, Clock, Archive } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrdersStatsProps {
   totalRevenue: number;
@@ -24,35 +25,37 @@ export default function OrdersStats({
   statusCounts,
   loading = false,
 }: OrdersStatsProps) {
+  const { t } = useTranslation();
+
   const activeCount = statusCounts.active ?? (statusCounts.pending + statusCounts.paid + statusCounts.processing + statusCounts.shipped);
   const archiveCount = statusCounts.archive ?? (statusCounts.delivered + statusCounts.cancelled);
 
   const cards = [
     {
-      title: 'Total Revenue',
+      title: t.totalRevenueTitle,
       value: `₴${totalRevenue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      subtitle: 'From all recorded sales',
+      subtitle: t.fromAllRecordedSales,
       icon: <DollarSign className="h-5 w-5 text-[#0F6B4F]" />,
       bgIcon: 'bg-[#E7F2ED]',
     },
     {
-      title: 'Active Orders',
+      title: t.activeOrdersTitle,
       value: activeCount.toString(),
-      subtitle: `${statusCounts.paid + statusCounts.processing + statusCounts.shipped} in fulfillment`,
+      subtitle: `${statusCounts.paid + statusCounts.processing + statusCounts.shipped} ${t.inFulfillmentSuffix}`,
       icon: <ShoppingBag className="h-5 w-5 text-[var(--accent)]" />,
       bgIcon: 'bg-[var(--accent-soft)]',
     },
     {
-      title: 'Pending Action',
+      title: t.pendingActionTitle,
       value: statusCounts.pending.toString(),
-      subtitle: 'Awaiting confirmation',
+      subtitle: t.awaitingConfirmationSubtitle,
       icon: <Clock className="h-5 w-5 text-[#B87A00]" />,
       bgIcon: 'bg-[#FEF6E7]',
     },
     {
-      title: 'Archived',
+      title: t.archivedTitle,
       value: archiveCount.toString(),
-      subtitle: `${statusCounts.delivered} delivered · ${statusCounts.cancelled} cancelled`,
+      subtitle: `${statusCounts.delivered} ${t.deliveredSuffix} · ${statusCounts.cancelled} ${t.cancelledSuffix}`,
       icon: <Archive className="h-5 w-5 text-[#4B5563]" />,
       bgIcon: 'bg-[#F3F4F6]',
     },
