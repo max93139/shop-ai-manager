@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
 import type { LatestOrderItem } from '@shop-ai/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface LatestOrdersProps {
   orders?: LatestOrderItem[];
@@ -11,6 +12,7 @@ export interface LatestOrdersProps {
 }
 
 export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
+  const { t } = useTranslation();
   const orderList = orders || [];
 
   const getPaymentBadge = (status: LatestOrderItem['paymentStatus']) => {
@@ -59,58 +61,49 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
 
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-      {/* Header: Title & Link */}
       <div className="flex items-center justify-between pb-5">
         <h2 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] tracking-[-0.01em] text-[var(--text)]">
-          Latest orders
+          {t.latestOrdersTitle}
         </h2>
         <Link
           href="/orders"
           className="group inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
         >
-          <span>View all</span>
+          <span>{t.viewAllBtn}</span>
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
         </Link>
       </div>
 
-      {/* Orders Table Container */}
       {orderList.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <ShoppingBag className="h-8 w-8 text-[var(--text-tertiary)] mb-2" />
-          <p className="text-[14px] font-medium text-[var(--text-secondary)]">No orders yet</p>
-          <p className="text-[12px] text-[var(--text-tertiary)]">Orders placed in store will appear here.</p>
+          <p className="text-[14px] font-medium text-[var(--text-secondary)]">{t.noOrdersYet}</p>
+          <p className="text-[12px] text-[var(--text-tertiary)]">{t.noOrdersYetSub}</p>
         </div>
       ) : (
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="border-b border-[var(--border)] text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-                <th className="pb-3 pl-1 font-bold">Order</th>
-                <th className="pb-3 font-bold">Customer</th>
-                <th className="pb-3 font-bold">Total</th>
-                <th className="pb-3 font-bold">Payment</th>
-                <th className="pb-3 pr-1 font-bold">Fulfillment</th>
+                <th className="pb-3 pl-1 font-bold">{t.thOrder}</th>
+                <th className="pb-3 font-bold">{t.thCustomer}</th>
+                <th className="pb-3 font-bold">{t.thTotal}</th>
+                <th className="pb-3 font-bold">{t.thPayment}</th>
+                <th className="pb-3 pr-1 font-bold">{t.thFulfillment}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)] text-[13.5px]">
               {orderList.map((order) => (
                 <tr key={order.id} className="transition-colors hover:bg-[var(--surface-soft)]">
-                  {/* Order ID */}
                   <td className="py-4 pl-1 font-mono font-bold text-[var(--text)]">
                     {order.orderNumber}
                   </td>
-
-                  {/* Customer */}
                   <td className="py-4 font-medium text-[var(--text)]">
                     {order.customerName}
                   </td>
-
-                  {/* Total */}
                   <td className="py-4 font-semibold text-[var(--text)]">
                     {order.totalAmount}
                   </td>
-
-                  {/* Payment Status */}
                   <td className="py-4">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${getPaymentBadge(
@@ -121,8 +114,6 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
                       {order.paymentStatus}
                     </span>
                   </td>
-
-                  {/* Fulfillment Status */}
                   <td className="py-4 pr-1">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${getFulfillmentBadge(

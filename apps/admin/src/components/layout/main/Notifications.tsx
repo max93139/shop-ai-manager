@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { StoreNotification } from '@shop-ai/types';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const initialNotifications: StoreNotification[] = [
   {
@@ -158,6 +159,8 @@ export default function Notifications() {
     );
   };
 
+  const { t, language } = useTranslation();
+
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[1100px] w-full mx-auto">
       {/* Header */}
@@ -165,16 +168,16 @@ export default function Notifications() {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
-              Notifications
+              {t.notificationsTitle}
             </h1>
             {unreadCount > 0 && (
               <span className="rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[12px] font-semibold text-white">
-                {unreadCount} new
+                {unreadCount} {language === 'uk' ? 'нових' : 'new'}
               </span>
             )}
           </div>
           <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
-            Operational activity, fulfillment updates, and stock alerts
+            {t.notificationsSubtitle}
           </p>
         </div>
 
@@ -187,7 +190,7 @@ export default function Notifications() {
               className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-medium text-[var(--text)] shadow-xs transition-colors hover:bg-[var(--surface-soft)]"
             >
               <Check className="h-4 w-4 text-[var(--accent)]" />
-              <span>Mark all as read</span>
+              <span>{t.markAllAsReadBtn}</span>
             </button>
           )}
 
@@ -198,7 +201,7 @@ export default function Notifications() {
               className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[13px] font-medium text-[var(--text-secondary)] shadow-xs transition-colors hover:text-[#B84343] hover:border-[#F7CDCD]"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Clear all</span>
+              <span className="hidden sm:inline">{t.clearReadBtn}</span>
             </button>
           )}
         </div>
@@ -207,11 +210,11 @@ export default function Notifications() {
       {/* Filter Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--border)]">
         {[
-          { key: 'all', label: 'All', count: notifications.length },
-          { key: 'unread', label: 'Unread', count: unreadCount },
-          { key: 'order', label: 'Orders', count: notifications.filter((n) => n.type === 'order').length },
-          { key: 'inventory', label: 'Inventory', count: notifications.filter((n) => n.type === 'inventory').length },
-          { key: 'system', label: 'System', count: notifications.filter((n) => n.type === 'system').length },
+          { key: 'all', label: t.filterAll, count: notifications.length },
+          { key: 'unread', label: t.filterUnread, count: unreadCount },
+          { key: 'order', label: t.filterOrders, count: notifications.filter((n) => n.type === 'order').length },
+          { key: 'inventory', label: t.filterInventory, count: notifications.filter((n) => n.type === 'inventory').length },
+          { key: 'system', label: t.filterSystem, count: notifications.filter((n) => n.type === 'system').length },
         ].map((tab) => {
           const isActive = filterType === tab.key;
           return (
@@ -247,10 +250,10 @@ export default function Notifications() {
             <CheckCircle2 className="h-6 w-6 text-[var(--accent)]" />
           </div>
           <h3 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-            No notifications in this filter
+            {t.noNotificationsTitle}
           </h3>
           <p className="text-[13px] text-[var(--text-secondary)] mt-1 max-w-[360px]">
-            You are fully up to date! System status and future store events will appear here automatically.
+            {t.noNotificationsDesc}
           </p>
         </div>
       ) : (

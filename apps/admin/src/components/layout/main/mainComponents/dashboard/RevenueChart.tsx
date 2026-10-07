@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { RevenueBarData } from '@shop-ai/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface RevenueChartProps {
   title?: string;
@@ -11,11 +12,13 @@ export interface RevenueChartProps {
 }
 
 export default function RevenueChart({
-  title = 'Revenue, last 7 days',
+  title,
   peakInfo,
   data,
   loading,
 }: RevenueChartProps) {
+  const { t } = useTranslation();
+  const displayTitle = title || t.revenueLast7Days;
   const bars = data || [];
   const maxValue = Math.max(...bars.map((b) => b.value), 1);
 
@@ -37,10 +40,9 @@ export default function RevenueChart({
 
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-      {/* Header: Title & Peak Summary */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-6">
         <h2 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] tracking-[-0.01em] text-[var(--text)]">
-          {title}
+          {displayTitle}
         </h2>
         {peakInfo && (
           <span className="text-[12.5px] sm:text-[13px] font-medium text-[var(--text-tertiary)]">
@@ -49,32 +51,24 @@ export default function RevenueChart({
         )}
       </div>
 
-      {/* Bar Chart Container */}
       <div className="flex h-[180px] sm:h-[200px] items-end justify-between gap-2.5 sm:gap-4 pt-2">
         {bars.map((bar) => {
           const heightPercent = maxValue > 0 ? Math.round((bar.value / maxValue) * 100) : 10;
 
           return (
             <div key={bar.day} className="group relative flex flex-1 flex-col items-center h-full justify-end">
-              {/* Tooltip on Hover */}
               <div className="pointer-events-none absolute -top-8 z-10 hidden rounded-[6px] bg-[var(--text)] px-2 py-1 text-[11px] font-medium text-white shadow-md group-hover:block transition-all">
-                {bar.formattedValue}
+                ₴{bar.value.toLocaleString('uk-UA')}
               </div>
-
-              {/* Bar Column */}
-              <div className="w-full flex-1 flex items-end justify-center">
-                <div
-                  style={{ height: `${Math.max(heightPercent, 8)}%` }}
-                  className={`w-full max-w-[42px] rounded-[10px] transition-all duration-300 group-hover:opacity-90 ${
-                    bar.isHighlight
-                      ? 'bg-[var(--accent)]'
-                      : 'bg-[#E7F2ED] group-hover:bg-[var(--accent-line)]'
-                  }`}
-                />
-              </div>
-
-              {/* Day Label */}
-              <span className="mt-3 text-[12px] font-medium text-[var(--text-tertiary)]">
+              <div
+                style={{ height: `${heightPercent}%` }}
+                className={`w-full max-w-[42px] rounded-t-[8px] transition-all duration-300 ${
+                  bar.isHighlight
+                    ? 'bg-[var(--accent)] shadow-sm'
+                    : 'bg-[var(--accent-soft)] hover:bg-[var(--accent)]/60'
+                }`}
+              />
+              <span className="mt-2 text-[12px] font-semibold text-[var(--text-secondary)]">
                 {bar.day}
               </span>
             </div>
