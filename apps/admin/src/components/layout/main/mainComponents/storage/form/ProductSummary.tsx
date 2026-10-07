@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductSummaryProps {
   selectedSizes: string[];
@@ -11,13 +12,14 @@ export default function ProductSummary({
   selectedSizes,
   selectedColors,
 }: ProductSummaryProps) {
+  const { t, formatVariantsCreated, translateColor } = useTranslation();
   const variantCount = Math.max(selectedSizes.length, 1) * Math.max(selectedColors.length, 1);
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-2">
-      <h2 className="text-[15px] font-bold text-[var(--text)]">Summary</h2>
+      <h2 className="text-[15px] font-bold text-[var(--text)]">{t.summaryTitle}</h2>
       <p className="text-[12px] text-[var(--text-tertiary)] mb-2">
-        Live preview of the variant matrix that will be generated.
+        {t.summarySubtitle}
       </p>
 
       <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed font-medium">
@@ -25,16 +27,16 @@ export default function ProductSummary({
           <strong>
             {selectedSizes.length > 0
               ? selectedSizes.join(' · ')
-              : '— no sizes selected —'}
+              : t.noSizesSelected}
           </strong>
         </div>
         <div>
           {selectedColors.length > 0
-            ? selectedColors.join(' · ')
-            : '— no colors selected —'}
+            ? selectedColors.map(translateColor).join(' · ')
+            : t.noColorsSelected}
         </div>
         <div className="mt-2 text-[12px] text-[var(--text-tertiary)] font-semibold">
-          {variantCount} variant{variantCount === 1 ? '' : 's'} will be created
+          {formatVariantsCreated(variantCount)}
         </div>
       </div>
     </div>

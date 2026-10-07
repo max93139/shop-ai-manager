@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductDetailsProps {
   name: string;
@@ -29,6 +30,7 @@ export default function ProductDetails({
   onPriceChange,
   onAddBrandOption,
 }: ProductDetailsProps) {
+  const { t, translateCategory } = useTranslation();
   const [brandQuery, setBrandQuery] = useState(brand);
   const [isBrandListOpen, setIsBrandListOpen] = useState(false);
 
@@ -49,23 +51,23 @@ export default function ProductDetails({
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-4">
-      <h2 className="text-[15px] font-bold text-[var(--text)]">Details</h2>
+      <h2 className="text-[15px] font-bold text-[var(--text)]">{t.detailsSection}</h2>
 
       {/* Product Name */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">Product name</label>
+        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.productNameLabel}</label>
         <input
           type="text"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="e.g. Wool Overcoat, Leather Belt, Wool Beanie"
+          placeholder={t.productNamePlaceholder}
           className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
         />
       </div>
 
       {/* Category */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">Category</label>
+        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.categoryLabel}</label>
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
@@ -73,7 +75,7 @@ export default function ProductDetails({
         >
           {categories.map((cat) => (
             <option key={cat} value={cat}>
-              {cat}
+              {translateCategory(cat)}
             </option>
           ))}
         </select>
@@ -81,7 +83,7 @@ export default function ProductDetails({
 
       {/* Brand Combobox */}
       <div className="flex flex-col gap-1.5 relative">
-        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">Brand</label>
+        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.brandLabel}</label>
         <input
           type="text"
           value={brandQuery}
@@ -91,7 +93,7 @@ export default function ProductDetails({
             onBrandChange(e.target.value);
             setIsBrandListOpen(true);
           }}
-          placeholder="Search or add a brand…"
+          placeholder={t.searchOrAddBrand}
           className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
         />
 
@@ -115,7 +117,7 @@ export default function ProductDetails({
                   onClick={() => handleAddBrand(brandQuery)}
                   className="px-3 py-2 text-[13px] font-semibold text-[var(--accent-hover)] hover:bg-[var(--surface-soft)] cursor-pointer border-t border-[var(--border)]"
                 >
-                  + Add "{brandQuery}" as new brand
+                  + {t.addBrandOption} "{brandQuery}"
                 </div>
               )}
           </div>
@@ -124,12 +126,12 @@ export default function ProductDetails({
 
       {/* Price */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">Price</label>
+        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.thPrice}</label>
         <input
           type="text"
           value={price}
           onChange={(e) => onPriceChange(e.target.value)}
-          placeholder="$0.00"
+          placeholder="0.00 ₴"
           className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
         />
       </div>

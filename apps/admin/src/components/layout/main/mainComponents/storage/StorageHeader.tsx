@@ -17,7 +17,7 @@ export default function StorageHeader({
   onExport,
   onAddItem,
 }: StorageHeaderProps) {
-  const { t } = useTranslation();
+  const { t, formatStorageSubtitle } = useTranslation();
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -26,7 +26,7 @@ export default function StorageHeader({
           {t.storageTitle}
         </h1>
         <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)]">
-          {totalItems} {t.storageSubtitleItems} {totalCategories} {t.storageSubtitleCategories}
+          {formatStorageSubtitle(totalItems, totalCategories)}
         </p>
       </div>
 

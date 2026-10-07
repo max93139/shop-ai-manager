@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import AddColorModal from './AddColorModal';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ColorOption {
   name: string;
@@ -27,27 +28,12 @@ export interface VariantBuilderProps {
   ) => void;
 }
 
-const PRODUCT_TYPES = [
-  { key: 'apparel', label: 'Apparel', sizeMode: 'clothing' },
-  { key: 'footwear', label: 'Footwear', sizeMode: 'shoe' },
-  { key: 'headwear', label: 'Headwear', sizeMode: 'onesize' },
-  { key: 'accessory', label: 'Accessories (belts, bags…)', sizeMode: 'onesize' },
-  { key: 'other', label: 'Other', sizeMode: 'custom' },
-];
-
 const SIZE_PRESETS: Record<string, string[]> = {
   clothing: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
   shoe: ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'],
   onesize: ['One size'],
   custom: [],
 };
-
-const SIZE_MODES = [
-  { key: 'clothing', label: 'Clothing (XS–XXL)' },
-  { key: 'shoe', label: 'Shoe size (EU)' },
-  { key: 'onesize', label: 'One size' },
-  { key: 'custom', label: 'Custom' },
-];
 
 export default function VariantBuilder({
   productType,
@@ -65,11 +51,26 @@ export default function VariantBuilder({
   onSelectedColorsChange,
   onSizeStocksChange,
 }: VariantBuilderProps) {
+  const { t, isUk, translateColor } = useTranslation();
   const [showAddSizeInput, setShowAddSizeInput] = useState(false);
   const [newSizeInput, setNewSizeInput] = useState('');
   const [bulkStockInput, setBulkStockInput] = useState('');
 
-  // Add Color Modal State
+  const productTypes = [
+    { key: 'apparel', label: isUk ? 'Одяг' : 'Apparel', sizeMode: 'clothing' },
+    { key: 'footwear', label: isUk ? 'Взуття' : 'Footwear', sizeMode: 'shoe' },
+    { key: 'headwear', label: isUk ? 'Головні убори' : 'Headwear', sizeMode: 'onesize' },
+    { key: 'accessory', label: isUk ? 'Аксесуари (ремені, сумки…)' : 'Accessories (belts, bags…)', sizeMode: 'onesize' },
+    { key: 'other', label: isUk ? 'Інше' : 'Other', sizeMode: 'custom' },
+  ];
+
+  const sizeModes = [
+    { key: 'clothing', label: isUk ? 'Одяг (XS–XXL)' : 'Clothing (XS–XXL)' },
+    { key: 'shoe', label: isUk ? 'Розмір взуття (EU)' : 'Shoe size (EU)' },
+    { key: 'onesize', label: isUk ? 'Один розмір' : 'One size' },
+    { key: 'custom', label: isUk ? 'Власний' : 'Custom' },
+  ];
+
   const [isAddColorModalOpen, setIsAddColorModalOpen] = useState(false);
 
   // Pointer / Drag Swipe Selection for Size Chips
@@ -246,12 +247,16 @@ export default function VariantBuilder({
 
       {/* Product Type */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)]">Product type</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)]">
+          {isUk ? 'Тип товару' : 'Product type'}
+        </h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Choosing a type sets a sensible size preset below — you can still edit it freely.
+          {isUk
+            ? 'Вибір типу встановлює шаблон розмірів — ви можете вільно редагувати його.'
+            : 'Choosing a type sets a sensible size preset below — you can still edit it freely.'}
         </p>
         <div className="flex flex-wrap gap-2">
-          {PRODUCT_TYPES.map((t) => (
+          {productTypes.map((t) => (
             <button
               key={t.key}
               type="button"
@@ -273,13 +278,17 @@ export default function VariantBuilder({
 
       {/* Sizes Section */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)] mb-1">Sizes</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)] mb-1">
+          {t.sizesSectionTitle}
+        </h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Pick a size format, then select or swipe across sizes to toggle multiple at once.
+          {isUk
+            ? 'Оберіть формат розмірів та натискайте або проводьте для вибору кількох.'
+            : 'Pick a size format, then select or swipe across sizes to toggle multiple at once.'}
         </p>
         {/* Segmented Control */}
         <div className="inline-flex rounded-[10px] bg-[var(--surface-sunken)] p-1 gap-1 mb-3.5 flex-wrap">
-          {SIZE_MODES.map((m) => (
+          {sizeModes.map((m) => (
             <button
               key={m.key}
               type="button"
@@ -305,7 +314,7 @@ export default function VariantBuilder({
               type="button"
               className="rounded-[8px] border border-[var(--accent)] bg-[var(--accent-soft)] px-3.5 py-2 text-[12.5px] font-semibold text-[var(--accent-hover)]"
             >
-              One size
+              {isUk ? 'Один розмір' : 'One size'}
             </button>
           ) : (
             <>
@@ -349,7 +358,7 @@ export default function VariantBuilder({
                 onClick={() => setShowAddSizeInput(!showAddSizeInput)}
                 className="rounded-[8px] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[12.5px] font-semibold text-[var(--text-tertiary)] hover:text-[var(--text)] hover:border-[var(--text-tertiary)]"
               >
-                + Add
+                {isUk ? '+ Додати' : '+ Add'}
               </button>
             </>
           )}
@@ -363,7 +372,7 @@ export default function VariantBuilder({
               value={newSizeInput}
               onChange={(e) => setNewSizeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSize()}
-              placeholder="e.g. 56 cm, Kids M, 3XL"
+              placeholder={isUk ? 'напр. 56 см, Kids M, 3XL' : 'e.g. 56 cm, Kids M, 3XL'}
               className="max-w-[200px] rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
             />
             <button
@@ -371,7 +380,7 @@ export default function VariantBuilder({
               onClick={handleAddCustomSize}
               className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)]"
             >
-              Add size
+              {t.addCustomSizeBtn}
             </button>
           </div>
         )}
@@ -382,9 +391,11 @@ export default function VariantBuilder({
 
       {/* Colors Section */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)]">Colors</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)]">{t.colorsSectionTitle}</h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Any color can be added — not limited to a fixed palette.
+          {isUk
+            ? 'Можна додати будь-який колір без обмежень палітри.'
+            : 'Any color can be added — not limited to a fixed palette.'}
         </p>
         <div className="flex flex-wrap gap-2.5 items-center">
           {colors.map((c) => {
@@ -405,7 +416,7 @@ export default function VariantBuilder({
                   className="h-4 w-4 rounded-full border border-black/15 shrink-0"
                   style={{ backgroundColor: c.hex }}
                 />
-                <span>{c.name}</span>
+                <span>{translateColor(c.name)}</span>
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
@@ -425,7 +436,7 @@ export default function VariantBuilder({
           onClick={() => setIsAddColorModalOpen(true)}
           className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--border-strong)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--text-tertiary)] hover:text-[var(--text)] hover:border-[var(--text-tertiary)] transition-colors"
         >
-          + Add color
+          {t.addColorBtn}
         </button>
       </div>
 
@@ -435,25 +446,27 @@ export default function VariantBuilder({
       {/* Inventory Section (Per-Size Stock Inputs) */}
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <h2 className="text-[15px] font-bold text-[var(--text)]">Stock by size</h2>
+          <h2 className="text-[15px] font-bold text-[var(--text)]">{t.stockPerSizeTitle}</h2>
           <span className="text-[12px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2.5 py-1 rounded-full">
-            Total: {totalStockSum} in stock
+            {isUk ? `Разом: ${totalStockSum} од. на складі` : `Total: ${totalStockSum} in stock`}
           </span>
         </div>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3.5">
-          Specify quantity in stock for each selected size.
+          {isUk
+            ? 'Вкажіть кількість в наявності для кожного обраного розміру.'
+            : 'Specify quantity in stock for each selected size.'}
         </p>
 
         {/* Quick Bulk Stock Fill Toolbar */}
         {effectiveSizes.length > 1 && (
           <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface-soft)] p-2.5">
             <span className="text-[12px] font-medium text-[var(--text-secondary)]">
-              Set all sizes to:
+              {isUk ? 'Встановити всім розмірам:' : 'Set all sizes to:'}
             </span>
             <input
               type="number"
               min="0"
-              placeholder="e.g. 5"
+              placeholder={isUk ? 'напр. 5' : 'e.g. 5'}
               value={bulkStockInput}
               onChange={(e) => setBulkStockInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyBulkStock()}
@@ -464,14 +477,16 @@ export default function VariantBuilder({
               onClick={handleApplyBulkStock}
               className="rounded-[6px] bg-[var(--accent)] px-3 py-1 text-[12px] font-semibold text-white hover:bg-[var(--accent-hover)] transition-all"
             >
-              Apply to all
+              {t.applyBtn}
             </button>
           </div>
         )}
 
         {effectiveSizes.length === 0 ? (
           <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 text-[13px] text-[var(--text-tertiary)]">
-            Select at least one size above to specify stock quantity.
+            {isUk
+              ? 'Оберіть хоча б один розмір вище, щоб вказати залишок.'
+              : 'Select at least one size above to specify stock quantity.'}
           </div>
         ) : selectedColors.length > 1 ? (
           /* Multi-color Matrix: Grouped by Selected Color */
@@ -491,7 +506,7 @@ export default function VariantBuilder({
                       style={{ backgroundColor: hexVal }}
                     />
                     <span className="text-[13px] font-bold text-[var(--text)]">
-                      {colorName}
+                      {translateColor(colorName)}
                     </span>
                   </div>
 
@@ -519,7 +534,7 @@ export default function VariantBuilder({
                               className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                             />
                             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
-                              pcs
+                              {isUk ? 'шт' : 'pcs'}
                             </span>
                           </div>
                         </div>
@@ -559,7 +574,7 @@ export default function VariantBuilder({
                       className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                     />
                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
-                      pcs
+                      {isUk ? 'шт' : 'pcs'}
                     </span>
                   </div>
                 </div>
