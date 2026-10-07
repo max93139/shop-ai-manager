@@ -112,3 +112,11 @@ model OrderItem {
 
   @@map("order_items")
 }
+
+model Session {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}

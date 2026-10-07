@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { prisma } from '@shop-ai/database';
 import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
+import { createPrismaSessionStorage } from './session-storage';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
@@ -52,7 +53,7 @@ export type MyContext = Context & SessionFlavor<SessionData>;
 
 const bot = new Bot<MyContext>(token);
 
-// Session Middleware
+// Session Middleware (PostgreSQL / Prisma Persistent Storage)
 bot.use(
   session({
     initial: (): SessionData => ({
@@ -60,6 +61,7 @@ bot.use(
       checkoutStep: 'IDLE',
       checkoutData: {},
     }),
+    storage: createPrismaSessionStorage<SessionData>(),
   }),
 );
 
