@@ -38,7 +38,7 @@ function StatusBadge({
   );
 }
 
-function ColorSwatch({ color }: { color: string }) {
+function ColorSwatch({ color, title }: { color: string; title?: string }) {
   const colorMap: Record<string, string> = {
     black: '#1a1a1a',
     white: '#f5f5f5',
@@ -79,7 +79,7 @@ function ColorSwatch({ color }: { color: string }) {
     <span
       className={`inline-block h-5 w-5 rounded-full shrink-0 ${isLight ? 'border border-[var(--border-strong)]' : 'border border-transparent'}`}
       style={{ backgroundColor: bg }}
-      title={color}
+      title={title || color}
     />
   );
 }
@@ -329,11 +329,11 @@ function TableSkeleton() {
 
 function ProductCard({
   item,
-  t,
 }: {
   item: ProductItem;
-  t: ReturnType<typeof useTranslation>['t'];
 }) {
+  const { t, translateCategory, translateColor } = useTranslation();
+
   const statusLabels = {
     active: t.statusActive,
     low_stock: t.statusLowStock,
@@ -369,8 +369,8 @@ function ProductCard({
         </div>
 
         <div className="flex items-center gap-2 mb-2.5">
-          <ColorSwatch color={item.color} />
-          <span className="text-[13px] text-[var(--text-secondary)]">{item.color}</span>
+          <ColorSwatch color={item.color} title={translateColor(item.color)} />
+          <span className="text-[13px] text-[var(--text-secondary)]">{translateColor(item.color)}</span>
           <span className="text-[var(--text-tertiary)]">·</span>
           <span className="text-[13px] text-[var(--text-secondary)]">{item.size}</span>
         </div>
@@ -397,7 +397,7 @@ function ProductCard({
               <span className="text-[var(--text-tertiary)]">·</span>
             </>
           )}
-          <span className="text-[12px] text-[var(--text-secondary)]">{item.category}</span>
+          <span className="text-[12px] text-[var(--text-secondary)]">{translateCategory(item.category)}</span>
         </div>
       </div>
     </div>
@@ -405,7 +405,7 @@ function ProductCard({
 }
 
 export default function ProductsTable({ items, loading, viewMode }: ProductsTableProps) {
-  const { t } = useTranslation();
+  const { t, translateCategory, translateColor } = useTranslation();
 
   const statusLabels = {
     active: t.statusActive,
@@ -477,7 +477,7 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((item) => (
-          <ProductCard key={item.variantId} item={item} t={t} />
+          <ProductCard key={item.variantId} item={item} />
         ))}
       </div>
     );
@@ -520,13 +520,13 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                   </div>
                 </td>
 
-                <td className="py-3.5 text-[var(--text-secondary)]">{item.category}</td>
+                <td className="py-3.5 text-[var(--text-secondary)]">{translateCategory(item.category)}</td>
                 <td className="py-3.5 text-[var(--text-secondary)]">{item.brand || '—'}</td>
 
                 <td className="py-3.5">
                   <div className="flex items-center gap-2">
-                    <ColorSwatch color={item.color} />
-                    <span className="text-[var(--text-secondary)] hidden lg:inline">{item.color}</span>
+                    <ColorSwatch color={item.color} title={translateColor(item.color)} />
+                    <span className="text-[var(--text-secondary)] hidden lg:inline">{translateColor(item.color)}</span>
                   </div>
                 </td>
 

@@ -19,11 +19,13 @@ function FilterSelect({
   label,
   value,
   options,
+  formatOption,
   onChange,
 }: {
   label: string;
   value: string;
   options: string[];
+  formatOption?: (opt: string) => string;
   onChange: (v: string) => void;
 }) {
   return (
@@ -36,7 +38,7 @@ function FilterSelect({
         <option value="">{label}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
-            {opt}
+            {formatOption ? formatOption(opt) : opt}
           </option>
         ))}
       </select>
@@ -87,7 +89,7 @@ export default function ProductsFilters({
   onResetFilters,
   onViewModeChange,
 }: ProductsFiltersProps) {
-  const { t } = useTranslation();
+  const { t, translateCategory, translateColor } = useTranslation();
   const [searchValue, setSearchValue] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -141,6 +143,7 @@ export default function ProductsFilters({
             label={t.allCategories}
             value={filters.category}
             options={filterOptions.categories}
+            formatOption={translateCategory}
             onChange={(v) => onFilterChange({ category: v })}
           />
           <FilterSelect
@@ -159,6 +162,7 @@ export default function ProductsFilters({
             label={t.allColors}
             value={filters.color}
             options={filterOptions.colors}
+            formatOption={translateColor}
             onChange={(v) => onFilterChange({ color: v })}
           />
 
