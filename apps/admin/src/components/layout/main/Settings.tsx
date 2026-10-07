@@ -15,8 +15,12 @@ import {
   Smartphone,
   Mail,
   Building,
+  Languages,
 } from 'lucide-react';
 import type { StoreSettings } from '@shop-ai/types';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import { setLanguage } from '../../../store/slices/uiSlice';
+import { translations } from '../../../utils/translations';
 
 const defaultSettings: StoreSettings = {
   storeName: 'Atelier Premium Clothing',
@@ -24,6 +28,7 @@ const defaultSettings: StoreSettings = {
   supportEmail: 'support@atelier-store.ua',
   currency: 'UAH',
   timezone: 'Europe/Kyiv (UTC+3)',
+  language: 'uk',
   telegramChannel: '@shop_channel',
   telegramBotTokenSet: true,
   autoPublishNewProducts: true,
@@ -34,7 +39,14 @@ const defaultSettings: StoreSettings = {
 };
 
 export default function Settings() {
-  const [settings, setSettings] = useState<StoreSettings>(defaultSettings);
+  const dispatch = useAppDispatch();
+  const currentLang = useAppSelector((state) => state.ui.language);
+  const t = translations[currentLang] || translations.uk;
+
+  const [settings, setSettings] = useState<StoreSettings>({
+    ...defaultSettings,
+    language: currentLang,
+  });
   const [activeTab, setActiveTab] = useState<'profile' | 'telegram' | 'inventory' | 'security'>('profile');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -51,12 +63,17 @@ export default function Settings() {
     const saved = localStorage.getItem('shop_manager_settings');
     if (saved) {
       try {
-        setSettings({ ...defaultSettings, ...JSON.parse(saved) });
+        const parsed = JSON.parse(saved);
+        const resolvedLang = parsed.language || currentLang;
+        setSettings({ ...defaultSettings, ...parsed, language: resolvedLang });
+        if (parsed.language && (parsed.language === 'uk' || parsed.language === 'en')) {
+          dispatch(setLanguage(parsed.language));
+        }
       } catch {
-        setSettings(defaultSettings);
+        setSettings({ ...defaultSettings, language: currentLang });
       }
     }
-  }, []);
+  }, [dispatch, currentLang]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -71,9 +88,13 @@ export default function Settings() {
 
     try {
       localStorage.setItem('shop_manager_settings', JSON.stringify(settings));
+      if (settings.language) {
+        localStorage.setItem('shop_manager_language', settings.language);
+        dispatch(setLanguage(settings.language));
+      }
       setTimeout(() => {
         setIsSaving(false);
-        showToast('Settings saved successfully!');
+        showToast(t.savedSuccess);
       }, 300);
     } catch (err) {
       setIsSaving(false);
@@ -84,15 +105,15 @@ export default function Settings() {
   const handlePasswordUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwords.newPassword || passwords.newPassword.length < 8) {
-      setPasswordError('New password must be at least 8 characters long');
+      setPasswordError(t.passwordMinLength);
       return;
     }
     if (passwords.newPassword !== passwords.confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError(t.passwordsMismatch);
       return;
     }
     setPasswordError(null);
-    showToast('Admin password updated successfully');
+    showToast(t.passwordUpdatedSuccess);
     setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 
@@ -110,10 +131,10 @@ export default function Settings() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
-            Store Settings
+            {t.storeSettingsTitle}
           </h1>
           <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
-            Store configuration, Telegram channel automation, inventory triggers, and security
+            {t.storeSettingsSubtitle}
           </p>
         </div>
 
@@ -124,17 +145,17 @@ export default function Settings() {
           className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-all hover:bg-[var(--accent-hover)] active:scale-[0.98] disabled:opacity-60"
         >
           <Save className="h-4 w-4" />
-          <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+          <span>{isSaving ? t.saving : t.saveChanges}</span>
         </button>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--border)]">
         {[
-          { key: 'profile', label: 'Store Profile', icon: Store },
-          { key: 'telegram', label: 'Telegram & Channels', icon: Send },
-          { key: 'inventory', label: 'Inventory & Alerts', icon: Bell },
-          { key: 'security', label: 'Security & Profile', icon: Shield },
+          { key: 'profile', label: t.tabProfile, icon: Store },
+          { key: 'telegram', label: t.tabTelegram, icon: Send },
+          { key: 'inventory', label: t.tabInventory, icon: Bell },
+          { key: 'security', label: t.tabSecurity, icon: Shield },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -163,16 +184,16 @@ export default function Settings() {
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
               <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-                General Store Information
+                {t.generalInfoTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
-                Brand details visible to customers in Telegram receipts and notifications
+                {t.generalInfoDesc}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2 flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Store Name</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.storeNameLabel}</label>
                 <div className="relative">
                   <Building className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <input
@@ -186,7 +207,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Support Phone</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.supportPhoneLabel}</label>
                 <div className="relative">
                   <Smartphone className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <input
@@ -200,7 +221,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Support Email</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.supportEmailLabel}</label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <input
@@ -214,7 +235,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Default Store Currency</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.currencyLabel}</label>
                 <select
                   value={settings.currency}
                   onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
@@ -227,7 +248,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Store Timezone</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.timezoneLabel}</label>
                 <div className="relative">
                   <Globe className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <input
@@ -238,6 +259,30 @@ export default function Settings() {
                   />
                 </div>
               </div>
+
+              <div className="sm:col-span-2 flex flex-col gap-1.5">
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">
+                  {t.languageLabel}
+                </label>
+                <div className="relative">
+                  <Languages className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+                  <select
+                    value={settings.language || currentLang}
+                    onChange={(e) => {
+                      const newLang = e.target.value as 'uk' | 'en';
+                      setSettings({ ...settings, language: newLang });
+                      dispatch(setLanguage(newLang));
+                    }}
+                    className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                  >
+                    <option value="uk">{t.langUk}</option>
+                    <option value="en">{t.langEn}</option>
+                  </select>
+                </div>
+                <span className="text-[11.5px] text-[var(--text-tertiary)]">
+                  Перемикайте мову панелі керування на українську або англійську. Налаштування зберігається автоматично.
+                </span>
+              </div>
             </div>
 
             <div className="pt-2">
@@ -245,7 +290,7 @@ export default function Settings() {
                 type="submit"
                 className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
               >
-                Save Profile Settings
+                {t.saveProfileBtn}
               </button>
             </div>
           </form>
@@ -256,16 +301,16 @@ export default function Settings() {
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
               <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-                Telegram Channel & Bot Automation
+                {t.telegramTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
-                Configure auto-broadcasting of products to channels and order alert webhooks
+                {t.telegramDesc}
               </p>
             </div>
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Public Telegram Channel Handle</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.telegramChannelLabel}</label>
                 <input
                   type="text"
                   value={settings.telegramChannel}
@@ -279,7 +324,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Manager / Admin Telegram ID</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.adminIdLabel}</label>
                 <input
                   type="text"
                   value={settings.telegramAdminId}
@@ -288,7 +333,7 @@ export default function Settings() {
                   placeholder="e.g. 98451294"
                 />
                 <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  Telegram user ID that will receive instant notification pings when orders are confirmed.
+                  {t.adminIdDesc}
                 </span>
               </div>
 
@@ -296,10 +341,10 @@ export default function Settings() {
               <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    Auto-publish New Catalog Items
+                    {t.autoPublishLabel}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)]">
-                    Automatically draft a message to the channel when a product is added in Storage
+                    {t.autoPublishDesc}
                   </span>
                 </div>
                 <button
@@ -322,10 +367,10 @@ export default function Settings() {
               <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    Active Bot Token Status
+                    {t.botTokenStatusLabel}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)]">
-                    Connected via environment configuration (`TELEGRAM_BOT_TOKEN`)
+                    {t.botTokenConfigured}
                   </span>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF5EF] px-2.5 py-1 text-[11.5px] font-semibold text-[#0F6B4F]">
@@ -340,7 +385,7 @@ export default function Settings() {
                 type="submit"
                 className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
               >
-                Save Telegram Settings
+                {t.saveTelegramBtn}
               </button>
             </div>
           </form>
@@ -351,17 +396,17 @@ export default function Settings() {
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
               <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-                Inventory Thresholds & System Alerts
+                {t.inventoryTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
-                Automatic trigger levels for low inventory stock warnings
+                {t.inventoryDesc}
               </p>
             </div>
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[12.5px] font-semibold text-[var(--text)]">
-                  Low Stock Alert Threshold (Units)
+                  {t.lowStockThresholdLabel}
                 </label>
                 <input
                   type="number"
@@ -374,17 +419,17 @@ export default function Settings() {
                   className="w-full max-w-[180px] rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 px-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                 />
                 <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  When a size or color variant drops to or below this number, an alert is triggered in Notifications.
+                  {t.lowStockDesc}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    Audible Alerts for New Orders
+                    {t.soundAlertsLabel}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)]">
-                    Play a gentle audio ping when a new customer checkout is received
+                    {t.soundAlertsDesc}
                   </span>
                 </div>
                 <button
@@ -405,10 +450,10 @@ export default function Settings() {
               <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    Auto-archive Completed Orders
+                    {t.autoArchiveLabel}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)]">
-                    Automatically move delivered orders to archive filter tab after 7 days
+                    {t.autoArchiveDesc}
                   </span>
                 </div>
                 <button
@@ -434,7 +479,7 @@ export default function Settings() {
                 type="submit"
                 className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
               >
-                Save Inventory Settings
+                {t.saveInventoryBtn}
               </button>
             </div>
           </form>
@@ -445,10 +490,10 @@ export default function Settings() {
           <div className="flex flex-col gap-6 max-w-[700px]">
             <div>
               <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-                Administrator Account & Security
+                {t.securityTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
-                Manage your credentials and session protection
+                {t.securityDesc}
               </p>
             </div>
 
@@ -461,7 +506,7 @@ export default function Settings() {
               )}
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">Current Password</label>
+                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.currentPasswordLabel}</label>
                 <div className="relative">
                   <Key className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <input
@@ -476,7 +521,7 @@ export default function Settings() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12.5px] font-semibold text-[var(--text)]">New Password</label>
+                  <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.newPasswordLabel}</label>
                   <input
                     type="password"
                     value={passwords.newPassword}
@@ -487,7 +532,7 @@ export default function Settings() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12.5px] font-semibold text-[var(--text)]">Confirm New Password</label>
+                  <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.confirmPasswordLabel}</label>
                   <input
                     type="password"
                     value={passwords.confirmPassword}
@@ -503,7 +548,7 @@ export default function Settings() {
                   type="submit"
                   className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--text)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:opacity-90 transition-opacity"
                 >
-                  Update Password
+                  {t.updatePasswordBtn}
                 </button>
               </div>
             </form>

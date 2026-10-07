@@ -21,11 +21,14 @@ import { useAuth } from '../../../provider/authProvider';
 import { getUserInitials } from '../../../utils/getUserInitials';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { setSidebarOpen } from '../../../store/slices/uiSlice';
+import { translations } from '../../../utils/translations';
 
 export default function Sidebar() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const sidebarOpen = useAppSelector((state) => state.ui.sidebarOpen);
+  const language = useAppSelector((state) => state.ui.language);
+  const t = translations[language] || translations.uk;
 
   const userName = user?.name || 'Maksym K.';
   const userRole = user?.role || 'Owner';
@@ -54,10 +57,10 @@ export default function Sidebar() {
           </div>
           <div className="flex flex-col">
             <span className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] leading-tight text-[var(--text)]">
-              Admin Panel
+              {t.adminPanel}
             </span>
             <span className="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-[var(--text-tertiary)] -mt-[2px]">
-              Store Operations
+              {t.storeOperations}
             </span>
           </div>
         </div>
@@ -67,48 +70,48 @@ export default function Sidebar() {
           {/* Overview Group */}
           <div className="flex flex-col gap-[1px]">
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              Overview
+              {t.overview}
             </div>
-            <SidebarItem label="Dashboard" href="/" icon={<LayoutGrid className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Analytics" href="/analytics" icon={<BarChart3 className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.dashboard} href="/" icon={<LayoutGrid className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.analytics} href="/analytics" icon={<BarChart3 className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* Catalog Group */}
           <div className="flex flex-col gap-[1px]">
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              Catalog
+              {t.catalog}
             </div>
-            <SidebarItem label="Storage" href="/storage" icon={<Tag className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Inventory" href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.storage} href="/storage" icon={<Tag className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.inventory} href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* Sales Group */}
           <div className="flex flex-col gap-[1px]">
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              Sales
+              {t.sales}
             </div>
-            <SidebarItem label="Orders" href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Customers" href="/customers" icon={<Users className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="CRM" href="/crm" icon={<Target className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.orders} href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.customers} href="/customers" icon={<Users className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.crm} href="/crm" icon={<Target className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* Automation Group */}
           <div className="flex flex-col gap-[1px]">
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              Automation
+              {t.automation}
             </div>
-            <SidebarItem label="Telegram Bot" href="/telegram-bot" icon={<Bot className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Channel Publisher" href="/channel-publisher" icon={<Megaphone className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Smart Assistant" href="/ai-assistant" icon={<Workflow className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.telegramBot} href="/telegram-bot" icon={<Bot className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.channelPublisher} href="/channel-publisher" icon={<Megaphone className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.smartAssistant} href="/ai-assistant" icon={<Workflow className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* System Group */}
           <div className="flex flex-col gap-[1px]">
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              System
+              {t.system}
             </div>
-            <SidebarItem label="Notifications" href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Settings" href="/settings" icon={<Settings className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.notifications} href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} />
+            <SidebarItem label={t.settings} href="/settings" icon={<Settings className="h-[17px] w-[17px]" />} />
           </div>
         </nav>
 

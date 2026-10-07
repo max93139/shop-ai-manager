@@ -260,5 +260,6 @@ export interface StoreSettings {
   lowStockThreshold: number;
   soundAlerts: boolean;
   autoArchiveCompleted: boolean;
+  language?: 'uk' | 'en';
 }
 
