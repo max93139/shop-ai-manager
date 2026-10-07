@@ -5,12 +5,14 @@ import { Mail, Lock } from 'lucide-react';
 import FormInput from './FormInput';
 import { useAppDispatch } from '../../store';
 import { setCredentials } from '../../store/slices/authSlice';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface LoginFormProps {
   onSuccess?: () => void;
 }
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       });
 
       if (!response.ok) {
-        let msg = 'Invalid credentials';
+        let msg = t.invalidCredentialsMsg;
         try {
           const data = await response.json();
           if (data.message) msg = Array.isArray(data.message) ? data.message[0] : data.message;
@@ -55,7 +57,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your email and password.');
+      setError(err.message || t.loginFailedMsg);
     } finally {
       setLoading(false);
     }
@@ -70,18 +72,18 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       )}
 
       <FormInput
-        label="Email"
+        label={t.emailLabel}
         type="email"
         name="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        placeholder="you@store.com"
+        placeholder={t.emailPlaceholder}
         icon={<Mail className="h-4 w-4" strokeWidth={1.6} />}
       />
 
       <FormInput
-        label="Password"
+        label={t.passwordLabel}
         type="password"
         name="password"
         value={password}
@@ -96,7 +98,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         disabled={loading}
         className="mt-[24px] w-full rounded-[var(--radius-sm)] bg-[var(--accent)] py-[12px] text-[14px] font-[650] text-white shadow-[0_1px_2px_rgba(28,27,25,.06)] transition-all duration-150 hover:bg-[var(--accent-hover)] disabled:opacity-70"
       >
-        {loading ? 'Logging in...' : 'Log in'}
+        {loading ? t.signingInBtn : t.signInBtn}
       </button>
     </form>
   );

@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-  Workflow,
   CheckCircle2,
-  Bell,
   RefreshCw,
   Package,
   Send,
@@ -12,60 +10,24 @@ import {
   Sliders,
   Check,
 } from 'lucide-react';
-
-interface AutomationRule {
-  id: string;
-  name: string;
-  description: string;
-  trigger: string;
-  enabled: boolean;
-  category: 'inventory' | 'orders' | 'telegram';
-}
-
-const defaultRules: AutomationRule[] = [
-  {
-    id: 'rule-1',
-    name: 'Instant Order Telegram Notification',
-    description: 'Send direct alert to manager Telegram chat when a customer completes checkout.',
-    trigger: 'On Order Created',
-    enabled: true,
-    category: 'orders',
-  },
-  {
-    id: 'rule-2',
-    name: 'Low Stock Auto-Warning',
-    description: 'Trigger low stock warning badge and notification when any variant drops to <= 5 units.',
-    trigger: 'On Stock <= Threshold',
-    enabled: true,
-    category: 'inventory',
-  },
-  {
-    id: 'rule-3',
-    name: 'Automatic Channel Post Drafting',
-    description: 'Prepare ready-to-publish Telegram channel draft whenever a new product is saved in Storage.',
-    trigger: 'On Product Creation',
-    enabled: true,
-    category: 'telegram',
-  },
-  {
-    id: 'rule-4',
-    name: 'Automatic Inventory Restoration on Cancellation',
-    description: 'Restock product variant quantity if an order is marked as Cancelled.',
-    trigger: 'On Order Status = CANCELLED',
-    enabled: true,
-    category: 'orders',
-  },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AIAssistant() {
-  const [rules, setRules] = useState<AutomationRule[]>(defaultRules);
+  const { t, language } = useTranslation();
+  const [enabledRules, setEnabledRules] = useState<Record<string, boolean>>({
+    'rule-1': true,
+    'rule-2': true,
+    'rule-3': true,
+    'rule-4': true,
+  });
   const [runningAction, setRunningAction] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   const toggleRule = (id: string) => {
-    setRules((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r))
-    );
+    setEnabledRules((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   const runQuickAction = (actionKey: string, successMsg: string) => {
@@ -76,6 +38,39 @@ export default function AIAssistant() {
       setTimeout(() => setActionSuccess(null), 3000);
     }, 800);
   };
+
+  const rules = [
+    {
+      id: 'rule-1',
+      name: t.ruleOrderNotificationName,
+      description: t.ruleOrderNotificationDesc,
+      trigger: t.ruleOrderNotificationTrigger,
+      enabled: !!enabledRules['rule-1'],
+    },
+    {
+      id: 'rule-2',
+      name: t.ruleLowStockName,
+      description: t.ruleLowStockDesc,
+      trigger: t.ruleLowStockTrigger,
+      enabled: !!enabledRules['rule-2'],
+    },
+    {
+      id: 'rule-3',
+      name: t.ruleChannelDraftName,
+      description: t.ruleChannelDraftDesc,
+      trigger: t.ruleChannelDraftTrigger,
+      enabled: !!enabledRules['rule-3'],
+    },
+    {
+      id: 'rule-4',
+      name: t.ruleRestockCancelName,
+      description: t.ruleRestockCancelDesc,
+      trigger: t.ruleRestockCancelTrigger,
+      enabled: !!enabledRules['rule-4'],
+    },
+  ];
+
+  const enabledCount = rules.filter((r) => r.enabled).length;
 
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[1100px] w-full mx-auto">
@@ -91,14 +86,14 @@ export default function AIAssistant() {
       <div>
         <div className="flex items-center gap-2.5">
           <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
-            Smart Assistant & Automation
+            {t.smartAssistantTitle}
           </h1>
           <span className="rounded-full bg-[var(--surface-soft)] border border-[var(--border)] px-2.5 py-0.5 text-[11.5px] font-semibold text-[var(--accent)]">
-            Active
+            {t.activeBadge}
           </span>
         </div>
         <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
-          Automated rules, inventory sync jobs, and store workflow triggers
+          {t.smartAssistantSubtitle}
         </p>
       </div>
 
@@ -109,19 +104,19 @@ export default function AIAssistant() {
             <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[var(--accent-soft)] text-[var(--accent)]">
               <Package className="h-4 w-4" />
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">Inventory Audit</span>
+            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.inventoryAuditTitle}</span>
           </div>
           <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            Verify variant stocks against confirmed orders and update low-stock alerts.
+            {t.inventoryAuditDesc}
           </p>
           <button
             type="button"
             disabled={runningAction === 'audit'}
-            onClick={() => runQuickAction('audit', 'Inventory audit finished. Stocks verified.')}
+            onClick={() => runQuickAction('audit', t.auditSuccessMsg)}
             className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${runningAction === 'audit' ? 'animate-spin' : ''}`} />
-            <span>{runningAction === 'audit' ? 'Auditing…' : 'Run Audit'}</span>
+            <span>{runningAction === 'audit' ? t.runningAuditStatus : t.runAuditBtn}</span>
           </button>
         </div>
 
@@ -130,19 +125,19 @@ export default function AIAssistant() {
             <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#EBF2F9] text-[#1E5F8B]">
               <Send className="h-4 w-4" />
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">Telegram Channel Sync</span>
+            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.channelSyncTitle}</span>
           </div>
           <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            Sync latest product availability status to your linked Telegram channel.
+            {t.channelSyncDesc}
           </p>
           <button
             type="button"
             disabled={runningAction === 'channel'}
-            onClick={() => runQuickAction('channel', 'Channel catalog synchronized.')}
+            onClick={() => runQuickAction('channel', t.channelSyncSuccessMsg)}
             className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${runningAction === 'channel' ? 'animate-spin' : ''}`} />
-            <span>{runningAction === 'channel' ? 'Syncing…' : 'Sync Channel'}</span>
+            <span>{runningAction === 'channel' ? t.syncingChannelStatus : t.syncChannelBtn}</span>
           </button>
         </div>
 
@@ -151,19 +146,19 @@ export default function AIAssistant() {
             <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#FEF6E9] text-[#965A1A]">
               <Zap className="h-4 w-4" />
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">Health Verification</span>
+            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.healthCheckTitle}</span>
           </div>
           <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            Test database latency, worker Redis queue, and bot webhook responsiveness.
+            {t.healthCheckDesc}
           </p>
           <button
             type="button"
             disabled={runningAction === 'health'}
-            onClick={() => runQuickAction('health', 'All systems operational: DB, Bot, API OK.')}
+            onClick={() => runQuickAction('health', t.healthCheckSuccessMsg)}
             className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50"
           >
             <Check className="h-3.5 w-3.5" />
-            <span>{runningAction === 'health' ? 'Checking…' : 'Check Health'}</span>
+            <span>{runningAction === 'health' ? t.checkingHealthStatus : t.checkHealthBtn}</span>
           </button>
         </div>
       </div>
@@ -174,11 +169,11 @@ export default function AIAssistant() {
           <div className="flex items-center gap-2">
             <Sliders className="h-4 w-4 text-[var(--accent)]" />
             <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-              Workflow Rules
+              {t.workflowRulesTitle}
             </h2>
           </div>
           <span className="text-[12px] text-[var(--text-tertiary)]">
-            {rules.filter((r) => r.enabled).length} of {rules.length} enabled
+            {language === 'uk' ? `${enabledCount} ${t.rulesEnabledOf} ${rules.length}` : `${enabledCount} ${t.rulesEnabledOf} ${rules.length} enabled`}
           </span>
         </div>
 
