@@ -149,9 +149,13 @@ export const updateVariant = createAsyncThunk(
 
 export const updateVariantStock = updateVariant;
 
-export const deleteVariant = createAsyncThunk(
+export const deleteVariant = createAsyncThunk<
+  { variantId: string },
+  string,
+  { state: { products: ProductsState } }
+>(
   'products/deleteVariant',
-  async (variantId: string) => {
+  async (variantId: string, { dispatch, getState }) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -162,6 +166,19 @@ export const deleteVariant = createAsyncThunk(
     });
 
     if (!res.ok) throw new Error('Failed to delete variant');
+
+    const state = getState().products;
+    const newTotalCount = Math.max(0, state.totalCount - 1);
+    const newTotalPages = Math.ceil(newTotalCount / state.limit) || 1;
+
+    if (state.page > newTotalPages && state.page > 1) {
+      dispatch(setPage(newTotalPages));
+    } else {
+      dispatch(fetchProducts());
+    }
+
+    dispatch(fetchFilterOptions());
+
     return { variantId };
   },
 );
