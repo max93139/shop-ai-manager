@@ -80,10 +80,9 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   // Telegram Publish Modal State
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
 
-  // Per-color Stock State
-  const [colorStocks, setColorStocks] = useState<Record<string, number>>({
-    Charcoal: 20,
-    Camel: 14,
+  // Per-Size Stock State (maps size name or 'color:::size' to quantity)
+  const [sizeStocks, setSizeStocks] = useState<Record<string, number>>({
+    M: 5,
   });
 
   // Image Upload State
@@ -120,7 +119,18 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         if (parsed.customSizes) setCustomSizes(parsed.customSizes);
         if (parsed.colors) setColors(parsed.colors);
         if (parsed.selectedColors) setSelectedColors(parsed.selectedColors);
-        if (parsed.colorStocks) setColorStocks(parsed.colorStocks);
+        if (parsed.sizeStocks) {
+          setSizeStocks(parsed.sizeStocks);
+        } else if (parsed.colorStocks) {
+          // Backward compatibility migration for old drafts
+          const migrated: Record<string, number> = {};
+          if (parsed.selectedSizes) {
+            for (const sz of parsed.selectedSizes) {
+              migrated[sz] = 5;
+            }
+          }
+          setSizeStocks(migrated);
+        }
       }
     } catch (err) {
       console.error('Failed to restore draft from localStorage:', err);
@@ -142,7 +152,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         customSizes,
         colors,
         selectedColors,
-        colorStocks,
+        sizeStocks,
       };
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
     } catch (err) {
@@ -159,7 +169,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
     customSizes,
     colors,
     selectedColors,
-    colorStocks,
+    sizeStocks,
   ]);
 
   const handleProductTypeChange = (typeKey: string) => {
@@ -174,12 +184,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         : 'clothing';
 
     setSizeMode(presetMode);
-    setSelectedSizes(presetMode === 'onesize' ? ['One size'] : []);
+    const initialSizes = presetMode === 'onesize' ? ['One size'] : [];
+    setSelectedSizes(initialSizes);
   };
 
   const handleSizeModeChange = (modeKey: string) => {
     setSizeMode(modeKey);
-    setSelectedSizes(modeKey === 'onesize' ? ['One size'] : []);
+    const initialSizes = modeKey === 'onesize' ? ['One size'] : [];
+    setSelectedSizes(initialSizes);
   };
 
   const handleAddBrandOption = (newBrand: string) => {
@@ -195,14 +207,24 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   };
 
   const handleSave = () => {
+    // Filter out sizes with 0 stock if sizeStocks is configured
+    const validSizes = selectedSizes.filter((sz) => {
+      if (sz in sizeStocks) {
+        return Number(sizeStocks[sz]) > 0;
+      }
+      return true;
+    });
+
+    const finalSizes = validSizes.length > 0 ? validSizes : selectedSizes;
+
     onSave?.({
       name,
       category,
       brand,
       price,
-      selectedSizes,
+      selectedSizes: finalSizes,
       selectedColors,
-      colorStocks,
+      sizeStocks,
       imageUrls,
     });
   };
@@ -250,14 +272,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
             customSizes={customSizes}
             colors={colors}
             selectedColors={selectedColors}
-            colorStocks={colorStocks}
+            sizeStocks={sizeStocks}
             onProductTypeChange={handleProductTypeChange}
             onSizeModeChange={handleSizeModeChange}
             onSelectedSizesChange={setSelectedSizes}
             onCustomSizesChange={setCustomSizes}
             onColorsChange={setColors}
             onSelectedColorsChange={setSelectedColors}
-            onColorStocksChange={setColorStocks}
+            onSizeStocksChange={setSizeStocks}
           />
         </div>
 

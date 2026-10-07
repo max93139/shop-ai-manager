@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { prisma } from '@shop-ai/database';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { prisma, OrderStatus } from '@shop-ai/database';
 
 @Injectable()
 export class OrdersService {
@@ -162,5 +162,238 @@ export class OrdersService {
       },
       latestOrders,
     };
+  }
+
+  async getOrders(query: { search?: string; status?: string; page?: number; limit?: number }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    const statusUpper = query.status?.toUpperCase();
+    if (statusUpper === 'ACTIVE') {
+      where.status = {
+        in: [
+          OrderStatus.PENDING,
+          OrderStatus.PAID,
+          OrderStatus.PROCESSING,
+          OrderStatus.SHIPPED,
+        ],
+      };
+    } else if (statusUpper === 'ARCHIVE' || statusUpper === 'ARCHIVED') {
+      where.status = {
+        in: [
+          OrderStatus.DELIVERED,
+          OrderStatus.CANCELLED,
+        ],
+      };
+    } else if (statusUpper && statusUpper !== 'ALL') {
+      const targetStatus = statusUpper as OrderStatus;
+      if (Object.values(OrderStatus).includes(targetStatus)) {
+        where.status = targetStatus;
+      }
+    }
+
+    if (query.search?.trim()) {
+      const search = query.search.trim();
+      where.OR = [
+        { id: { contains: search, mode: 'insensitive' } },
+        { fullName: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } },
+        { postOffice: { contains: search, mode: 'insensitive' } },
+        { user: { name: { contains: search, mode: 'insensitive' } } },
+        {
+          items: {
+            some: {
+              variant: {
+                product: {
+                  name: { contains: search, mode: 'insensitive' },
+                },
+              },
+            },
+          },
+        },
+      ];
+    }
+
+    const [items, totalCount, statusCountsRaw, totalRevenueAgg] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: true,
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.order.count({ where }),
+      prisma.order.groupBy({
+        by: ['status'],
+        _count: { _all: true },
+      }),
+      prisma.order.aggregate({
+        _sum: { totalAmount: true },
+      }),
+    ]);
+
+    const statusCounts: Record<string, number> = {
+      all: 0,
+      active: 0,
+      archive: 0,
+      pending: 0,
+      processing: 0,
+      paid: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+    };
+
+    let totalAll = 0;
+    for (const sc of statusCountsRaw) {
+      const count = sc._count._all;
+      totalAll += count;
+      const key = sc.status.toLowerCase();
+      if (key in statusCounts) {
+        statusCounts[key] = count;
+      }
+    }
+    statusCounts.all = totalAll;
+    statusCounts.active =
+      statusCounts.pending +
+      statusCounts.paid +
+      statusCounts.processing +
+      statusCounts.shipped;
+    statusCounts.archive =
+      statusCounts.delivered + statusCounts.cancelled;
+
+    const orders = items.map((ord) => {
+      const orderNumber = `#${ord.id.slice(0, 8).toUpperCase()}`;
+      const customerName = ord.fullName || ord.user?.name || 'Customer';
+
+      const itemsDetail = ord.items.map((item) => ({
+        id: item.id,
+        variantId: item.variantId,
+        productName: item.variant?.product?.name || 'Product',
+        sku: item.variant?.sku || '',
+        size: item.variant?.size || 'Standard',
+        color: item.variant?.color || 'Standard',
+        price: Number(item.price),
+        quantity: item.quantity,
+        image: item.variant?.product?.images?.[0] || undefined,
+      }));
+
+      const totalItemsCount = ord.items.reduce((acc, curr) => acc + curr.quantity, 0);
+
+      return {
+        id: ord.id,
+        orderNumber,
+        status: ord.status,
+        totalAmount: Number(ord.totalAmount),
+        customerName,
+        phone: ord.phone || undefined,
+        city: ord.city || undefined,
+        postOffice: ord.postOffice || undefined,
+        telegramId: ord.user?.telegramId ? ord.user.telegramId.toString() : undefined,
+        items: itemsDetail,
+        itemsCount: totalItemsCount,
+        createdAt: ord.createdAt.toISOString(),
+        updatedAt: ord.updatedAt.toISOString(),
+      };
+    });
+
+    return {
+      orders,
+      totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit) || 1,
+      statusCounts,
+      totalRevenue: Number(totalRevenueAgg._sum.totalAmount || 0),
+    };
+  }
+
+  async updateOrderStatus(id: string, status: OrderStatus) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const previousStatus = order.status;
+
+    // If order was not CANCELLED and is now being cancelled/refused -> restore stock
+    if (previousStatus !== OrderStatus.CANCELLED && status === OrderStatus.CANCELLED) {
+      for (const item of order.items) {
+        await prisma.productVariant
+          .update({
+            where: { id: item.variantId },
+            data: {
+              stock: {
+                increment: item.quantity,
+              },
+            },
+          })
+          .catch(() => null);
+      }
+    }
+
+    // If order was CANCELLED and is now being re-activated -> decrement stock again
+    if (previousStatus === OrderStatus.CANCELLED && status !== OrderStatus.CANCELLED) {
+      for (const item of order.items) {
+        await prisma.productVariant
+          .update({
+            where: { id: item.variantId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          })
+          .catch(() => null);
+      }
+    }
+
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status },
+    });
+
+    return {
+      success: true,
+      id: updated.id,
+      status: updated.status,
+    };
+  }
+
+  async deleteOrder(id: string) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    await prisma.order.delete({
+      where: { id },
+    });
+
+    return { success: true, message: 'Order deleted successfully' };
   }
 }

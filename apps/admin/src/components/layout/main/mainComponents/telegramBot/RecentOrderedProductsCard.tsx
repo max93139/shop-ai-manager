@@ -30,7 +30,7 @@ export default function RecentOrderedProductsCard({
           <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
             Recent ordered products
           </h2>
-          <span className="text-[12px] text-[var(--text-secondary)]">Останні замовлені товари</span>
+          <span className="text-[12px] text-[var(--text-secondary)]">Latest customer purchases</span>
         </div>
 
         <Link

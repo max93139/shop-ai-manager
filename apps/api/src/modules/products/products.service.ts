@@ -8,6 +8,8 @@ export interface CreateProductDto {
   price?: string | number;
   selectedSizes?: string[];
   selectedColors?: string[];
+  sizeStocks?: Record<string, number>;
+  variantStocks?: Record<string, number>;
   colorStocks?: Record<string, number>;
   inStock?: string | number;
   images?: string[];
@@ -260,6 +262,8 @@ export class ProductsService {
     const colors = dto.selectedColors && dto.selectedColors.length > 0 ? dto.selectedColors : ['Standard'];
 
     const variantData = [];
+    const zeroStockFallback = [];
+
     for (const size of sizes) {
       for (const color of colors) {
         const skuRandom = Math.floor(10000 + Math.random() * 90000);
@@ -267,24 +271,45 @@ export class ProductsService {
         const cleanColor = color.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
         const sku = `SKU-${cleanSize}-${cleanColor}-${skuRandom}`;
 
-        const colorStock =
-          dto.colorStocks && color in dto.colorStocks
-            ? dto.colorStocks[color]
-            : fallbackStock;
+        // Determine stock priority: variantStocks (color+size) -> sizeStocks (size) -> colorStocks (color) -> fallbackStock
+        let variantStock = fallbackStock;
+        const variantKey1 = `${color}:::${size}`;
+        const variantKey2 = `${color}_${size}`;
 
-        variantData.push({
+        if (dto.variantStocks && variantKey1 in dto.variantStocks) {
+          variantStock = Number(dto.variantStocks[variantKey1]) || 0;
+        } else if (dto.variantStocks && variantKey2 in dto.variantStocks) {
+          variantStock = Number(dto.variantStocks[variantKey2]) || 0;
+        } else if (dto.variantStocks && size in dto.variantStocks) {
+          variantStock = Number(dto.variantStocks[size]) || 0;
+        } else if (dto.sizeStocks && size in dto.sizeStocks) {
+          variantStock = Number(dto.sizeStocks[size]) || 0;
+        } else if (dto.colorStocks && color in dto.colorStocks) {
+          variantStock = Number(dto.colorStocks[color]) || 0;
+        }
+
+        const candidateVariant = {
           productId: product.id,
           sku,
           size,
           color,
           price: rawPrice,
-          stock: colorStock,
-        });
+          stock: Math.max(0, variantStock),
+        };
+
+        if (variantStock > 0) {
+          variantData.push(candidateVariant);
+        } else {
+          zeroStockFallback.push(candidateVariant);
+        }
       }
     }
 
+    // Only create variants that have stock > 0. If user gave 0 for all variants, create 1 fallback variant.
+    const finalVariants = variantData.length > 0 ? variantData : zeroStockFallback.slice(0, 1);
+
     await prisma.productVariant.createMany({
-      data: variantData,
+      data: finalVariants,
     });
 
     return prisma.product.findUnique({

@@ -88,7 +88,56 @@ export interface DashboardFullData {
   latestOrders: LatestOrderItem[];
 }
 
+export interface AdminOrderItemDetail {
+  id: string;
+  variantId: string;
+  productName: string;
+  sku: string;
+  size: string;
+  color: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
+
+export interface AdminOrder {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  totalAmount: number;
+  customerName: string;
+  phone?: string;
+  city?: string;
+  postOffice?: string;
+  telegramId?: string;
+  items: AdminOrderItemDetail[];
+  itemsCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrdersListResponse {
+  orders: AdminOrder[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  statusCounts: {
+    all: number;
+    active: number;
+    archive: number;
+    pending: number;
+    processing: number;
+    paid: number;
+    shipped: number;
+    delivered: number;
+    cancelled: number;
+  };
+  totalRevenue: number;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
 }
+
