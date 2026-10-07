@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Search, ChevronDown, X, RotateCcw, LayoutGrid, List } from 'lucide-react';
 import type { ProductFilters, FilterOptions, StatusCounts } from '../../../../../store/slices/productsSlice';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductsFiltersProps {
   filters: ProductFilters;
@@ -14,7 +15,6 @@ export interface ProductsFiltersProps {
   onViewModeChange: (mode: 'table' | 'grid') => void;
 }
 
-/* ─── Small select dropdown component ─── */
 function FilterSelect({
   label,
   value,
@@ -45,7 +45,6 @@ function FilterSelect({
   );
 }
 
-/* ─── Status tab pill ─── */
 function StatusTab({
   label,
   count,
@@ -88,10 +87,10 @@ export default function ProductsFilters({
   onResetFilters,
   onViewModeChange,
 }: ProductsFiltersProps) {
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Debounce search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -104,24 +103,21 @@ export default function ProductsFilters({
     };
   }, [searchValue]);
 
-  // Sync external filter changes
   useEffect(() => {
     setSearchValue(filters.search);
   }, [filters.search]);
 
   const hasActiveFilters =
-    filters.search || filters.category || filters.brand || filters.color || filters.size;
+    Boolean(filters.search || filters.category || filters.brand || filters.color || filters.size);
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Top row: Search + Dropdowns + View toggle */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-        {/* Search */}
         <div className="relative flex-1 min-w-[180px] max-w-[320px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder={t.searchProductsPlaceholder}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] pl-9 pr-8 py-[7px] text-[13px] text-[var(--text)] placeholder:text-[var(--text-tertiary)] shadow-sm transition-colors focus:border-[var(--accent)] focus:outline-none"
@@ -140,34 +136,32 @@ export default function ProductsFilters({
           )}
         </div>
 
-        {/* Dropdown filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <FilterSelect
-            label="All categories"
+            label={t.allCategories}
             value={filters.category}
             options={filterOptions.categories}
             onChange={(v) => onFilterChange({ category: v })}
           />
           <FilterSelect
-            label="All brands"
+            label={t.allBrands}
             value={filters.brand}
             options={filterOptions.brands}
             onChange={(v) => onFilterChange({ brand: v })}
           />
           <FilterSelect
-            label="All sizes"
+            label={t.allSizes}
             value={filters.size}
             options={filterOptions.sizes}
             onChange={(v) => onFilterChange({ size: v })}
           />
           <FilterSelect
-            label="All colors"
+            label={t.allColors}
             value={filters.color}
             options={filterOptions.colors}
             onChange={(v) => onFilterChange({ color: v })}
           />
 
-          {/* Reset */}
           {hasActiveFilters && (
             <button
               type="button"
@@ -178,16 +172,16 @@ export default function ProductsFilters({
               className="flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-[7px] text-[12.5px] font-medium text-[var(--text-secondary)] shadow-sm transition-all hover:text-[var(--text)] hover:border-[var(--border-strong)]"
             >
               <RotateCcw className="h-3 w-3" />
-              Reset
+              {t.resetFilters}
             </button>
           )}
         </div>
 
-        {/* View mode toggle */}
         <div className="flex items-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] p-0.5 shadow-sm ml-auto shrink-0">
           <button
             type="button"
             onClick={() => onViewModeChange('grid')}
+            title={t.viewModeGrid}
             className={`rounded-[6px] p-1.5 transition-all ${
               viewMode === 'grid'
                 ? 'bg-[var(--accent)] text-white shadow-sm'
@@ -199,6 +193,7 @@ export default function ProductsFilters({
           <button
             type="button"
             onClick={() => onViewModeChange('table')}
+            title={t.viewModeTable}
             className={`rounded-[6px] p-1.5 transition-all ${
               viewMode === 'table'
                 ? 'bg-[var(--accent)] text-white shadow-sm'
@@ -210,28 +205,27 @@ export default function ProductsFilters({
         </div>
       </div>
 
-      {/* Status tabs */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
         <StatusTab
-          label="All"
+          label={t.statusAll}
           count={statusCounts.all}
           active={filters.status === 'all'}
           onClick={() => onFilterChange({ status: 'all' })}
         />
         <StatusTab
-          label="Active"
+          label={t.statusActive}
           count={statusCounts.active}
           active={filters.status === 'active'}
           onClick={() => onFilterChange({ status: 'active' })}
         />
         <StatusTab
-          label="Low stock"
+          label={t.statusLowStock}
           count={statusCounts.low_stock}
           active={filters.status === 'low_stock'}
           onClick={() => onFilterChange({ status: 'low_stock' })}
         />
         <StatusTab
-          label="Out of stock"
+          label={t.statusOutOfStock}
           count={statusCounts.out_of_stock}
           active={filters.status === 'out_of_stock'}
           onClick={() => onFilterChange({ status: 'out_of_stock' })}
