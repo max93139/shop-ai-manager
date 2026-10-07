@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
-/* ─── Types ─── */
 export interface ProductItem {
   variantId: string;
   productId: string;
@@ -80,7 +79,6 @@ const initialState: ProductsState = {
   viewMode: 'table',
 };
 
-/* ─── Async Thunks ─── */
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (_, { getState }) => {
@@ -183,7 +181,6 @@ export const deleteVariant = createAsyncThunk<
   },
 );
 
-/* ─── Slice ─── */
 export const productsSlice = createSlice({
   name: 'products',
   initialState,

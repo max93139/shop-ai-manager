@@ -1,7 +1,6 @@
 export type Language = 'uk' | 'en';
 
 export interface TranslationDictionary {
-  // Brand & Sidebar Groups
   adminPanel: string;
   storeOperations: string;
   overview: string;
@@ -10,7 +9,6 @@ export interface TranslationDictionary {
   automation: string;
   system: string;
 
-  // Nav Items
   dashboard: string;
   analytics: string;
   storage: string;
@@ -24,25 +22,21 @@ export interface TranslationDictionary {
   notifications: string;
   settings: string;
 
-  // Header
   searchPlaceholder: string;
   logout: string;
   adminBreadcrumb: string;
 
-  // Settings Page
   storeSettingsTitle: string;
   storeSettingsSubtitle: string;
   saveChanges: string;
   saving: string;
   savedSuccess: string;
 
-  // Settings Tabs
   tabProfile: string;
   tabTelegram: string;
   tabInventory: string;
   tabSecurity: string;
 
-  // Profile Settings Form
   generalInfoTitle: string;
   generalInfoDesc: string;
   storeNameLabel: string;
@@ -55,7 +49,6 @@ export interface TranslationDictionary {
   langEn: string;
   saveProfileBtn: string;
 
-  // Telegram Settings Form
   telegramTitle: string;
   telegramDesc: string;
   telegramChannelLabel: string;
@@ -67,7 +60,6 @@ export interface TranslationDictionary {
   botTokenConfigured: string;
   saveTelegramBtn: string;
 
-  // Inventory Settings Form
   inventoryTitle: string;
   inventoryDesc: string;
   lowStockThresholdLabel: string;
@@ -78,7 +70,6 @@ export interface TranslationDictionary {
   autoArchiveDesc: string;
   saveInventoryBtn: string;
 
-  // Security Tab
   securityTitle: string;
   securityDesc: string;
   currentPasswordLabel: string;
@@ -89,7 +80,6 @@ export interface TranslationDictionary {
   passwordMinLength: string;
   passwordsMismatch: string;
 
-  // Inventory / Products Page
   productsTitle: string;
   productVariantsInInventory: string;
   productVariantSingular: string;
@@ -107,7 +97,6 @@ export interface TranslationDictionary {
   viewModeGrid: string;
   viewModeTable: string;
 
-  // Products Table Columns
   thProduct: string;
   thCategory: string;
   thBrand: string;
@@ -118,7 +107,6 @@ export interface TranslationDictionary {
   thStatus: string;
   thActions: string;
 
-  // Products Table Actions & Tooltips
   actionDelete: string;
   actionCancel: string;
   deleteTooltip: string;
@@ -129,18 +117,15 @@ export interface TranslationDictionary {
   noProductsFound: string;
   noProductsFoundSub: string;
 
-  // Pagination
   showingPrefix: string;
   showingOf: string;
 
-  // Orders Page
   ordersTitle: string;
   ordersSubtitle: string;
   totalOrdersBadge: string;
   refreshBtn: string;
   exportCsvBtn: string;
 
-  // Orders Stats
   totalRevenueTitle: string;
   fromAllRecordedSales: string;
   activeOrdersTitle: string;
@@ -151,7 +136,6 @@ export interface TranslationDictionary {
   deliveredSuffix: string;
   cancelledSuffix: string;
 
-  // Orders Filter Tabs
   tabActiveOrders: string;
   tabPending: string;
   tabPaid: string;
@@ -161,7 +145,6 @@ export interface TranslationDictionary {
   tabAllOrders: string;
   searchOrdersPlaceholder: string;
 
-  // Orders Table Columns & Statuses
   orderStatusPending: string;
   orderStatusPaid: string;
   orderStatusProcessing: string;
@@ -179,7 +162,6 @@ export interface TranslationDictionary {
   noOrdersFound: string;
   noOrdersFoundSub: string;
 
-  // Order Details Modal
   orderDetailsTitle: string;
   customerInfoSection: string;
   deliverySection: string;
@@ -220,13 +202,43 @@ export interface TranslationDictionary {
   createBtn: string;
   saveBtn: string;
 
-  // Storage Page
   storageTitle: string;
   storageSubtitleItems: string;
   storageSubtitleCategories: string;
   addProductBtn: string;
+  newProduct: string;
+  draftStatus: string;
+  publishToTelegramBtn: string;
+  saveChangesBtn: string;
+  detailsSection: string;
+  productNameLabel: string;
+  productNamePlaceholder: string;
+  categoryLabel: string;
+  brandLabel: string;
+  searchOrAddBrand: string;
+  addBrandOption: string;
+  variantBuilderTitle: string;
+  variantBuilderSubtitle: string;
+  productTypeLabel: string;
+  sizeModeLabel: string;
+  sizesSectionTitle: string;
+  colorsSectionTitle: string;
+  stockPerSizeTitle: string;
+  bulkStockPlaceholder: string;
+  applyBtn: string;
+  addCustomSizeBtn: string;
+  addColorBtn: string;
+  customColorModalTitle: string;
+  customColorModalDesc: string;
+  hexCodeLabel: string;
+  colorNameLabel: string;
+  colorNamePlaceholder: string;
+  popularPresetsLabel: string;
+  summaryTitle: string;
+  summarySubtitle: string;
+  noSizesSelected: string;
+  noColorsSelected: string;
 
-  // Dashboard Page
   goodMorning: string;
   goodAfternoon: string;
   goodEvening: string;
@@ -245,8 +257,15 @@ export interface TranslationDictionary {
   thPayment: string;
   thFulfillment: string;
   revenueLast7Days: string;
+  peakPrefix: string;
+  paymentStatusPaid: string;
+  paymentStatusPending: string;
+  paymentStatusFailed: string;
+  fulfillmentStatusProcessing: string;
+  fulfillmentStatusShipped: string;
+  fulfillmentStatusUnfulfilled: string;
+  fulfillmentStatusDelivered: string;
 
-  // Notifications Page
   notificationsTitle: string;
   notificationsSubtitle: string;
   markAllAsReadBtn: string;
@@ -259,7 +278,6 @@ export interface TranslationDictionary {
   noNotificationsTitle: string;
   noNotificationsDesc: string;
 
-  // Analytics Page
   analyticsTitle: string;
   analyticsSubtitle: string;
   timeframe7d: string;
@@ -275,11 +293,205 @@ export interface TranslationDictionary {
   topProductsHeading: string;
   deliveryGeographyTitle: string;
   unitsSoldSuffix: string;
+
+  smartAssistantTitle: string;
+  smartAssistantSubtitle: string;
+  activeBadge: string;
+  inventoryAuditTitle: string;
+  inventoryAuditDesc: string;
+  runAuditBtn: string;
+  runningAuditStatus: string;
+  auditSuccessMsg: string;
+
+  channelSyncTitle: string;
+  channelSyncDesc: string;
+  syncChannelBtn: string;
+  syncingChannelStatus: string;
+  channelSyncSuccessMsg: string;
+
+  healthCheckTitle: string;
+  healthCheckDesc: string;
+  checkHealthBtn: string;
+  checkingHealthStatus: string;
+  healthCheckSuccessMsg: string;
+
+  workflowRulesTitle: string;
+  rulesEnabledOf: string;
+
+  ruleOrderNotificationName: string;
+  ruleOrderNotificationDesc: string;
+  ruleOrderNotificationTrigger: string;
+
+  ruleLowStockName: string;
+  ruleLowStockDesc: string;
+  ruleLowStockTrigger: string;
+
+  ruleChannelDraftName: string;
+  ruleChannelDraftDesc: string;
+  ruleChannelDraftTrigger: string;
+
+  ruleRestockCancelName: string;
+  ruleRestockCancelDesc: string;
+  ruleRestockCancelTrigger: string;
+
+  telegramBotTitle: string;
+  telegramBotSubtitle: string;
+  botSettingsBtn: string;
+
+  loginWelcomeTitle: string;
+  loginSubtitle: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  signInBtn: string;
+  signingInBtn: string;
+  invalidCredentialsMsg: string;
+  loginFailedMsg: string;
 }
+
+export const formatProductVariantsCount = (count: number, lang: Language): string => {
+  if (lang === 'en') {
+    return `${count} ${count === 1 ? 'product variant in inventory' : 'product variants in inventory'}`;
+  }
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${count} варіант товару на складі`;
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${count} варіанти товарів на складі`;
+  }
+  return `${count} варіантів товарів на складі`;
+};
+
+export const formatStorageSubtitle = (items: number, categories: number, lang: Language): string => {
+  if (lang === 'en') {
+    return `${items} items across ${categories} categories`;
+  }
+  const mod10 = items % 10;
+  const mod100 = items % 100;
+  let itemsStr = 'товарів';
+  if (mod10 === 1 && mod100 !== 11) {
+    itemsStr = 'товар';
+  } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    itemsStr = 'товари';
+  }
+
+  const catMod10 = categories % 10;
+  const catMod100 = categories % 100;
+  let catStr = 'категоріях';
+  if (catMod10 === 1 && catMod100 !== 11) {
+    catStr = 'категорії';
+  }
+
+  return `${items} ${itemsStr} у ${categories} ${catStr}`;
+};
+
+export const formatVariantsCreated = (count: number, lang: Language): string => {
+  if (lang === 'en') {
+    return `${count} variant${count === 1 ? '' : 's'} will be created`;
+  }
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${count} варіант буде створено`;
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${count} варіанти буде створено`;
+  }
+  return `${count} варіантів буде створено`;
+};
+
+const categoryMapUk: Record<string, string> = {
+  outerwear: 'Верхній одяг',
+  knitwear: 'Трикотаж',
+  footwear: 'Взуття',
+  accessories: 'Аксесуари',
+  headwear: 'Головні убори',
+  apparel: 'Одяг',
+  dresses: 'Сукні',
+  shirts: 'Сорочки',
+  tshirts: 'Футболки',
+  pants: 'Штани',
+  jeans: 'Джинси',
+  other: 'Інше',
+};
+
+export const translateCategory = (category: string, lang: Language): string => {
+  if (!category) return '';
+  if (lang === 'en') return category;
+  const key = category.trim().toLowerCase();
+  return categoryMapUk[key] || category;
+};
+
+const colorMapUk: Record<string, string> = {
+  black: 'Чорний',
+  white: 'Білий',
+  red: 'Червоний',
+  blue: 'Синій',
+  green: 'Зелений',
+  yellow: 'Жовтий',
+  orange: 'Помаранчевий',
+  purple: 'Фіолетовий',
+  pink: 'Рожевий',
+  brown: 'Коричневий',
+  grey: 'Сірий',
+  gray: 'Сірий',
+  navy: 'Темно-синій',
+  beige: 'Бежевий',
+  cream: 'Кремовий',
+  charcoal: 'Вугільний',
+  camel: 'Кемел',
+  khaki: 'Хакі',
+  olive: 'Оливковий',
+  teal: 'Бірюзовий',
+  burgundy: 'Бордовий',
+  coral: 'Кораловий',
+  gold: 'Золотий',
+  silver: 'Срібний',
+  maroon: 'Темно-бордовий',
+  cyan: 'Блакитний',
+  mint: 'М’ятний',
+  lavender: 'Лавандовий',
+  tan: 'Пісочний',
+  ivory: 'Слонова кістка',
+  rust: 'Іржавий',
+  sage: 'Шавлієвий',
+  sand: 'Пісочний',
+};
+
+export const translateColor = (color: string, lang: Language): string => {
+  if (!color) return '';
+  if (lang === 'en') return color;
+  const key = color.trim().toLowerCase();
+  return colorMapUk[key] || color;
+};
+
+const dayMapUk: Record<string, string> = {
+  Sun: 'Нд',
+  Mon: 'Пн',
+  Tue: 'Вт',
+  Wed: 'Ср',
+  Thu: 'Чт',
+  Fri: 'Пт',
+  Sat: 'Сб',
+};
+
+export const translateDay = (day: string, lang: Language): string => {
+  if (lang === 'en') return day;
+  return dayMapUk[day] || day;
+};
+
+export const translatePeakInfo = (peakInfo: string | undefined, lang: Language): string => {
+  if (!peakInfo) return '';
+  if (lang === 'en') return peakInfo;
+  return peakInfo
+    .replace(/^Peak\s*/i, 'Пік: ')
+    .replace(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\b/g, (d) => dayMapUk[d] || d);
+};
 
 export const translations: Record<Language, TranslationDictionary> = {
   uk: {
-    // Brand & Sidebar Groups
     adminPanel: 'Панель керування',
     storeOperations: 'Керування магазином',
     overview: 'Огляд',
@@ -288,7 +500,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     automation: 'Автоматизація',
     system: 'Система',
 
-    // Nav Items
     dashboard: 'Дашборд',
     analytics: 'Аналітика',
     storage: 'Склад',
@@ -302,25 +513,21 @@ export const translations: Record<Language, TranslationDictionary> = {
     notifications: 'Сповіщення',
     settings: 'Налаштування',
 
-    // Header
     searchPlaceholder: 'Пошук товарів, замовлень...',
     logout: 'Вийти',
     adminBreadcrumb: 'Адмін',
 
-    // Settings Page
     storeSettingsTitle: 'Налаштування магазину',
     storeSettingsSubtitle: 'Конфігурація магазину, автоматизація Telegram, мова інтерфейсу та безпека',
     saveChanges: 'Зберегти зміни',
     saving: 'Збереження...',
     savedSuccess: 'Налаштування успішно збережено!',
 
-    // Settings Tabs
     tabProfile: 'Профіль магазину',
     tabTelegram: 'Telegram та канали',
     tabInventory: 'Залишки та сповіщення',
     tabSecurity: 'Безпека та пароль',
 
-    // Profile Settings Form
     generalInfoTitle: 'Загальна інформація про магазин',
     generalInfoDesc: 'Дані бренду, які бачать покупці у Telegram-чеках та сповіщеннях',
     storeNameLabel: 'Назва магазину',
@@ -333,7 +540,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     langEn: 'English (EN)',
     saveProfileBtn: 'Зберегти налаштування профілю',
 
-    // Telegram Settings Form
     telegramTitle: 'Інтеграція з Telegram',
     telegramDesc: 'Канал для автоматичної публікації товарів та ідентифікатор адміна',
     telegramChannelLabel: 'Telegram-канал (Username)',
@@ -345,7 +551,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     botTokenConfigured: 'Налаштовано в .env (Працює)',
     saveTelegramBtn: 'Зберегти налаштування Telegram',
 
-    // Inventory Settings Form
     inventoryTitle: 'Залишки та пороги сповіщень',
     inventoryDesc: 'Керування тригерами закінчення товару та звуковими сповіщеннями',
     lowStockThresholdLabel: 'Поріг низького залишку (од.)',
@@ -356,7 +561,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     autoArchiveDesc: 'Автоматично приховувати замовлення зі статусом "Доставлено" через 30 днів',
     saveInventoryBtn: 'Зберегти налаштування складу',
 
-    // Security Tab
     securityTitle: 'Безпека облікового запису',
     securityDesc: 'Зміна пароля доступу до адміністративної панелі',
     currentPasswordLabel: 'Поточний пароль',
@@ -367,7 +571,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     passwordMinLength: 'Новий пароль має містити щонайменше 8 символів',
     passwordsMismatch: 'Паролі не співпадають',
 
-    // Inventory / Products Page
     productsTitle: 'Товари',
     productVariantsInInventory: 'варіантів товарів на складі',
     productVariantSingular: 'варіант товару на складі',
@@ -385,7 +588,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     viewModeGrid: 'Сітка',
     viewModeTable: 'Таблиця',
 
-    // Products Table Columns
     thProduct: 'ТОВАР',
     thCategory: 'КАТЕГОРІЯ',
     thBrand: 'БРЕНД',
@@ -396,7 +598,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     thStatus: 'СТАТУС',
     thActions: 'ДІЇ',
 
-    // Products Table Actions & Tooltips
     actionDelete: 'Видалити',
     actionCancel: 'Скасувати',
     deleteTooltip: 'Видалити',
@@ -407,18 +608,15 @@ export const translations: Record<Language, TranslationDictionary> = {
     noProductsFound: 'Товарів не знайдено за заданими фільтрами',
     noProductsFoundSub: 'Спробуйте змінити фільтри або пошуковий запит.',
 
-    // Pagination
     showingPrefix: 'Показано',
     showingOf: 'з',
 
-    // Orders Page
     ordersTitle: 'Замовлення',
     ordersSubtitle: 'Керування замовленнями клієнтів, адресами доставки та статусами виконання.',
     totalOrdersBadge: 'всього',
     refreshBtn: 'Оновити',
     exportCsvBtn: 'Експорт CSV',
 
-    // Orders Stats
     totalRevenueTitle: 'Загальний виторг',
     fromAllRecordedSales: 'З усіх оформлених продажів',
     activeOrdersTitle: 'Активні замовлення',
@@ -429,7 +627,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     deliveredSuffix: 'доставлено',
     cancelledSuffix: 'скасовано',
 
-    // Orders Filter Tabs
     tabActiveOrders: 'Активні замовлення',
     tabPending: 'Очікують',
     tabPaid: 'Оплачені',
@@ -439,7 +636,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     tabAllOrders: 'Всі замовлення',
     searchOrdersPlaceholder: 'Пошук замовлень за клієнтом, телефоном або ТТН...',
 
-    // Orders Table Columns & Statuses
     orderStatusPending: 'Очікує',
     orderStatusPaid: 'Оплачено',
     orderStatusProcessing: 'В обробці',
@@ -451,28 +647,27 @@ export const translations: Record<Language, TranslationDictionary> = {
     thCustomer: 'КЛІЄНТ',
     thItems: 'ТОВАРИ',
     thTotal: 'СУМА',
-    thTrackingTtn: 'ТТН',
+    thTrackingTtn: 'ТРЕКІНГ / ТТН',
 
     viewDetailsBtn: 'Деталі',
     noOrdersFound: 'Замовлень не знайдено',
-    noOrdersFoundSub: 'Спробуйте вибрати інший статус або змінити пошуковий запит.',
+    noOrdersFoundSub: 'Спробуйте обрати інший статус або змінити пошуковий запит.',
 
-    // Order Details Modal
     orderDetailsTitle: 'Деталі замовлення',
-    customerInfoSection: 'Інформація про клієнта',
+    customerInfoSection: 'Дані клієнта',
     deliverySection: 'Доставка Нова Пошта',
     orderedItemsSection: 'Замовлені товари',
     orderStatusLabel: 'Статус замовлення',
-    ttnLabel: 'Номер ТТН (Експрес-накладна)',
+    ttnLabel: 'Номер накладної (ТТН)',
     saveTtnBtn: 'Зберегти ТТН',
     savingTtn: 'Збереження ТТН...',
-    trackOnNovaPoshta: 'Відстежити на сайті Нової Пошти',
-    generateTtnBtn: 'Згенерувати ТТН',
+    trackOnNovaPoshta: 'Відстежити на Новій Пошті',
+    generateTtnBtn: 'Створити ТТН',
     deleteOrderBtn: 'Видалити замовлення',
     confirmDeleteOrder: 'Ви впевнені, що хочете видалити це замовлення?',
     closeBtn: 'Закрити',
     totalAmountLabel: 'Загальна сума',
-    itemsCountSuffix: 'шт.',
+    itemsCountSuffix: 'шт',
     cityLabel: 'Місто',
     warehouseLabel: 'Відділення',
     phoneLabel: 'Телефон',
@@ -486,36 +681,66 @@ export const translations: Record<Language, TranslationDictionary> = {
     notGeneratedText: 'Не згенеровано',
     currentStatusLabel: 'Поточний статус:',
     changeStatusLabel: 'Змінити статус:',
-    customerDetailsTitle: 'Дані клієнта',
-    nameLabel: 'ПІБ:',
+    customerDetailsTitle: 'Інформація про покупця',
+    nameLabel: 'Ім’я:',
     deliveryTitle: 'Доставка та логістика',
     colorLabel: 'Колір',
     sizeLabel: 'Розмір',
     quantityLabel: 'Кількість',
-    uniqueVariantsSuffix: 'унікальних позицій',
+    uniqueVariantsSuffix: 'унікальних варіантів',
     deletingText: 'Видалення…',
     enterTtnPlaceholder: 'Введіть ТТН або натисніть Створити',
     createBtn: 'Створити',
     saveBtn: 'Зберегти',
 
-    // Storage Page
     storageTitle: 'Склад',
     storageSubtitleItems: 'товарів у',
     storageSubtitleCategories: 'категоріях',
     addProductBtn: 'Додати товар',
+    newProduct: 'Новий товар',
+    draftStatus: 'Чернетка',
+    publishToTelegramBtn: 'Опублікувати в Telegram',
+    saveChangesBtn: 'Зберегти зміни',
+    detailsSection: 'Деталі товару',
+    productNameLabel: 'Назва товару',
+    productNamePlaceholder: 'напр. Вовняне пальто, Шкіряний ремінь',
+    categoryLabel: 'Категорія',
+    brandLabel: 'Бренд',
+    searchOrAddBrand: 'Пошук або додавання бренду…',
+    addBrandOption: 'Додати бренд',
+    variantBuilderTitle: 'Генератор розмірів та кольорів',
+    variantBuilderSubtitle: 'Оберіть комбінації та встановіть залишки',
+    productTypeLabel: 'Тип товару',
+    sizeModeLabel: 'Шкала розмірів',
+    sizesSectionTitle: 'Розміри',
+    colorsSectionTitle: 'Кольори',
+    stockPerSizeTitle: 'Залишок на кожен розмір',
+    bulkStockPlaceholder: 'Встановити всім...',
+    applyBtn: 'Застосувати',
+    addCustomSizeBtn: 'Додати свій розмір',
+    addColorBtn: 'Додати колір',
+    customColorModalTitle: 'Додати власний колір',
+    customColorModalDesc: 'Оберіть відтінок на панелі або оберіть з популярних',
+    hexCodeLabel: 'HEX-код',
+    colorNameLabel: 'Назва кольору',
+    colorNamePlaceholder: 'напр. Кемел, Лісовий зелений',
+    popularPresetsLabel: 'Популярні палітри',
+    summaryTitle: 'Підсумок матриці',
+    summarySubtitle: 'Попередній перегляд сформованих варіантів товару.',
+    noSizesSelected: '— розміри не обрано —',
+    noColorsSelected: '— кольори не обрано —',
 
-    // Dashboard Page
     goodMorning: 'Доброго ранку',
     goodAfternoon: 'Доброго дня',
     goodEvening: 'Доброго вечора',
     dashboardSubtitlePrefix: 'Ось що відбувається в магазині',
     dashboardSubtitleToday: 'сьогодні',
-    statTodaySales: 'Сьогоднішні продажі',
-    statRevenue30d: 'Виторг за 30 днів',
+    statTodaySales: 'Продажі за сьогодні',
+    statRevenue30d: 'Виторг (30 днів)',
     statOrders: 'Замовлення',
     statNewCustomers: 'Нові клієнти',
-    statVsYesterday: 'порівняно з вчора',
-    statVsLastMonth: 'порівняно з минулим місяцем',
+    statVsYesterday: 'до вчора',
+    statVsLastMonth: 'до минулого місяця',
     latestOrdersTitle: 'Останні замовлення',
     viewAllBtn: 'Переглянути всі',
     noOrdersYet: 'Замовлень ще немає',
@@ -523,10 +748,17 @@ export const translations: Record<Language, TranslationDictionary> = {
     thPayment: 'ОПЛАТА',
     thFulfillment: 'ВИКОНАННЯ',
     revenueLast7Days: 'Виторг за останні 7 днів',
+    peakPrefix: 'Пік:',
+    paymentStatusPaid: 'Оплачено',
+    paymentStatusPending: 'Очікує',
+    paymentStatusFailed: 'Помилка',
+    fulfillmentStatusProcessing: 'В обробці',
+    fulfillmentStatusShipped: 'Відправлено',
+    fulfillmentStatusUnfulfilled: 'Не виконано',
+    fulfillmentStatusDelivered: 'Доставлено',
 
-    // Notifications Page
     notificationsTitle: 'Сповіщення',
-    notificationsSubtitle: 'Системні події, зміни статусів замовлень та попередження про залишки',
+    notificationsSubtitle: 'Події системи, зміна статусів замовлень та сповіщення про залишки',
     markAllAsReadBtn: 'Позначити всі як прочитані',
     clearReadBtn: 'Очистити прочитані',
     filterAll: 'Всі',
@@ -534,12 +766,11 @@ export const translations: Record<Language, TranslationDictionary> = {
     filterOrders: 'Замовлення',
     filterInventory: 'Склад',
     filterSystem: 'Система',
-    noNotificationsTitle: 'Немає сповіщень',
-    noNotificationsDesc: 'Усі нові системні події зʼявлятимуться тут.',
+    noNotificationsTitle: 'Немає нових сповіщень',
+    noNotificationsDesc: 'Всі нові події вашого магазину з’являтимуться тут.',
 
-    // Analytics Page
-    analyticsTitle: 'Аналітика та показники',
-    analyticsSubtitle: 'Детальна фінансова аналітика, ефективність категорій та географія замовлень',
+    analyticsTitle: 'Аналітика та ефективність',
+    analyticsSubtitle: 'Детальна фінансова статистика, категорії та географія замовлень',
     timeframe7d: '7 днів',
     timeframe30d: '30 днів',
     timeframe90d: '90 днів',
@@ -547,15 +778,68 @@ export const translations: Record<Language, TranslationDictionary> = {
     kpiTotalRevenue: 'Загальний виторг',
     kpiTotalOrders: 'Кількість замовлень',
     kpiAov: 'Середній чек (AOV)',
-    kpiConversion: 'Конверсія виконання',
+    kpiConversion: 'Відсоток виконання',
     revenueTrendTitle: 'Динаміка виторгу',
     salesByCategoryTitle: 'Продажі за категоріями',
-    topProductsHeading: 'Топ товарів за виторгом',
-    deliveryGeographyTitle: 'Географія замовлень',
+    topProductsHeading: 'Топ товарів за продажами',
+    deliveryGeographyTitle: 'Географія доставки',
     unitsSoldSuffix: 'продано',
+
+    smartAssistantTitle: 'Розумний асистент та автоматизація',
+    smartAssistantSubtitle: 'Автоматичні правила, синхронізація залишків та тригери процесів',
+    activeBadge: 'Активно',
+    inventoryAuditTitle: 'Аудит залишків',
+    inventoryAuditDesc: 'Звірка залишків з підтвердженими замовленнями та оновлення статусів.',
+    runAuditBtn: 'Запустити аудит',
+    runningAuditStatus: 'Аудит виконується...',
+    auditSuccessMsg: 'Аудит залишків успішно завершено.',
+
+    channelSyncTitle: 'Синхронізація Telegram каналу',
+    channelSyncDesc: 'Оновлення актуальної наявності товарів у підключеному Telegram-каналі.',
+    syncChannelBtn: 'Синхронізувати',
+    syncingChannelStatus: 'Синхронізація...',
+    channelSyncSuccessMsg: 'Каталог каналу синхронізовано.',
+
+    healthCheckTitle: 'Діагностика системи',
+    healthCheckDesc: 'Перевірка затримки бази даних, черги BullMQ/Redis та зв’язку з ботом.',
+    checkHealthBtn: 'Перевірити статус',
+    checkingHealthStatus: 'Діагностика...',
+    healthCheckSuccessMsg: 'Усі системи працюють стабільно: DB, Bot, API OK.',
+
+    workflowRulesTitle: 'Правила автоматизації',
+    rulesEnabledOf: 'активно з',
+
+    ruleOrderNotificationName: 'Миттєве сповіщення про замовлення у Telegram',
+    ruleOrderNotificationDesc: 'Надсилати сповіщення менеджеру в Telegram після оформлення покупки клієнтом.',
+    ruleOrderNotificationTrigger: 'При створенні замовлення',
+
+    ruleLowStockName: 'Авто-попередження про низький залишок',
+    ruleLowStockDesc: 'Показувати попереджувальний бейдж та сповіщення, якщо залишок варіанту <= 5 од.',
+    ruleLowStockTrigger: 'Залишок <= порогового значення',
+
+    ruleChannelDraftName: 'Автоматична чернетка допису в канал',
+    ruleChannelDraftDesc: 'Готувати готову публікацію для Telegram-каналу при збереженні нового товару на складі.',
+    ruleChannelDraftTrigger: 'При створенні товару',
+
+    ruleRestockCancelName: 'Повернення залишку при скасуванні замовлення',
+    ruleRestockCancelDesc: 'Автоматично повертати кількість товару на склад, якщо замовлення скасовано.',
+    ruleRestockCancelTrigger: 'Статус замовлення = СКАСОВАНО',
+
+    telegramBotTitle: 'Telegram Бот',
+    telegramBotSubtitle: 'Керування ботом-помічником вашого інтернет-магазину',
+    botSettingsBtn: 'Налаштування бота',
+
+    loginWelcomeTitle: 'Вхід до Панелі Керування',
+    loginSubtitle: 'Увійдіть під обліковим записом адміністратора магазину',
+    emailLabel: 'Робочий Email',
+    emailPlaceholder: 'admin@atelier.ua',
+    passwordLabel: 'Пароль',
+    signInBtn: 'Увійти в кабінет',
+    signingInBtn: 'Вхід...',
+    invalidCredentialsMsg: 'Невірний логін або пароль',
+    loginFailedMsg: 'Не вдалося увійти. Перевірте email та пароль.',
   },
   en: {
-    // Brand & Sidebar Groups
     adminPanel: 'Admin Panel',
     storeOperations: 'Store Operations',
     overview: 'Overview',
@@ -564,11 +848,10 @@ export const translations: Record<Language, TranslationDictionary> = {
     automation: 'Automation',
     system: 'System',
 
-    // Nav Items
     dashboard: 'Dashboard',
     analytics: 'Analytics',
     storage: 'Storage',
-    inventory: 'Inventory',
+    inventory: 'Inventory & Stock',
     orders: 'Orders',
     customers: 'Customers',
     crm: 'CRM',
@@ -578,50 +861,44 @@ export const translations: Record<Language, TranslationDictionary> = {
     notifications: 'Notifications',
     settings: 'Settings',
 
-    // Header
     searchPlaceholder: 'Search products, orders...',
     logout: 'Log out',
     adminBreadcrumb: 'Admin',
 
-    // Settings Page
     storeSettingsTitle: 'Store Settings',
-    storeSettingsSubtitle: 'Store configuration, Telegram channel automation, interface language, and security',
-    saveChanges: 'Save Changes',
+    storeSettingsSubtitle: 'Configure store profile, Telegram integration, language, and credentials',
+    saveChanges: 'Save changes',
     saving: 'Saving...',
     savedSuccess: 'Settings saved successfully!',
 
-    // Settings Tabs
     tabProfile: 'Store Profile',
-    tabTelegram: 'Telegram & Channels',
-    tabInventory: 'Inventory & Alerts',
-    tabSecurity: 'Security & Profile',
+    tabTelegram: 'Telegram Channel',
+    tabInventory: 'Stock & Alerts',
+    tabSecurity: 'Security & Access',
 
-    // Profile Settings Form
-    generalInfoTitle: 'General Store Information',
-    generalInfoDesc: 'Brand details visible to customers in Telegram receipts and notifications',
+    generalInfoTitle: 'General Store Profile',
+    generalInfoDesc: 'Store branding visible on customer receipts and order confirmations',
     storeNameLabel: 'Store Name',
     supportPhoneLabel: 'Support Phone',
     supportEmailLabel: 'Support Email',
-    currencyLabel: 'Default Store Currency',
-    timezoneLabel: 'Store Timezone',
-    languageLabel: 'Interface Language',
-    langUk: 'Українська (UK)',
+    currencyLabel: 'Default Currency',
+    timezoneLabel: 'Timezone',
+    languageLabel: 'Dashboard Language',
+    langUk: 'Ukrainian (UK)',
     langEn: 'English (EN)',
     saveProfileBtn: 'Save Profile Settings',
 
-    // Telegram Settings Form
-    telegramTitle: 'Telegram Channel & Bot Automation',
-    telegramDesc: 'Configure automated publishing and manager alert notifications',
+    telegramTitle: 'Telegram Integration',
+    telegramDesc: 'Connected broadcast channel and administrator recipient ID',
     telegramChannelLabel: 'Telegram Channel Username',
-    autoPublishLabel: 'Auto-publish new products',
-    autoPublishDesc: 'Broadcast new products to channel with photo upon creation',
-    adminIdLabel: 'Telegram Admin ID',
-    adminIdDesc: 'Receive instant notifications on order status changes directly',
+    autoPublishLabel: 'Auto-publish New Products',
+    autoPublishDesc: 'Broadcast products to Telegram channel immediately upon creation',
+    adminIdLabel: 'Admin Telegram ID',
+    adminIdDesc: 'Receive order alerts in personal Telegram chat',
     botTokenStatusLabel: 'Bot Token Status',
     botTokenConfigured: 'Configured via .env (Active)',
     saveTelegramBtn: 'Save Telegram Settings',
 
-    // Inventory Settings Form
     inventoryTitle: 'Inventory Triggers & Alerts',
     inventoryDesc: 'Set inventory stock thresholds and operational preferences',
     lowStockThresholdLabel: 'Low Stock Threshold (Units)',
@@ -632,7 +909,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     autoArchiveDesc: 'Automatically archive orders marked "Delivered" after 30 days',
     saveInventoryBtn: 'Save Inventory Settings',
 
-    // Security Tab
     securityTitle: 'Security & Access Credentials',
     securityDesc: 'Update your administrator password for this dashboard',
     currentPasswordLabel: 'Current Password',
@@ -643,7 +919,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     passwordMinLength: 'New password must be at least 8 characters long',
     passwordsMismatch: 'Passwords do not match',
 
-    // Inventory / Products Page
     productsTitle: 'Products',
     productVariantsInInventory: 'product variants in inventory',
     productVariantSingular: 'product variant in inventory',
@@ -661,7 +936,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     viewModeGrid: 'Grid view',
     viewModeTable: 'Table view',
 
-    // Products Table Columns
     thProduct: 'PRODUCT',
     thCategory: 'CATEGORY',
     thBrand: 'BRAND',
@@ -672,7 +946,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     thStatus: 'STATUS',
     thActions: 'ACTIONS',
 
-    // Products Table Actions & Tooltips
     actionDelete: 'Delete',
     actionCancel: 'Cancel',
     deleteTooltip: 'Delete',
@@ -683,18 +956,15 @@ export const translations: Record<Language, TranslationDictionary> = {
     noProductsFound: 'No products found matching filters',
     noProductsFoundSub: 'Try adjusting your filters or search query.',
 
-    // Pagination
     showingPrefix: 'Showing',
     showingOf: 'of',
 
-    // Orders Page
     ordersTitle: 'Orders',
     ordersSubtitle: 'Manage all incoming customer orders, delivery addresses, and fulfillment status.',
     totalOrdersBadge: 'total',
     refreshBtn: 'Refresh',
     exportCsvBtn: 'Export CSV',
 
-    // Orders Stats
     totalRevenueTitle: 'Total Revenue',
     fromAllRecordedSales: 'From all recorded sales',
     activeOrdersTitle: 'Active Orders',
@@ -705,7 +975,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     deliveredSuffix: 'delivered',
     cancelledSuffix: 'cancelled',
 
-    // Orders Filter Tabs
     tabActiveOrders: 'Active orders',
     tabPending: 'Pending',
     tabPaid: 'Paid',
@@ -715,7 +984,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     tabAllOrders: 'All orders',
     searchOrdersPlaceholder: 'Search orders by customer, phone, or TTN...',
 
-    // Orders Table Columns & Statuses
     orderStatusPending: 'Pending',
     orderStatusPaid: 'Paid',
     orderStatusProcessing: 'Processing',
@@ -733,7 +1001,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     noOrdersFound: 'No orders found',
     noOrdersFoundSub: 'Try selecting another status tab or modifying search query.',
 
-    // Order Details Modal
     orderDetailsTitle: 'Order Details',
     customerInfoSection: 'Customer Information',
     deliverySection: 'Nova Poshta Delivery',
@@ -774,13 +1041,43 @@ export const translations: Record<Language, TranslationDictionary> = {
     createBtn: 'Create',
     saveBtn: 'Save',
 
-    // Storage Page
     storageTitle: 'Storage',
     storageSubtitleItems: 'items across',
     storageSubtitleCategories: 'categories',
     addProductBtn: 'Add product',
+    newProduct: 'New product',
+    draftStatus: 'Draft',
+    publishToTelegramBtn: 'Publish to Telegram',
+    saveChangesBtn: 'Save changes',
+    detailsSection: 'Details',
+    productNameLabel: 'Product name',
+    productNamePlaceholder: 'e.g. Wool Overcoat, Leather Belt, Wool Beanie',
+    categoryLabel: 'Category',
+    brandLabel: 'Brand',
+    searchOrAddBrand: 'Search or add a brand…',
+    addBrandOption: 'Add brand',
+    variantBuilderTitle: 'Size & Color Matrix',
+    variantBuilderSubtitle: 'Choose variant options and set initial stocks',
+    productTypeLabel: 'Product type',
+    sizeModeLabel: 'Size scale',
+    sizesSectionTitle: 'Sizes',
+    colorsSectionTitle: 'Colors',
+    stockPerSizeTitle: 'Stock per size',
+    bulkStockPlaceholder: 'Set all...',
+    applyBtn: 'Apply',
+    addCustomSizeBtn: 'Add custom size',
+    addColorBtn: 'Add color',
+    customColorModalTitle: 'Add custom color',
+    customColorModalDesc: 'Drag the color picker or select a preset color.',
+    hexCodeLabel: 'Hex Code',
+    colorNameLabel: 'Color name',
+    colorNamePlaceholder: 'e.g. Camel, Forest Green, Oat',
+    popularPresetsLabel: 'Popular presets',
+    summaryTitle: 'Summary',
+    summarySubtitle: 'Live preview of the variant matrix that will be generated.',
+    noSizesSelected: '— no sizes selected —',
+    noColorsSelected: '— no colors selected —',
 
-    // Dashboard Page
     goodMorning: 'Good morning',
     goodAfternoon: 'Good afternoon',
     goodEvening: 'Good evening',
@@ -799,8 +1096,15 @@ export const translations: Record<Language, TranslationDictionary> = {
     thPayment: 'PAYMENT',
     thFulfillment: 'FULFILLMENT',
     revenueLast7Days: 'Revenue, last 7 days',
+    peakPrefix: 'Peak:',
+    paymentStatusPaid: 'Paid',
+    paymentStatusPending: 'Pending',
+    paymentStatusFailed: 'Failed',
+    fulfillmentStatusProcessing: 'Processing',
+    fulfillmentStatusShipped: 'Shipped',
+    fulfillmentStatusUnfulfilled: 'Unfulfilled',
+    fulfillmentStatusDelivered: 'Delivered',
 
-    // Notifications Page
     notificationsTitle: 'Notifications',
     notificationsSubtitle: 'System events, order status updates, and inventory warnings',
     markAllAsReadBtn: 'Mark all as read',
@@ -813,7 +1117,6 @@ export const translations: Record<Language, TranslationDictionary> = {
     noNotificationsTitle: 'No notifications',
     noNotificationsDesc: 'All new system events will appear here.',
 
-    // Analytics Page
     analyticsTitle: 'Analytics & Performance',
     analyticsSubtitle: 'Detailed financial analytics, category performance, and delivery geography',
     timeframe7d: '7 days',
@@ -829,6 +1132,60 @@ export const translations: Record<Language, TranslationDictionary> = {
     topProductsHeading: 'Top Performing Products',
     deliveryGeographyTitle: 'Delivery Geography',
     unitsSoldSuffix: 'sold',
+
+    smartAssistantTitle: 'Smart Assistant & Automation',
+    smartAssistantSubtitle: 'Automated rules, inventory sync jobs, and store workflow triggers',
+    activeBadge: 'Active',
+    inventoryAuditTitle: 'Inventory Audit',
+    inventoryAuditDesc: 'Verify variant stocks against confirmed orders and update low-stock alerts.',
+    runAuditBtn: 'Run Audit',
+    runningAuditStatus: 'Auditing…',
+    auditSuccessMsg: 'Inventory audit finished. Stocks verified.',
+
+    channelSyncTitle: 'Telegram Channel Sync',
+    channelSyncDesc: 'Sync latest product availability status to your linked Telegram channel.',
+    syncChannelBtn: 'Sync Channel',
+    syncingChannelStatus: 'Syncing…',
+    channelSyncSuccessMsg: 'Channel catalog synchronized.',
+
+    healthCheckTitle: 'Health Verification',
+    healthCheckDesc: 'Test database latency, worker Redis queue, and bot webhook responsiveness.',
+    checkHealthBtn: 'Check Health',
+    checkingHealthStatus: 'Checking…',
+    healthCheckSuccessMsg: 'All systems operational: DB, Bot, API OK.',
+
+    workflowRulesTitle: 'Workflow Rules',
+    rulesEnabledOf: 'of',
+
+    ruleOrderNotificationName: 'Instant Order Telegram Notification',
+    ruleOrderNotificationDesc: 'Send direct alert to manager Telegram chat when a customer completes checkout.',
+    ruleOrderNotificationTrigger: 'On Order Created',
+
+    ruleLowStockName: 'Low Stock Auto-Warning',
+    ruleLowStockDesc: 'Trigger low stock warning badge and notification when any variant drops to <= 5 units.',
+    ruleLowStockTrigger: 'On Stock <= Threshold',
+
+    ruleChannelDraftName: 'Automatic Channel Post Drafting',
+    ruleChannelDraftDesc: 'Prepare ready-to-publish Telegram channel draft whenever a new product is saved in Storage.',
+    ruleChannelDraftTrigger: 'On Product Creation',
+
+    ruleRestockCancelName: 'Automatic Inventory Restoration on Cancellation',
+    ruleRestockCancelDesc: 'Restock product variant quantity if an order is marked as Cancelled.',
+    ruleRestockCancelTrigger: 'On Order Status = CANCELLED',
+
+    telegramBotTitle: 'Telegram Bot',
+    telegramBotSubtitle: 'Manage the assistant connected to your store',
+    botSettingsBtn: 'Bot settings',
+
+    loginWelcomeTitle: 'Welcome to Admin Panel',
+    loginSubtitle: 'Sign in with the account issued by your store admin',
+    emailLabel: 'Work email',
+    emailPlaceholder: 'admin@atelier.ua',
+    passwordLabel: 'Password',
+    signInBtn: 'Sign in to Dashboard',
+    signingInBtn: 'Signing in...',
+    invalidCredentialsMsg: 'Invalid credentials',
+    loginFailedMsg: 'Login failed. Please check your email and password.',
   },
 };
 
