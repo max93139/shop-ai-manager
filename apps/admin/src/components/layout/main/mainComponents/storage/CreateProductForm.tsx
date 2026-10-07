@@ -14,6 +14,7 @@ import type { ColorOption } from './form/VariantBuilder';
 export interface CreateProductFormProps {
   onBack: () => void;
   onSave?: (data: any) => void;
+  productId?: string;
 }
 
 const DEFAULT_COLORS: ColorOption[] = [
@@ -70,7 +71,7 @@ const CATEGORIES = [
 
 const DRAFT_STORAGE_KEY = 'shop_ai_create_product_draft';
 
-export default function CreateProductForm({ onBack, onSave }: CreateProductFormProps) {
+export default function CreateProductForm({ onBack, onSave, productId }: CreateProductFormProps) {
   // Product Basic State
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Outerwear');
@@ -207,8 +208,17 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   };
 
   const handleSave = () => {
-    // Filter out sizes with 0 stock if sizeStocks is configured
+    // Preserve sizes that have positive stock (either in base sizeStocks or across any selected color)
     const validSizes = selectedSizes.filter((sz) => {
+      // Check if any selected color has positive stock for this size
+      if (selectedColors.length > 0) {
+        const hasColorStock = selectedColors.some((c) => {
+          const key = `${c}:::${sz}`;
+          return key in sizeStocks && Number(sizeStocks[key]) > 0;
+        });
+        if (hasColorStock) return true;
+      }
+      // Check base size stock
       if (sz in sizeStocks) {
         return Number(sizeStocks[sz]) > 0;
       }
@@ -236,6 +246,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         isOpen={isTelegramModalOpen}
         onClose={() => setIsTelegramModalOpen(false)}
         productData={{
+          id: productId,
           name,
           category,
           brand,

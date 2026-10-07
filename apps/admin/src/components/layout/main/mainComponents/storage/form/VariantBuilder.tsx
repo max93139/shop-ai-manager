@@ -170,6 +170,7 @@ export default function VariantBuilder({
     if (colorName) {
       const variantKey = `${colorName}:::${size}`;
       if (variantKey in sizeStocks) return sizeStocks[variantKey];
+      return selectedColors.length <= 1 ? (sizeStocks[size] ?? 0) : 0;
     }
     return sizeStocks[size] ?? 0;
   };
@@ -183,8 +184,15 @@ export default function VariantBuilder({
       const updated = { ...prev };
       if (colorName) {
         updated[`${colorName}:::${size}`] = num;
+        const colorsList = selectedColors.length > 0 ? selectedColors : [colorName];
+        const aggregatedStock = colorsList.reduce((sum, c) => {
+          const key = `${c}:::${size}`;
+          return sum + (key in updated ? (updated[key] ?? 0) : (prev[key] ?? 0));
+        }, 0);
+        updated[size] = aggregatedStock;
+      } else {
+        updated[size] = num;
       }
-      updated[size] = num;
       return updated;
     });
   };
@@ -197,11 +205,13 @@ export default function VariantBuilder({
     onSizeStocksChange((prev) => {
       const updated = { ...prev };
       for (const s of selectedSizes) {
-        updated[s] = num;
         if (selectedColors.length > 0) {
           for (const c of selectedColors) {
             updated[`${c}:::${s}`] = num;
           }
+          updated[s] = num * selectedColors.length;
+        } else {
+          updated[s] = num;
         }
       }
       return updated;
