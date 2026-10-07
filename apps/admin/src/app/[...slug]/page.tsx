@@ -1,3 +1,7 @@
 'use client';
 
-export { default } from '../page';
+import Page from '../page';
+
+export default function CatchAllPage() {
+  return <Page />;
+}

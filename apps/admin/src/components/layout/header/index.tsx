@@ -17,11 +17,11 @@ export default function Header() {
       case '/':
       case '/dashboard':
         return 'Dashboard';
+      case '/analytics':
+        return 'Analytics';
       case '/storage':
       case '/products':
         return 'Storage';
-      case '/categories':
-        return 'Categories';
       case '/inventory':
         return 'Inventory';
       case '/orders':
@@ -35,11 +35,9 @@ export default function Header() {
       case '/channel-publisher':
         return 'Channel Publisher';
       case '/ai-assistant':
-        return 'AI Assistant';
+        return 'Smart Assistant';
       case '/notifications':
         return 'Notifications';
-      case '/staff':
-        return 'Staff';
       case '/settings':
         return 'Settings';
       default:

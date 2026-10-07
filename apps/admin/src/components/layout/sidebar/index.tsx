@@ -5,16 +5,14 @@ import {
   LayoutGrid,
   BarChart3,
   Tag,
-  Layers,
   Package,
   Receipt,
   Users,
   Target,
   Bot,
   Megaphone,
-  Sparkles,
+  Workflow,
   Bell,
-  UserCheck,
   Settings,
   ShoppingBag,
 } from 'lucide-react';
@@ -81,7 +79,6 @@ export default function Sidebar() {
               Catalog
             </div>
             <SidebarItem label="Storage" href="/storage" icon={<Tag className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Categories" href="/categories" icon={<Layers className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Inventory" href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
           </div>
 
@@ -102,7 +99,7 @@ export default function Sidebar() {
             </div>
             <SidebarItem label="Telegram Bot" href="/telegram-bot" icon={<Bot className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Channel Publisher" href="/channel-publisher" icon={<Megaphone className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="AI Assistant" href="/ai-assistant" icon={<Sparkles className="h-[17px] w-[17px]" />} />
+            <SidebarItem label="Smart Assistant" href="/ai-assistant" icon={<Workflow className="h-[17px] w-[17px]" />} />
           </div>
 
           {/* System Group */}
@@ -111,7 +108,6 @@ export default function Sidebar() {
               System
             </div>
             <SidebarItem label="Notifications" href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} />
-            <SidebarItem label="Staff" href="/staff" icon={<UserCheck className="h-[17px] w-[17px]" />} />
             <SidebarItem label="Settings" href="/settings" icon={<Settings className="h-[17px] w-[17px]" />} />
           </div>
         </nav>

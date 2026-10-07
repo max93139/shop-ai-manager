@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 
 import Dashboard from './Dashboard';
 import Analytics from './Analytics';
-import Categories from './Categories';
 import Inventory from './Inventory';
 import Orders from './Orders';
 import Customers from './Customers';
@@ -14,7 +13,6 @@ import TelegramBot from './TelegramBot';
 import ChannelPublisher from './ChannelPublisher';
 import AIAssistant from './AIAssistant';
 import Notifications from './Notifications';
-import Staff from './Staff';
 import Settings from './Settings';
 import Storage from './Storage';
 
@@ -38,7 +36,7 @@ export default function Main({ children }: MainProps) {
       case '/products':
         return <Storage />;
       case '/categories':
-        return <Categories />;
+        return <Storage />;
       case '/inventory':
         return <Inventory />;
       case '/orders':
@@ -56,7 +54,7 @@ export default function Main({ children }: MainProps) {
       case '/notifications':
         return <Notifications />;
       case '/staff':
-        return <Staff />;
+        return <Settings />;
       case '/settings':
         return <Settings />;
       default:
