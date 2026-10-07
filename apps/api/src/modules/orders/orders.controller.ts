@@ -13,6 +13,12 @@ export class OrdersController {
     return this.ordersService.getDashboardFullData();
   }
 
+  @Get('analytics')
+  @UseGuards(JwtAuthGuard)
+  async getAnalytics(@Query('period') period?: string) {
+    return this.ordersService.getAnalyticsData(period);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   async getOrders(
