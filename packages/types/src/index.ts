@@ -141,3 +141,81 @@ export interface ApiResponse<T = any> {
   data?: T;
 }
 
+export interface AnalyticsTimeframePoint {
+  date: string;
+  label: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface AnalyticsCategoryShare {
+  name: string;
+  revenue: number;
+  percentage: number;
+}
+
+export interface AnalyticsTopProduct {
+  id: string;
+  name: string;
+  category: string;
+  salesCount: number;
+  revenue: number;
+}
+
+export interface AnalyticsCityShare {
+  city: string;
+  ordersCount: number;
+  totalAmount: number;
+}
+
+export interface AnalyticsData {
+  timeframe: string;
+  summary: {
+    totalRevenue: number;
+    totalOrders: number;
+    aov: number;
+    conversionRate: number;
+    revenueGrowth: number;
+    ordersGrowth: number;
+  };
+  revenueTrend: AnalyticsTimeframePoint[];
+  categories: AnalyticsCategoryShare[];
+  topProducts: AnalyticsTopProduct[];
+  cities: AnalyticsCityShare[];
+  statusBreakdown: {
+    delivered: number;
+    shipped: number;
+    processing: number;
+    paid: number;
+    pending: number;
+    cancelled: number;
+  };
+}
+
+export interface StoreNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'order' | 'inventory' | 'system';
+  severity: 'info' | 'warning' | 'success';
+  read: boolean;
+  timestamp: string;
+  actionUrl?: string;
+  actionLabel?: string;
+}
+
+export interface StoreSettings {
+  storeName: string;
+  supportPhone: string;
+  supportEmail: string;
+  currency: string;
+  timezone: string;
+  telegramChannel: string;
+  telegramBotTokenSet: boolean;
+  autoPublishNewProducts: boolean;
+  telegramAdminId: string;
+  lowStockThreshold: number;
+  soundAlerts: boolean;
+  autoArchiveCompleted: boolean;
+}
+
