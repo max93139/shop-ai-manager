@@ -251,20 +251,20 @@ function DeleteButton({ variantId, productName }: { variantId: string; productNa
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="rounded bg-[#B84343] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
-        >
-          Delete
-        </button>
+      <div className="flex items-center justify-end gap-1.5">
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] transition-colors"
+          className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] transition-colors"
         >
           Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="rounded bg-[#B84343] px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
+        >
+          Delete
         </button>
       </div>
     );
