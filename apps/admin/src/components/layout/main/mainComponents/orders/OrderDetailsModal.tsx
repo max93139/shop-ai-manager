@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import BaseModal from '../../../../common/BaseModal';
-import type { AdminOrder, OrderStatus } from '@shop-ai/types';
+import { OrderStatus, type AdminOrder } from '@shop-ai/types';
 
 export interface OrderDetailsModalProps {
   order: AdminOrder | null;
@@ -34,8 +34,65 @@ export default function OrderDetailsModal({
 }: OrderDetailsModalProps) {
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [ttnInput, setTtnInput] = useState(order?.ttn || '');
+  const [currentTtn, setCurrentTtn] = useState(order?.ttn || '');
+  const [isSavingTtn, setIsSavingTtn] = useState(false);
 
   if (!order) return null;
+
+  const handleSaveTtn = async () => {
+    if (!ttnInput.trim()) return;
+    try {
+      setIsSavingTtn(true);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/nova-poshta/orders/${order.id}/ttn`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ ttn: ttnInput.trim() }),
+      });
+      if (res.ok) {
+        setCurrentTtn(ttnInput.trim());
+        order.ttn = ttnInput.trim();
+        await onUpdateStatus(order.id, OrderStatus.SHIPPED);
+      }
+    } catch (err) {
+      console.error('Failed to save TTN:', err);
+    } finally {
+      setIsSavingTtn(false);
+    }
+  };
+
+  const handleGenerateTtn = async () => {
+    try {
+      setIsSavingTtn(true);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/nova-poshta/orders/${order.id}/create-ttn`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ttn) {
+          setCurrentTtn(data.ttn);
+          setTtnInput(data.ttn);
+          order.ttn = data.ttn;
+          await onUpdateStatus(order.id, OrderStatus.SHIPPED);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to generate TTN:', err);
+    } finally {
+      setIsSavingTtn(false);
+    }
+  };
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
     try {
@@ -220,6 +277,54 @@ export default function OrderDetailsModal({
                 <span className="font-semibold text-[var(--text)] text-right max-w-[200px]">
                   {order.postOffice || '—'}
                 </span>
+              </div>
+
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-[var(--border)]">
+                <div className="flex justify-between items-center">
+                  <span className="text-[var(--text-tertiary)]">ТТН (Накладна):</span>
+                  {currentTtn ? (
+                    <a
+                      href={`https://tracking.novaposhta.ua/#/uk/cargo/${currentTtn}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-mono font-bold text-[12px] text-[#0F6B4F] hover:underline"
+                    >
+                      <Truck className="h-3.5 w-3.5" />
+                      <span>{currentTtn}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="text-[12px] text-[var(--text-tertiary)]">Не згенеровано</span>
+                  )}
+                </div>
+
+                {!currentTtn && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <input
+                      type="text"
+                      placeholder="Введіть ТТН або натисніть Створити"
+                      value={ttnInput}
+                      onChange={(e) => setTtnInput(e.target.value)}
+                      className="flex-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-2.5 py-1 text-[12px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isSavingTtn || !ttnInput.trim()}
+                      onClick={handleSaveTtn}
+                      className="rounded-[6px] bg-[var(--accent)] px-2.5 py-1 text-[11.5px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                      {isSavingTtn ? '...' : 'Зберегти'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSavingTtn}
+                      onClick={handleGenerateTtn}
+                      className="rounded-[6px] border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] disabled:opacity-50"
+                    >
+                      Створити
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

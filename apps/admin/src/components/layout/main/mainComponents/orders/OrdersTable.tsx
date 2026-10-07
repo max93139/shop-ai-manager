@@ -184,6 +184,17 @@ export default function OrdersTable({
                       <span className="text-[11.5px] text-[var(--text-tertiary)] truncate">
                         {ord.postOffice || 'Nova Poshta'}
                       </span>
+                      {ord.ttn && (
+                        <a
+                          href={`https://tracking.novaposhta.ua/#/uk/cargo/${ord.ttn}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[#0F6B4F] hover:underline"
+                        >
+                          <Truck className="h-3 w-3" />
+                          <span>{ord.ttn}</span>
+                        </a>
+                      )}
                     </div>
                   </td>
 
@@ -314,6 +325,17 @@ export default function OrdersTable({
                   <span className="text-[11.5px] text-[var(--text-tertiary)] max-w-[140px] truncate">
                     {ord.postOffice || '—'}
                   </span>
+                  {ord.ttn && (
+                    <a
+                      href={`https://tracking.novaposhta.ua/#/uk/cargo/${ord.ttn}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[#0F6B4F] hover:underline"
+                    >
+                      <Truck className="h-3 w-3" />
+                      <span>{ord.ttn}</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
