@@ -30,7 +30,7 @@ export default function OrdersStats({
   const cards = [
     {
       title: 'Total Revenue',
-      value: `$${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `₴${totalRevenue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       subtitle: 'From all recorded sales',
       icon: <DollarSign className="h-5 w-5 text-[#0F6B4F]" />,
       bgIcon: 'bg-[#E7F2ED]',

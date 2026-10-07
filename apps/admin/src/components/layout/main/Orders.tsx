@@ -168,7 +168,7 @@ export default function Orders() {
       return;
     }
 
-    const headers = ['Order Number', 'Date', 'Customer Name', 'Phone', 'City', 'Post Office', 'Items Count', 'Total ($)', 'Status'];
+    const headers = ['Order Number', 'Date', 'Customer Name', 'Phone', 'City', 'Post Office', 'Items Count', 'Total (₴)', 'Status'];
     const rows = orders.map((o) => [
       o.orderNumber,
       new Date(o.createdAt).toISOString(),

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, X, Archive, Clock, Sparkles } from 'lucide-react';
+import { Search, X, Archive } from 'lucide-react';
 
 export interface OrdersFiltersProps {
   selectedStatus: string;

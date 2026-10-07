@@ -219,7 +219,7 @@ export default function OrdersTable({
 
                   {/* Total */}
                   <td className="py-4 px-4 font-bold text-[var(--text)] whitespace-nowrap">
-                    ${ord.totalAmount.toFixed(2)}
+                    {ord.totalAmount.toFixed(2)} ₴
                   </td>
 
                   {/* Status Dropdown / Badge */}
@@ -338,7 +338,7 @@ export default function OrdersTable({
 
                 <div className="flex items-center gap-3">
                   <span className="font-['Fraunces',Georgia,serif] text-[16px] font-[650] text-[var(--text)]">
-                    ${ord.totalAmount.toFixed(2)}
+                    {ord.totalAmount.toFixed(2)} ₴
                   </span>
                   <button
                     type="button"
