@@ -28,6 +28,19 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
     }
   };
 
+  const getPaymentStatusLabel = (status: LatestOrderItem['paymentStatus']) => {
+    switch (status) {
+      case 'Paid':
+        return t.paymentStatusPaid;
+      case 'Pending':
+        return t.paymentStatusPending;
+      case 'Failed':
+        return t.paymentStatusFailed;
+      default:
+        return status;
+    }
+  };
+
   const getFulfillmentBadge = (status: LatestOrderItem['fulfillmentStatus']) => {
     switch (status) {
       case 'Processing':
@@ -40,6 +53,21 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
         return 'bg-[#E7F2ED] text-[#0F6B4F]';
       default:
         return 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]';
+    }
+  };
+
+  const getFulfillmentStatusLabel = (status: LatestOrderItem['fulfillmentStatus']) => {
+    switch (status) {
+      case 'Processing':
+        return t.fulfillmentStatusProcessing;
+      case 'Shipped':
+        return t.fulfillmentStatusShipped;
+      case 'Unfulfilled':
+        return t.fulfillmentStatusUnfulfilled;
+      case 'Delivered':
+        return t.fulfillmentStatusDelivered;
+      default:
+        return status;
     }
   };
 
@@ -111,7 +139,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
                       )}`}
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {order.paymentStatus}
+                      {getPaymentStatusLabel(order.paymentStatus)}
                     </span>
                   </td>
                   <td className="py-4 pr-1">
@@ -121,7 +149,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
                       )}`}
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {order.fulfillmentStatus}
+                      {getFulfillmentStatusLabel(order.fulfillmentStatus)}
                     </span>
                   </td>
                 </tr>

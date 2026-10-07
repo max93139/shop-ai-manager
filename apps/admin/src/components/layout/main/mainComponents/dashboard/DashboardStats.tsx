@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Receipt, BarChart3, Package, Users } from 'lucide-react';
 import StatCard, { type StatCardProps } from './StatCard';
 import type { DashboardOverviewData } from '@shop-ai/types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface DashboardStatsProps {
   data?: DashboardOverviewData | null;
@@ -11,6 +12,7 @@ export interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ data, loading }: DashboardStatsProps) {
+  const { t } = useTranslation();
   const [activeIdx, setActiveIdx] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
@@ -18,21 +20,29 @@ export default function DashboardStats({ data, loading }: DashboardStatsProps) {
     ? [
         {
           ...data.todaySales,
+          title: t.statTodaySales,
+          timeframe: t.statVsYesterday,
           icon: <Receipt className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
           iconBgClass: 'bg-[#E7F2ED]',
         },
         {
           ...data.revenue30d,
+          title: t.statRevenue30d,
+          timeframe: t.statVsLastMonth,
           icon: <BarChart3 className="h-4 w-4 text-[#2B6CB0]" strokeWidth={1.8} />,
           iconBgClass: 'bg-[#EBF8FF]',
         },
         {
           ...data.orders,
+          title: t.statOrders,
+          timeframe: t.statVsYesterday,
           icon: <Package className="h-4 w-4 text-[#B7791F]" strokeWidth={1.8} />,
           iconBgClass: 'bg-[#FEFCBF]',
         },
         {
           ...data.newCustomers,
+          title: t.statNewCustomers,
+          timeframe: t.statVsYesterday,
           icon: <Users className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
           iconBgClass: 'bg-[#E7F2ED]',
         },

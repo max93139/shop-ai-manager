@@ -17,7 +17,7 @@ export default function RevenueChart({
   data,
   loading,
 }: RevenueChartProps) {
-  const { t } = useTranslation();
+  const { t, translateDay, translatePeakInfo } = useTranslation();
   const displayTitle = title || t.revenueLast7Days;
   const bars = data || [];
   const maxValue = Math.max(...bars.map((b) => b.value), 1);
@@ -46,7 +46,7 @@ export default function RevenueChart({
         </h2>
         {peakInfo && (
           <span className="text-[12.5px] sm:text-[13px] font-medium text-[var(--text-tertiary)]">
-            {peakInfo}
+            {translatePeakInfo(peakInfo)}
           </span>
         )}
       </div>
@@ -69,7 +69,7 @@ export default function RevenueChart({
                 }`}
               />
               <span className="mt-2 text-[12px] font-semibold text-[var(--text-secondary)]">
-                {bar.day}
+                {translateDay(bar.day)}
               </span>
             </div>
           );
