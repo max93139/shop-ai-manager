@@ -46,6 +46,46 @@ export interface Order {
   userId: string;
   status: OrderStatus;
   totalAmount: number;
+  fullName?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  postOffice?: string | null;
+  ttn?: string | null;
+  deliveryCityRef?: string | null;
+  deliveryWarehouseRef?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NovaPoshtaSettlement {
+  ref: string;
+  present: string;
+  mainDescription: string;
+  area: string;
+  region?: string;
+  deliveryCityRef: string;
+}
+
+export interface NovaPoshtaWarehouse {
+  ref: string;
+  siteKey: string;
+  description: string;
+  shortAddress: string;
+  number: string;
+  typeOfWarehouse?: string;
+}
+
+export interface NovaPoshtaTrackingStatus {
+  number: string;
+  status: string;
+  statusCode: string;
+  statusDescription: string;
+  citySender?: string;
+  cityRecipient?: string;
+  warehouseRecipient?: string;
+  recipientFullName?: string;
+  actualDeliveryDate?: string;
+  documentCost?: string;
 }
 
 export interface DashboardStatMetric {
@@ -109,6 +149,9 @@ export interface AdminOrder {
   phone?: string;
   city?: string;
   postOffice?: string;
+  ttn?: string;
+  deliveryCityRef?: string;
+  deliveryWarehouseRef?: string;
   telegramId?: string;
   items: AdminOrderItemDetail[];
   itemsCount: number;

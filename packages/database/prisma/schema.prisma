@@ -87,11 +87,14 @@ model Order {
   totalAmount Decimal     @db.Decimal(10, 2)
   fullName    String?
   phone       String?
-  city        String?
-  postOffice  String?
-  items       OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  city                 String?
+  postOffice           String?
+  ttn                  String?
+  deliveryCityRef      String?
+  deliveryWarehouseRef String?
+  items                OrderItem[]
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
   @@map("orders")
 }
