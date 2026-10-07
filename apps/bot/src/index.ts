@@ -122,6 +122,37 @@ bot.command('start', async (ctx) => {
   await ensureDbUser(ctx);
   ctx.session.checkoutStep = 'IDLE';
 
+  const match = ctx.match?.trim();
+  if (match) {
+    let targetProductId = '';
+    if (match.startsWith('prod_')) {
+      targetProductId = match.slice(5).trim();
+    } else if (match.startsWith('prod-')) {
+      targetProductId = match.slice(5).trim();
+    } else {
+      targetProductId = match;
+    }
+
+    if (targetProductId) {
+      const product = await prisma.product.findUnique({
+        where: { id: targetProductId },
+      });
+
+      if (product) {
+        await ctx.reply(
+          `👋 **Вітаємо в нашому магазині!**\n\n` +
+            `Відкриваємо обраний товар зі списку:`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: getMainMenuKeyboard(),
+          },
+        );
+        await showProductDetails(ctx, product.id);
+        return;
+      }
+    }
+  }
+
   await ctx.reply(
     `👋 **Вітаємо в нашому магазині!**\n\n` +
       `Тут ви можете переглянути доступні товари та оформити замовлення прямо у Telegram.\n\n` +
@@ -131,6 +162,15 @@ bot.command('start', async (ctx) => {
       reply_markup: getMainMenuKeyboard(),
     },
   );
+});
+
+// /cancel Command
+bot.command('cancel', async (ctx) => {
+  ctx.session.checkoutStep = 'IDLE';
+  ctx.session.checkoutData = {};
+  await ctx.reply('Оформлення замовлення скасовано.', {
+    reply_markup: getMainMenuKeyboard(),
+  });
 });
 
 // 1. STEP 1: Categories View (Каталог -> Категорії)
@@ -184,7 +224,25 @@ async function showCategoryList(ctx: MyContext) {
 }
 
 bot.hears(['🛍 Каталог товарів', '/catalog'], async (ctx) => {
+  ctx.session.checkoutStep = 'IDLE';
   await showCategoryList(ctx);
+});
+
+bot.hears(['📦 Мої замовлення', '/orders'], async (ctx) => {
+  ctx.session.checkoutStep = 'IDLE';
+  await showMyOrders(ctx);
+});
+
+bot.hears(['ℹ️ Допомога', '/help'], async (ctx) => {
+  ctx.session.checkoutStep = 'IDLE';
+  await ctx.reply(
+    `ℹ️ **Допомога та підтримка**\n\n` +
+      `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
+      `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
+      `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
+      `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`,
+    { parse_mode: 'Markdown', reply_markup: getMainMenuKeyboard() },
+  );
 });
 
 bot.callbackQuery('cat_list', async (ctx) => {
@@ -232,7 +290,7 @@ bot.callbackQuery(/^cat_sel_(.+)$/, async (ctx) => {
       const stockBadge = activeVariants.length > 0 ? '' : ' (немає)';
 
       keyboard
-        .text(`🛍 ${brandStr}${prod.name} — від $${minPrice}${stockBadge}`, `prod_sel_${prod.id}`)
+        .text(`🛍 ${brandStr}${prod.name} — від ${minPrice} ₴${stockBadge}`, `prod_sel_${prod.id}`)
         .row();
     });
 
@@ -255,10 +313,7 @@ bot.callbackQuery(/^cat_sel_(.+)$/, async (ctx) => {
 });
 
 // 3. STEP 3: Product View + Photos + Color Selection (Модель -> Фото + Кольори)
-bot.callbackQuery(/^prod_sel_(.+)$/, async (ctx) => {
-  await ctx.answerCallbackQuery();
-  const productId = ctx.match[1];
-
+async function showProductDetails(ctx: MyContext, productId: string) {
   try {
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -289,7 +344,7 @@ bot.callbackQuery(/^prod_sel_(.+)$/, async (ctx) => {
     if (brand) caption += `🏷️ Бренд: **${brand}**\n`;
     caption += `📂 Категорія: **${product.category?.name || 'Загальне'}**\n`;
     caption += `📏 Доступні розміри: **${allSizes || 'One size'}**\n`;
-    caption += `💰 Ціна: **$${minPrice}**\n\n`;
+    caption += `💰 Ціна: **${minPrice} ₴**\n\n`;
     caption += `🎨 **Оберіть колір для замовлення:**`;
 
     const keyboard = new InlineKeyboard();
@@ -308,7 +363,11 @@ bot.callbackQuery(/^prod_sel_(.+)$/, async (ctx) => {
     });
 
     if (uniqueColors.length % 2 !== 0) keyboard.row();
-    keyboard.text('🔙 Назад до списку товарів', `cat_sel_${product.categoryId}`);
+    if (product.categoryId) {
+      keyboard.text('🔙 Назад до списку товарів', `cat_sel_${product.categoryId}`);
+    } else {
+      keyboard.text('🔙 До каталогу', 'cat_list');
+    }
 
     // Send with Photo if product has an image
     const firstImage = product.images?.[0];
@@ -336,17 +395,25 @@ bot.callbackQuery(/^prod_sel_(.+)$/, async (ctx) => {
     // Fallback text if no image
     if (ctx.callbackQuery?.message?.photo) {
       await ctx.reply(caption, { parse_mode: 'Markdown', reply_markup: keyboard });
-    } else {
+    } else if (ctx.callbackQuery) {
       try {
         await ctx.editMessageText(caption, { parse_mode: 'Markdown', reply_markup: keyboard });
       } catch {
         await ctx.reply(caption, { parse_mode: 'Markdown', reply_markup: keyboard });
       }
+    } else {
+      await ctx.reply(caption, { parse_mode: 'Markdown', reply_markup: keyboard });
     }
   } catch (err) {
     console.error('Error showing product details:', err);
     await ctx.reply('Помилка відображення товару.');
   }
+}
+
+bot.callbackQuery(/^prod_sel_(.+)$/, async (ctx) => {
+  await ctx.answerCallbackQuery().catch(() => {});
+  const productId = ctx.match[1];
+  await showProductDetails(ctx, productId);
 });
 
 // 4. STEP 4: Size Selection for Chosen Color (Колір -> Розміри)
@@ -379,7 +446,7 @@ bot.callbackQuery(/^prod_col_(.+)[:]{3}(.+)$/, async (ctx) => {
     let text =
       `🛍 **${product.name}**\n` +
       `🎨 Колір: ${colorEmoji} **${colorName}**\n` +
-      `💰 Ціна: **$${price}**\n\n` +
+      `💰 Ціна: **${price} ₴**\n\n` +
       `📏 **Оберіть потрібний розмір:**`;
 
     const keyboard = new InlineKeyboard();
@@ -462,12 +529,18 @@ bot.callbackQuery(/^var_card_(.+)$/, async (ctx) => {
     caption += `🎨 **Колір**: ${colorEmoji} ${variant.color}\n`;
     caption += `📏 **Розмір**: **${variant.size}**\n`;
     caption += `🔢 **В наявності**: **${variant.stock} шт**\n`;
-    caption += `💰 **Ціна**: **$${variant.price}**\n\n`;
+    caption += `💰 Ціна: **${variant.price} ₴**\n\n`;
     caption += `👇 _Оберіть дію нижче для замовлення:_`;
 
-    const keyboard = new InlineKeyboard()
-      .text('🛒 Додати в кошик', `add_cart_${variant.id}`)
-      .text('⚡ Купити відразу', `buy_now_${variant.id}`)
+    const keyboard = new InlineKeyboard();
+    if (variant.stock > 0) {
+      keyboard
+        .text('🛒 Додати в кошик', `add_cart_${variant.id}`)
+        .text('⚡ Купити відразу', `buy_now_${variant.id}`);
+    } else {
+      keyboard.text('❌ Немає в наявності', `outofstock_${variant.id}`);
+    }
+    keyboard
       .row()
       .text('🔙 Назад до вибору розміру', `prod_col_${product.id}:::${variant.color}`)
       .row()
@@ -525,8 +598,17 @@ bot.callbackQuery(/^add_cart_(.+)$/, async (ctx) => {
     });
   }
 
-  // Add to cart
+  // Overselling protection: check total quantity in cart against available stock
   const existing = ctx.session.cart.find((c) => c.variantId === variantId);
+  const currentQty = existing ? existing.quantity : 0;
+
+  if (currentQty + 1 > variant.stock) {
+    return ctx.answerCallbackQuery({
+      text: `❌ У наявності лише ${variant.stock} шт. Більше додати не можна.`,
+      show_alert: true,
+    });
+  }
+
   if (existing) {
     existing.quantity += 1;
   } else {
@@ -556,7 +638,7 @@ bot.callbackQuery(/^add_cart_(.+)$/, async (ctx) => {
       `📦 **${variant.product.name}**\n` +
       `🎨 Колір: **${variant.color}**\n` +
       `📏 Розмір: **${variant.size}**\n` +
-      `💰 Ціна: **$${variant.price}**\n\n` +
+      `💰 Ціна: **${variant.price} ₴**\n\n` +
       `Що бажаєте зробити далі?`,
     {
       parse_mode: 'Markdown',
@@ -580,18 +662,17 @@ bot.callbackQuery(/^buy_now_(.+)$/, async (ctx) => {
     });
   }
 
-  // Ensure item is in cart
-  const existing = ctx.session.cart.find((c) => c.variantId === variantId);
-  if (!existing) {
-    ctx.session.cart.push({
+  // Isolate cart to this specific item for single-click checkout
+  ctx.session.cart = [
+    {
       variantId,
       productName: variant.product.name,
       size: variant.size,
       color: variant.color,
       price: Number(variant.price),
       quantity: 1,
-    });
-  }
+    },
+  ];
 
   await ctx.answerCallbackQuery();
 
@@ -600,7 +681,7 @@ bot.callbackQuery(/^buy_now_(.+)$/, async (ctx) => {
 
   await ctx.reply(
     `⚡ **Швидке оформлення замовлення (Крок 1/4)**\n\n` +
-      `📦 Товар: **${variant.product.name}** (${variant.color} / ${variant.size}) — **$${variant.price}**\n\n` +
+      `📦 Товар: **${variant.product.name}** (${variant.color} / ${variant.size}) — **${variant.price} ₴**\n\n` +
       `Будь ласка, введіть ваше **ПІБ** (Прізвище, Ім'я, По батькові):\n` +
       `_Приклад: Шевченко Тарас Григорович_`,
     { parse_mode: 'Markdown' },
@@ -614,6 +695,7 @@ bot.callbackQuery('continue_shopping', async (ctx) => {
 
 // 🛒 Cart View
 bot.hears(['🛒 Мій кошик', '🛒 Моій кошик', '/cart'], async (ctx) => {
+  ctx.session.checkoutStep = 'IDLE';
   await showCart(ctx);
 });
 
@@ -638,10 +720,10 @@ async function showCart(ctx: MyContext) {
     const itemTotal = item.price * item.quantity;
     total += itemTotal;
     text += `${idx + 1}. **${item.productName}** (${item.color} / ${item.size})\n`;
-    text += `   Кількість: ${item.quantity} шт × $${item.price} = **$${itemTotal.toFixed(2)}**\n\n`;
+    text += `   Кількість: ${item.quantity} шт × ${item.price} ₴ = **${itemTotal.toFixed(2)} ₴**\n\n`;
   });
 
-  text += `💰 **Разом до сплати: $${total.toFixed(2)}**`;
+  text += `💰 **Разом до сплати: ${total.toFixed(2)} ₴**`;
 
   const keyboard = new InlineKeyboard()
     .text('📝 Оформити замовлення', 'checkout_start')
@@ -683,13 +765,55 @@ bot.callbackQuery('checkout_start', async (ctx) => {
 
 // Text Handler for Checkout Wizard
 bot.on('message:text', async (ctx) => {
-  const step = ctx.session.checkoutStep;
   const text = ctx.message.text.trim();
 
-  // If selecting main menu buttons
-  if (['🛍 Каталог товарів', '🛒 Мій кошик', '🛒 Моій кошик', '📦 Мої замовлення', 'ℹ️ Допомога'].includes(text)) {
+  // If user requests cancellation
+  if (['/cancel', 'скасувати', 'відміна', 'отмена'].includes(text.toLowerCase())) {
     ctx.session.checkoutStep = 'IDLE';
+    ctx.session.checkoutData = {};
+    return ctx.reply('Оформлення замовлення скасовано.', {
+      reply_markup: getMainMenuKeyboard(),
+    });
   }
+
+  // If user taps main menu buttons or commands, reset step immediately and dispatch
+  if (
+    [
+      '🛍 Каталог товарів',
+      '/catalog',
+      '🛒 Мій кошик',
+      '🛒 Моій кошик',
+      '/cart',
+      '📦 Мої замовлення',
+      '/orders',
+      'ℹ️ Допомога',
+      '/help',
+    ].includes(text)
+  ) {
+    ctx.session.checkoutStep = 'IDLE';
+    if (['🛍 Каталог товарів', '/catalog'].includes(text)) {
+      return showCategoryList(ctx);
+    }
+    if (['🛒 Мій кошик', '🛒 Моій кошик', '/cart'].includes(text)) {
+      return showCart(ctx);
+    }
+    if (['📦 Мої замовлення', '/orders'].includes(text)) {
+      return showMyOrders(ctx);
+    }
+    if (['ℹ️ Допомога', '/help'].includes(text)) {
+      return ctx.reply(
+        `ℹ️ **Допомога та підтримка**\n\n` +
+          `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
+          `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
+          `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
+          `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`,
+        { parse_mode: 'Markdown', reply_markup: getMainMenuKeyboard() },
+      );
+    }
+    return;
+  }
+
+  const step = ctx.session.checkoutStep;
 
   if (step === 'AWAITING_FULL_NAME') {
     if (text.length < 3) {
@@ -714,7 +838,35 @@ bot.on('message:text', async (ctx) => {
   }
 
   if (step === 'AWAITING_PHONE') {
-    ctx.session.checkoutData.phone = text;
+    const cleaned = text.replace(/[\s\-()]/g, '');
+    const uaPattern = /^(\+?380|0)\d{9}$/;
+    const generalPattern = /^\+?\d{9,15}$/;
+
+    if (!uaPattern.test(cleaned) && !generalPattern.test(cleaned)) {
+      const phoneKeyboard = new Keyboard()
+        .requestContact('📱 Надіслати мій номер телефону')
+        .resized()
+        .oneTime();
+
+      return ctx.reply(
+        `⚠️ **Невірний формат номера телефону.**\n\n` +
+          `Будь ласка, введіть коректний номер (наприклад: \`+380XXXXXXXXX\` або \`0XXXXXXXXX\`) або натисніть кнопку відправки контакту нижче:`,
+        {
+          parse_mode: 'Markdown',
+          reply_markup: phoneKeyboard,
+        },
+      );
+    }
+
+    const formattedPhone = cleaned.startsWith('0') && cleaned.length === 10
+      ? `+38${cleaned}`
+      : cleaned.startsWith('380') && cleaned.length === 12
+        ? `+${cleaned}`
+        : cleaned.startsWith('+')
+          ? cleaned
+          : `+${cleaned}`;
+
+    ctx.session.checkoutData.phone = formattedPhone;
     ctx.session.checkoutStep = 'AWAITING_CITY';
 
     return ctx.reply(
@@ -729,6 +881,9 @@ bot.on('message:text', async (ctx) => {
   }
 
   if (step === 'AWAITING_CITY') {
+    if (text.length < 2) {
+      return ctx.reply('Будь ласка, введіть коректну назву міста (щонайменше 2 символи):');
+    }
     ctx.session.checkoutData.city = text;
     ctx.session.checkoutStep = 'AWAITING_POST_OFFICE';
 
@@ -741,27 +896,13 @@ bot.on('message:text', async (ctx) => {
   }
 
   if (step === 'AWAITING_POST_OFFICE') {
+    if (text.length < 2) {
+      return ctx.reply('Будь ласка, введіть номер або адресу відділення:');
+    }
     ctx.session.checkoutData.postOffice = text;
     ctx.session.checkoutStep = 'AWAITING_CONFIRMATION';
 
     await sendOrderConfirmation(ctx);
-    return;
-  }
-
-  if (text === '📦 Мої замовлення') {
-    await showMyOrders(ctx);
-    return;
-  }
-
-  if (text === 'ℹ️ Допомога') {
-    await ctx.reply(
-      `ℹ️ **Допомога та підтримка**\n\n` +
-        `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
-        `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
-        `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
-        `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`,
-      { parse_mode: 'Markdown', reply_markup: getMainMenuKeyboard() },
-    );
     return;
   }
 });
@@ -797,7 +938,7 @@ async function sendOrderConfirmation(ctx: MyContext) {
   cart.forEach((item, idx) => {
     const sum = item.price * item.quantity;
     total += sum;
-    itemsSummary += `${idx + 1}. ${item.productName} (${item.color} / ${item.size}) x${item.quantity} — $${sum.toFixed(2)}\n`;
+    itemsSummary += `${idx + 1}. ${item.productName} (${item.color} / ${item.size}) x${item.quantity} — ${sum.toFixed(2)} ₴\n`;
   });
 
   const text =
@@ -807,7 +948,7 @@ async function sendOrderConfirmation(ctx: MyContext) {
     `📱 **Номер телефону**: ${checkoutData.phone || '—'}\n` +
     `🏙 **Місто**: ${checkoutData.city || '—'}\n` +
     `🚚 **Відділення пошти**: ${checkoutData.postOffice || '—'}\n\n` +
-    `💰 **Загальна сума**: **$${total.toFixed(2)}**\n\n` +
+    `💰 **Загальна сума**: **${total.toFixed(2)} ₴**\n\n` +
     `Все вірно? Натисніть **Підтвердити** для оформлення:`;
 
   const keyboard = new InlineKeyboard()
@@ -827,7 +968,7 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
 
   const { cart, checkoutData } = ctx.session;
   if (cart.length === 0) {
-    return ctx.reply('Кошик порожній.');
+    return ctx.reply('Кошик порожній.', { reply_markup: getMainMenuKeyboard() });
   }
 
   try {
@@ -837,38 +978,87 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
     let totalAmount = 0;
     cart.forEach((i) => (totalAmount += i.price * i.quantity));
 
-    // 1. Create Order in Database
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        status: 'PENDING',
-        totalAmount,
-        fullName: checkoutData.fullName,
-        phone: checkoutData.phone,
-        city: checkoutData.city,
-        postOffice: checkoutData.postOffice,
-        items: {
-          create: cart.map((i) => ({
-            variantId: i.variantId,
-            quantity: i.quantity,
-            price: i.price,
-          })),
-        },
-      },
-    });
+    // Atomic transaction: verify stock, decrement inventory, and create order
+    let order;
+    try {
+      order = await prisma.$transaction(async (tx) => {
+        // 1. Atomically verify stock and decrement inventory using row-level locking
+        for (const item of cart) {
+          const updateRes = await tx.productVariant.updateMany({
+            where: {
+              id: item.variantId,
+              stock: { gte: item.quantity },
+            },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
 
-    // 2. Decrement variant stock
-    for (const item of cart) {
-      await prisma.productVariant
-        .update({
-          where: { id: item.variantId },
+          if (updateRes.count === 0) {
+            const variant = await tx.productVariant.findUnique({
+              where: { id: item.variantId },
+              include: { product: true },
+            });
+
+            if (!variant) {
+              throw new Error(`NOT_FOUND:${item.productName}`);
+            }
+
+            const prodName = variant.product?.name || item.productName;
+            throw new Error(
+              `INSUFFICIENT_STOCK:${prodName} (${item.color} / ${item.size}) — в наявності лише ${variant.stock} шт., а у вашому кошику ${item.quantity} шт.`
+            );
+          }
+        }
+
+        // 3. Create the Order
+        return tx.order.create({
           data: {
-            stock: {
-              decrement: item.quantity,
+            userId: user.id,
+            status: 'PENDING',
+            totalAmount,
+            fullName: checkoutData.fullName,
+            phone: checkoutData.phone,
+            city: checkoutData.city,
+            postOffice: checkoutData.postOffice,
+            items: {
+              create: cart.map((i) => ({
+                variantId: i.variantId,
+                quantity: i.quantity,
+                price: i.price,
+              })),
             },
           },
-        })
-        .catch(() => null);
+        });
+      });
+    } catch (txErr: any) {
+      if (txErr.message?.startsWith('INSUFFICIENT_STOCK:')) {
+        const errorDetail = txErr.message.replace('INSUFFICIENT_STOCK:', '');
+        return ctx.reply(
+          `⚠️ **Вибачте, товар закінчився або недостатньо на складі:**\n\n` +
+            `${errorDetail}\n\n` +
+            `Замовлення не створено. Будь ласка, змініть кількість у кошику або оберіть інший розмір/колір.`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: new InlineKeyboard()
+              .text('🛒 Переглянути кошик', 'view_cart')
+              .row()
+              .text('🛍 Каталог товарів', 'cat_list'),
+          },
+        );
+      }
+      if (txErr.message?.startsWith('NOT_FOUND:')) {
+        return ctx.reply(
+          `⚠️ **Один із товарів у вашому замовленні більше недоступний.**\n\nБудь ласка, оновіть кошик.`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: new InlineKeyboard().text('🛒 До кошика', 'view_cart'),
+          },
+        );
+      }
+      throw txErr;
     }
 
     // Reset session
@@ -884,7 +1074,7 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
         `📱 **Телефон**: ${checkoutData.phone}\n` +
         `🏙 **Місто**: ${checkoutData.city}\n` +
         `🚚 **Доставка**: ${checkoutData.postOffice}\n` +
-        `💰 **Сума**: $${totalAmount.toFixed(2)}\n\n` +
+        `💰 **Сума**: ${totalAmount.toFixed(2)} ₴\n\n` +
         `Наш менеджер зв'яжеться з вами найближчим часом для підтвердження.`,
       {
         parse_mode: 'Markdown',
@@ -940,7 +1130,7 @@ async function showMyOrders(ctx: MyContext) {
     const dateStr = new Date(ord.createdAt).toLocaleDateString('uk-UA');
     text += `🔹 **Замовлення #${shortNum}** від ${dateStr}\n`;
     text += `   Статус: ${ord.status}\n`;
-    text += `   Сума: **$${ord.totalAmount}**\n`;
+    text += `   Сума: **${ord.totalAmount} ₴**\n`;
     if (ord.city && ord.postOffice) {
       text += `   Доставка: ${ord.city}, ${ord.postOffice}\n`;
     }
