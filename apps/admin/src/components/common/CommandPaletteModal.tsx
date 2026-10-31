@@ -148,28 +148,13 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
   const staticPages = useMemo(
     () => [
       { id: 'p-dash', title: t.dashboard, href: '/dashboard', icon: <LayoutGrid className="h-4 w-4" /> },
-      { id: 'p-inv', title: t.inventory, href: '/inventory', icon: <Package className="h-4 w-4" /> },
-      { id: 'p-stor', title: t.storage, href: '/storage', icon: <Tag className="h-4 w-4" /> },
+      { id: 'p-inv', title: t.catalogAndInventory, href: '/inventory', icon: <Package className="h-4 w-4" /> },
       { id: 'p-ord', title: t.orders, href: '/orders', icon: <Receipt className="h-4 w-4" /> },
       { id: 'p-an', title: t.analytics, href: '/analytics', icon: <BarChart3 className="h-4 w-4" /> },
       { id: 'p-bot', title: t.telegramBot, href: '/telegram-bot', icon: <Bot className="h-4 w-4" /> },
       { id: 'p-ai', title: t.smartAssistant, href: '/ai-assistant', icon: <Workflow className="h-4 w-4" /> },
       { id: 'p-not', title: t.notifications, href: '/notifications', icon: <Bell className="h-4 w-4" /> },
       { id: 'p-set', title: t.settings, href: '/settings', icon: <Settings className="h-4 w-4" /> },
-      {
-        id: 'p-cust',
-        title: t.customers,
-        href: '/customers',
-        icon: <Users className="h-4 w-4" />,
-        badge: isUk ? 'Скоро' : 'Soon',
-      },
-      {
-        id: 'p-crm',
-        title: t.crm,
-        href: '/crm',
-        icon: <Target className="h-4 w-4" />,
-        badge: isUk ? 'Скоро' : 'Soon',
-      },
       {
         id: 'p-pub',
         title: t.channelPublisher,
@@ -188,7 +173,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         id: 'act-add-prod',
         title: t.commandActionAddProduct,
         subtitle: isUk ? 'Створити новий товар з розмірами та кольорами' : 'Create new product with variants',
-        href: '/storage',
+        href: '/inventory?action=create',
         icon: <PlusCircle className="h-4 w-4" />,
       },
       {
@@ -346,10 +331,10 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
       <div
         onKeyDown={handleKeyDown}
-        className="relative z-10 w-full max-w-[620px] rounded-[20px] border border-[var(--border)] bg-[var(--surface)] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="relative z-10 w-full max-w-[620px] rounded-[20px] border border-white/70 bg-[var(--surface)]/90 backdrop-blur-2xl shadow-glass flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3.5 bg-[var(--surface)]">
+        <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3.5 bg-transparent">
           <Search className="h-5 w-5 shrink-0 text-[var(--text-tertiary)]" />
           <input
             ref={inputRef}
@@ -617,7 +602,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         </div>
 
         {/* Apple-style Footer Shortcut Bar */}
-        <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)] px-4 py-2.5 text-[11.5px] text-[var(--text-tertiary)]">
+        <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)]/80 backdrop-blur-md px-4 py-2.5 text-[11.5px] text-[var(--text-tertiary)]">
           <span>{t.commandFooterShortcuts}</span>
           <span className="hidden sm:inline font-medium text-[var(--text-secondary)]">
             Shop AI Spotlight
