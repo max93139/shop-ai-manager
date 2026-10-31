@@ -398,7 +398,7 @@ export default function OrderDetailsModal({
             {/* Total Footer */}
             <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)] p-4">
               <span className="text-[14px] font-bold text-[var(--text)]">{t.totalAmountLabel}:</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[20px] font-[650] text-[var(--text)]">
+              <span className="font-sans text-[19px] font-bold tabular-nums text-[var(--text)]">
                 ₴{order.totalAmount.toFixed(2)}
               </span>
             </div>

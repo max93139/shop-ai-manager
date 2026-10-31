@@ -39,7 +39,7 @@ export default function StatCard({
       </div>
 
       {/* Metric Value */}
-      <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[30px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+      <div className="my-3 font-sans text-[26px] sm:text-[30px] font-bold tracking-tight tabular-nums text-[var(--text)]">
         {value}
       </div>
 

@@ -351,7 +351,7 @@ export default function OrdersTable({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="font-['Fraunces',Georgia,serif] text-[16px] font-[650] text-[var(--text)]">
+                  <span className="font-sans text-[15px] font-bold tabular-nums text-[var(--text)]">
                     ₴{ord.totalAmount.toFixed(2)}
                   </span>
                   <button

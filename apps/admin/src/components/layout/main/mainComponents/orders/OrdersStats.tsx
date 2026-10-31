@@ -83,7 +83,7 @@ export default function OrdersStats({
             {loading ? (
               <div className="h-7 w-24 animate-pulse rounded bg-[var(--border)]" />
             ) : (
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-[650] text-[var(--text)]">
+              <span className="font-sans text-[22px] font-bold tracking-tight tabular-nums text-[var(--text)]">
                 {card.value}
               </span>
             )}

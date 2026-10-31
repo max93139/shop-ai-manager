@@ -231,7 +231,7 @@ export default function Analytics() {
               <CreditCard className="h-4 w-4" />
             </div>
           </div>
-          <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : formatCurrency(data.summary.totalRevenue)}
           </div>
           <div className="flex items-center gap-1.5 text-[12.5px]">
@@ -257,7 +257,7 @@ export default function Analytics() {
               <ShoppingBag className="h-4 w-4" />
             </div>
           </div>
-          <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : data.summary.totalOrders}
           </div>
           <div className="flex items-center gap-1.5 text-[12.5px]">
@@ -283,7 +283,7 @@ export default function Analytics() {
               <TrendingUp className="h-4 w-4" />
             </div>
           </div>
-          <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : formatCurrency(data.summary.aov)}
           </div>
           <div className="flex items-center gap-1.5 text-[12.5px]">
@@ -298,7 +298,7 @@ export default function Analytics() {
               <Percent className="h-4 w-4" />
             </div>
           </div>
-          <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : `${data.summary.conversionRate}%`}
           </div>
           <div className="flex items-center gap-1.5 text-[12.5px]">
@@ -443,7 +443,7 @@ export default function Analytics() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4">
             <div className="flex flex-col p-3 rounded-[12px] bg-[#EAF5EF] border border-[#BFDDD0]">
               <span className="text-[11.5px] font-semibold uppercase text-[#0F6B4F]">{t.orderStatusDelivered}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#0F6B4F] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[#0F6B4F] mt-1">
                 {data.statusBreakdown.delivered}
               </span>
               <span className="text-[11px] text-[#0F6B4F]/80">{language === 'uk' ? 'Виконано' : 'Completed orders'}</span>
@@ -451,7 +451,7 @@ export default function Analytics() {
 
             <div className="flex flex-col p-3 rounded-[12px] bg-[#EBF2F9] border border-[#BDD6EC]">
               <span className="text-[11.5px] font-semibold uppercase text-[#1E5F8B]">{t.orderStatusShipped}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#1E5F8B] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[#1E5F8B] mt-1">
                 {data.statusBreakdown.shipped}
               </span>
               <span className="text-[11px] text-[#1E5F8B]/80">{language === 'uk' ? 'В дорозі' : 'In transit'}</span>
@@ -459,7 +459,7 @@ export default function Analytics() {
 
             <div className="flex flex-col p-3 rounded-[12px] bg-[#FEF6E9] border border-[#F5DCB7]">
               <span className="text-[11.5px] font-semibold uppercase text-[#965A1A]">{t.orderStatusProcessing}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#965A1A] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[#965A1A] mt-1">
                 {data.statusBreakdown.processing}
               </span>
               <span className="text-[11px] text-[#965A1A]/80">{language === 'uk' ? 'Комплектується' : 'Being packed'}</span>
@@ -467,7 +467,7 @@ export default function Analytics() {
 
             <div className="flex flex-col p-3 rounded-[12px] bg-[#F4F1EA] border border-[#DDD7C9]">
               <span className="text-[11.5px] font-semibold uppercase text-[#544B36]">{t.orderStatusPaid}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#544B36] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[#544B36] mt-1">
                 {data.statusBreakdown.paid}
               </span>
               <span className="text-[11px] text-[#544B36]/80">{language === 'uk' ? 'Очікує пакування' : 'Awaiting packing'}</span>
@@ -475,7 +475,7 @@ export default function Analytics() {
 
             <div className="flex flex-col p-3 rounded-[12px] bg-[#F8F7F5] border border-[var(--border)]">
               <span className="text-[11.5px] font-semibold uppercase text-[var(--text-secondary)]">{t.orderStatusPending}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[var(--text)] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[var(--text)] mt-1">
                 {data.statusBreakdown.pending}
               </span>
               <span className="text-[11px] text-[var(--text-tertiary)]">{language === 'uk' ? 'Нові замовлення' : 'New checkouts'}</span>
@@ -483,26 +483,10 @@ export default function Analytics() {
 
             <div className="flex flex-col p-3 rounded-[12px] bg-[#FDF1F1] border border-[#F7CDCD]">
               <span className="text-[11.5px] font-semibold uppercase text-[#B84343]">{t.orderStatusCancelled}</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#B84343] mt-1">
+              <span className="font-sans text-[22px] font-bold tabular-nums text-[#B84343] mt-1">
                 {data.statusBreakdown.cancelled}
               </span>
               <span className="text-[11px] text-[#B84343]/80">{language === 'uk' ? 'Скасовано' : 'Returned/declined'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#F8F7F5] border border-[var(--border)]">
-              <span className="text-[11.5px] font-semibold uppercase text-[var(--text-secondary)]">Pending</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[var(--text)] mt-1">
-                {data.statusBreakdown.pending}
-              </span>
-              <span className="text-[11px] text-[var(--text-tertiary)]">New checkouts</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#FDF1F1] border border-[#F7CDCD]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#B84343]">Cancelled</span>
-              <span className="font-['Fraunces',Georgia,serif] text-[22px] font-bold text-[#B84343] mt-1">
-                {data.statusBreakdown.cancelled}
-              </span>
-              <span className="text-[11px] text-[#B84343]/80">Returned/declined</span>
             </div>
           </div>
         </div>

@@ -29,11 +29,15 @@ module.exports = {
       },
       borderRadius: {
         sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
         lg: 'var(--radius-lg)',
       },
       boxShadow: {
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
+        glass: 'inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 8px 32px rgba(28, 27, 25, 0.08)',
+        'glass-bevel': 'inset 0 1px 1px rgba(255, 255, 255, 0.95)',
+        'glass-hover': 'inset 0 1px 1px rgba(255, 255, 255, 1), 0 12px 40px rgba(28, 27, 25, 0.12)',
       },
     },
   },
