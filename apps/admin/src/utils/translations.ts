@@ -13,6 +13,8 @@ export interface TranslationDictionary {
   analytics: string;
   storage: string;
   inventory: string;
+  catalogAndInventory: string;
+  catalogAndInventoryTitle: string;
   orders: string;
   customers: string;
   crm: string;
@@ -540,6 +542,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     analytics: 'Аналітика',
     storage: 'Склад',
     inventory: 'Товари та залишки',
+    catalogAndInventory: 'Каталог та Склад',
+    catalogAndInventoryTitle: 'Каталог та Склад',
     orders: 'Замовлення',
     customers: 'Клієнти',
     crm: 'CRM',
@@ -900,6 +904,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     analytics: 'Analytics',
     storage: 'Storage',
     inventory: 'Inventory & Stock',
+    catalogAndInventory: 'Catalog & Inventory',
+    catalogAndInventoryTitle: 'Catalog & Inventory',
     orders: 'Orders',
     customers: 'Customers',
     crm: 'CRM',

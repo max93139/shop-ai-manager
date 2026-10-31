@@ -81,8 +81,12 @@ export default function Sidebar() {
             <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
               {t.catalog}
             </div>
-            <SidebarItem label={t.storage} href="/storage" icon={<Tag className="h-[17px] w-[17px]" />} />
-            <SidebarItem label={t.inventory} href="/inventory" icon={<Package className="h-[17px] w-[17px]" />} />
+            <SidebarItem
+              label={t.catalogAndInventory}
+              href="/inventory"
+              aliases={['/storage', '/products', '/categories']}
+              icon={<Package className="h-[17px] w-[17px]" />}
+            />
           </div>
 
           {/* Sales Group */}
@@ -91,20 +95,6 @@ export default function Sidebar() {
               {t.sales}
             </div>
             <SidebarItem label={t.orders} href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
-            <SidebarItem
-              label={t.customers}
-              href="/customers"
-              icon={<Users className="h-[17px] w-[17px]" />}
-              isComingSoon
-              badge={language === 'uk' ? 'Скоро' : 'Soon'}
-            />
-            <SidebarItem
-              label={t.crm}
-              href="/crm"
-              icon={<Target className="h-[17px] w-[17px]" />}
-              isComingSoon
-              badge={language === 'uk' ? 'Скоро' : 'Soon'}
-            />
           </div>
 
           {/* Automation Group */}

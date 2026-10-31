@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
@@ -17,10 +17,13 @@ import {
   ProductsTable,
   ProductsPagination,
 } from './mainComponents/products';
+import { CreateProductForm } from './mainComponents/storage';
 
 export default function Inventory() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
+  const [isCreating, setIsCreating] = useState(false);
+
   const {
     items,
     totalCount,
@@ -34,10 +37,19 @@ export default function Inventory() {
     viewMode,
   } = useAppSelector((state) => state.products);
 
-  // Sync URL query params with product filters
+  // Sync URL query params with product filters or creation mode
   useEffect(() => {
     const statusParam = searchParams.get('status') as any;
     const searchParam = searchParams.get('search');
+    const actionParam = searchParams.get('action');
+    const modeParam = searchParams.get('mode');
+
+    if (actionParam === 'create' || modeParam === 'create') {
+      setIsCreating(true);
+    } else if (typeof window !== 'undefined' && localStorage.getItem('shop_ai_storage_mode') === 'create') {
+      setIsCreating(true);
+    }
+
     if (statusParam || searchParam) {
       dispatch(
         setFilters({
@@ -60,9 +72,116 @@ export default function Inventory() {
     dispatch(fetchProducts());
   }, [dispatch, page, filters]);
 
+  const convertBlobToBase64 = async (url: string): Promise<string> => {
+    if (url.startsWith('data:')) return url;
+    if (!url.startsWith('blob:')) return url;
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise<string>((resolve, reject) => {
+      const img = new window.Image();
+      const imgUrl = URL.createObjectURL(blob);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+        const MAX = 800;
+        if (w > h && w > MAX) {
+          w *= MAX / w;
+          w = MAX;
+        } else if (h > MAX) {
+          w *= MAX / h;
+          h = MAX;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(imgUrl);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(imgUrl);
+        reject(new Error('img load fail'));
+      };
+      img.src = imgUrl;
+    });
+  };
+
+  const handleSaveProduct = async (formData: any) => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      let images: string[] = [];
+      if (formData.imageUrls && formData.imageUrls.length > 0) {
+        images = await Promise.all(
+          formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
+        );
+      }
+
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        brand: formData.brand,
+        price: formData.price,
+        selectedSizes: formData.selectedSizes,
+        selectedColors: formData.selectedColors,
+        sizeStocks: formData.sizeStocks,
+        variantStocks: formData.sizeStocks,
+        colorStocks: formData.colorStocks,
+        images,
+      };
+
+      const res = await fetch(`${apiUrl}/products`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setIsCreating(false);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('shop_ai_storage_mode');
+          localStorage.removeItem('shop_ai_create_product_draft');
+        }
+        dispatch(fetchProducts());
+        dispatch(fetchFilterOptions());
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || 'Failed to save product to database');
+      }
+    } catch (err) {
+      console.error('Error saving product to DB:', err);
+      alert('Network error while saving product');
+    }
+  };
+
+  const handleBackFromCreate = () => {
+    setIsCreating(false);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('shop_ai_storage_mode');
+    }
+  };
+
+  if (isCreating) {
+    return (
+      <div className="flex flex-col p-5 sm:p-7 lg:p-8 animate-in fade-in duration-200">
+        <CreateProductForm onBack={handleBackFromCreate} onSave={handleSaveProduct} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5 sm:p-7 lg:p-8">
-      <ProductsHeader totalCount={totalCount} loading={loading} />
+      <ProductsHeader
+        totalCount={totalCount}
+        loading={loading}
+        onAddItem={() => setIsCreating(true)}
+      />
 
       <ProductsFilters
         filters={filters}

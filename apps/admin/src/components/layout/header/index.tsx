@@ -38,9 +38,9 @@ export default function Header() {
         return t.analytics;
       case '/storage':
       case '/products':
-        return t.storage;
+      case '/categories':
       case '/inventory':
-        return t.inventory;
+        return t.catalogAndInventory;
       case '/orders':
         return t.orders;
       case '/customers':
@@ -66,7 +66,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[12px] sm:gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[14px] sm:px-[20px] lg:px-[28px]">
+      <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[12px] sm:gap-[16px] border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md px-[14px] sm:px-[20px] lg:px-[28px]">
         {/* Mobile Sidebar Toggle */}
         <button
           type="button"

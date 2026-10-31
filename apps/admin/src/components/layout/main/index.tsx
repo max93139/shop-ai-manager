@@ -34,9 +34,7 @@ export default function Main({ children }: MainProps) {
         return <Analytics />;
       case '/storage':
       case '/products':
-        return <Storage />;
       case '/categories':
-        return <Storage />;
       case '/inventory':
         return <Inventory />;
       case '/orders':

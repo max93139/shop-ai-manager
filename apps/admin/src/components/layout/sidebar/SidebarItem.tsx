@@ -13,6 +13,7 @@ interface SidebarItemProps {
   count?: number | string;
   isComingSoon?: boolean;
   badge?: string;
+  aliases?: string[];
 }
 
 export default function SidebarItem({
@@ -22,10 +23,14 @@ export default function SidebarItem({
   count,
   isComingSoon,
   badge,
+  aliases,
 }: SidebarItemProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
+  const isActive =
+    pathname === href ||
+    (href !== '/' && pathname?.startsWith(href)) ||
+    Boolean(aliases && aliases.some((a) => pathname === a || pathname?.startsWith(a)));
 
   return (
     <Link
