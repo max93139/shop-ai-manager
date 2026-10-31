@@ -23,6 +23,18 @@ export interface TranslationDictionary {
   settings: string;
 
   searchPlaceholder: string;
+  commandTriggerText: string;
+  commandInputPlaceholder: string;
+  commandSectionPages: string;
+  commandSectionProducts: string;
+  commandSectionOrders: string;
+  commandSectionActions: string;
+  commandNoResultsTitle: string;
+  commandNoResultsDesc: string;
+  commandFooterShortcuts: string;
+  commandActionLowStock: string;
+  commandActionOutOfStock: string;
+  commandActionAddProduct: string;
   logout: string;
   adminBreadcrumb: string;
 
@@ -538,6 +550,18 @@ export const translations: Record<Language, TranslationDictionary> = {
     settings: 'Налаштування',
 
     searchPlaceholder: 'Пошук товарів, замовлень...',
+    commandTriggerText: 'Пошук або швидка команда...',
+    commandInputPlaceholder: 'Пошук товарів, замовлень, сторінок або дій...',
+    commandSectionPages: 'Розділи та навігація',
+    commandSectionProducts: 'Товари на складі',
+    commandSectionOrders: 'Замовлення',
+    commandSectionActions: 'Швидкі дії',
+    commandNoResultsTitle: 'Нічого не знайдено',
+    commandNoResultsDesc: 'Перевірте правильність написання або спробуйте інший запит (наприклад, артикул SKU або ім’я покупця).',
+    commandFooterShortcuts: '↑↓ Навігація • ↵ Вибрати • esc Закрити',
+    commandActionLowStock: 'Переглянути критичні залишки (≤ 5 шт)',
+    commandActionOutOfStock: 'Переглянути товари без наявності (0 шт)',
+    commandActionAddProduct: 'Створити новий товар',
     logout: 'Вийти',
     adminBreadcrumb: 'Адмін',
 
@@ -886,6 +910,18 @@ export const translations: Record<Language, TranslationDictionary> = {
     settings: 'Settings',
 
     searchPlaceholder: 'Search products, orders...',
+    commandTriggerText: 'Search or type a command...',
+    commandInputPlaceholder: 'Search products, orders, pages, or actions...',
+    commandSectionPages: 'Navigation & Pages',
+    commandSectionProducts: 'Warehouse Products',
+    commandSectionOrders: 'Orders',
+    commandSectionActions: 'Quick Actions',
+    commandNoResultsTitle: 'No results found',
+    commandNoResultsDesc: 'Check your spelling or try another keyword (e.g. SKU code or customer name).',
+    commandFooterShortcuts: '↑↓ Navigate • ↵ Select • esc Close',
+    commandActionLowStock: 'View critical low stock (≤ 5 units)',
+    commandActionOutOfStock: 'View out-of-stock items (0 units)',
+    commandActionAddProduct: 'Create a new product',
     logout: 'Log out',
     adminBreadcrumb: 'Admin',
 
