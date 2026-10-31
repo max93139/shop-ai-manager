@@ -24,7 +24,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const fetchTimeoutId = setTimeout(() => {
+      try {
+        controller.abort();
+      } catch {}
+    }, 2500);
+
+    const watchdogTimeoutId = setTimeout(() => {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    }, 3000);
 
     const checkAuth = async () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
@@ -59,7 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           dispatch(logoutAction());
         }
       } finally {
-        clearTimeout(timeoutId);
+        clearTimeout(fetchTimeoutId);
+        clearTimeout(watchdogTimeoutId);
         if (isMounted) {
           setIsLoading(false);
         }
@@ -71,7 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
       controller.abort();
-      clearTimeout(timeoutId);
+      clearTimeout(fetchTimeoutId);
+      clearTimeout(watchdogTimeoutId);
     };
   }, [dispatch, API_BASE]);
 
