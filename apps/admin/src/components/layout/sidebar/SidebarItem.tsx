@@ -11,9 +11,18 @@ interface SidebarItemProps {
   href: string;
   icon: ReactNode;
   count?: number | string;
+  isComingSoon?: boolean;
+  badge?: string;
 }
 
-export default function SidebarItem({ label, href, icon, count }: SidebarItemProps) {
+export default function SidebarItem({
+  label,
+  href,
+  icon,
+  count,
+  isComingSoon,
+  badge,
+}: SidebarItemProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
@@ -41,6 +50,11 @@ export default function SidebarItem({ label, href, icon, count }: SidebarItemPro
           }`}
         >
           {count}
+        </span>
+      )}
+      {isComingSoon && (
+        <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)]">
+          {badge || 'Скоро'}
         </span>
       )}
     </Link>

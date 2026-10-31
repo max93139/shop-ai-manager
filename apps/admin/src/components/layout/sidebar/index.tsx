@@ -91,8 +91,20 @@ export default function Sidebar() {
               {t.sales}
             </div>
             <SidebarItem label={t.orders} href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
-            <SidebarItem label={t.customers} href="/customers" icon={<Users className="h-[17px] w-[17px]" />} />
-            <SidebarItem label={t.crm} href="/crm" icon={<Target className="h-[17px] w-[17px]" />} />
+            <SidebarItem
+              label={t.customers}
+              href="/customers"
+              icon={<Users className="h-[17px] w-[17px]" />}
+              isComingSoon
+              badge={language === 'uk' ? 'Скоро' : 'Soon'}
+            />
+            <SidebarItem
+              label={t.crm}
+              href="/crm"
+              icon={<Target className="h-[17px] w-[17px]" />}
+              isComingSoon
+              badge={language === 'uk' ? 'Скоро' : 'Soon'}
+            />
           </div>
 
           {/* Automation Group */}
@@ -101,7 +113,13 @@ export default function Sidebar() {
               {t.automation}
             </div>
             <SidebarItem label={t.telegramBot} href="/telegram-bot" icon={<Bot className="h-[17px] w-[17px]" />} />
-            <SidebarItem label={t.channelPublisher} href="/channel-publisher" icon={<Megaphone className="h-[17px] w-[17px]" />} />
+            <SidebarItem
+              label={t.channelPublisher}
+              href="/channel-publisher"
+              icon={<Megaphone className="h-[17px] w-[17px]" />}
+              isComingSoon
+              badge={language === 'uk' ? 'Скоро' : 'Soon'}
+            />
             <SidebarItem label={t.smartAssistant} href="/ai-assistant" icon={<Workflow className="h-[17px] w-[17px]" />} />
           </div>
 
