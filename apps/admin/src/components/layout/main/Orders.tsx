@@ -95,6 +95,9 @@ export default function Orders() {
     }
     if (searchParam) {
       setSearchQuery(searchParam);
+      if (!statusParam) {
+        setSelectedStatus('ALL');
+      }
       setPage(1);
     }
   }, [searchParams]);

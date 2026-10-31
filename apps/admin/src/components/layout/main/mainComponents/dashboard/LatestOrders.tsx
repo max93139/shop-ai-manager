@@ -129,7 +129,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
                   <td className="py-4 font-medium text-[var(--text)]">
                     {order.customerName}
                   </td>
-                  <td className="py-4 font-semibold text-[var(--text)]">
+                  <td className="py-4 font-semibold tabular-nums text-[var(--text)]">
                     {order.totalAmount}
                   </td>
                   <td className="py-4">

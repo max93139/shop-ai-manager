@@ -244,7 +244,7 @@ function PriceControl({
         setVal(String(item.price));
         setIsEditing(true);
       }}
-      className="cursor-pointer font-bold text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
+      className="cursor-pointer font-bold tabular-nums text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
       title={title}
     >
       ₴{item.price}

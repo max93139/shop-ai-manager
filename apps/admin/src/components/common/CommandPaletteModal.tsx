@@ -263,13 +263,13 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
     // 4. Orders
     for (const ord of orders) {
-      const orderNum = ord.orderNumber || ord.id.slice(0, 8);
+      const cleanOrderNum = (ord.orderNumber || ord.id.slice(0, 8)).replace(/^#/, '');
       list.push({
         id: `ord-${ord.id}`,
         type: 'order',
-        title: `${isUk ? 'Замовлення' : 'Order'} #${orderNum}`,
+        title: `${isUk ? 'Замовлення' : 'Order'} #${cleanOrderNum}`,
         subtitle: `${ord.customerName || 'Клієнт'} • ₴${(ord.totalAmount || 0).toLocaleString()}`,
-        href: `/orders?search=${encodeURIComponent(orderNum)}`,
+        href: `/orders?search=${encodeURIComponent(cleanOrderNum)}`,
         icon: <Receipt className="h-4 w-4" />,
         badge: ord.status,
       });
@@ -554,7 +554,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                   {orders.map((item) => {
                     const idx = flatItems.findIndex((fi) => fi.id === `ord-${item.id}`);
                     const isSelected = selectedIndex === idx;
-                    const orderNum = item.orderNumber || item.id.slice(0, 8);
+                    const orderNum = (item.orderNumber || item.id.slice(0, 8)).replace(/^#/, '');
                     return (
                       <div
                         key={item.id}

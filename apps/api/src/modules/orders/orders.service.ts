@@ -207,8 +207,9 @@ export class OrdersService {
 
     if (query.search?.trim()) {
       const search = query.search.trim();
+      const cleanSearch = search.startsWith('#') ? search.slice(1).trim() : search;
       where.OR = [
-        { id: { contains: search, mode: 'insensitive' } },
+        { id: { contains: cleanSearch, mode: 'insensitive' } },
         { fullName: { contains: search, mode: 'insensitive' } },
         { phone: { contains: search, mode: 'insensitive' } },
         { city: { contains: search, mode: 'insensitive' } },
