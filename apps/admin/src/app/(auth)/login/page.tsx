@@ -12,7 +12,11 @@ function LoginContent() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams?.get('redirect') || '/';
+  const rawRedirect = searchParams?.get('redirect');
+  const redirectTarget =
+    rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+      ? rawRedirect
+      : '/';
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {

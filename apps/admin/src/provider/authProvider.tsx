@@ -33,6 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const watchdogTimeoutId = setTimeout(() => {
       if (isMounted) {
+        try {
+          controller.abort();
+        } catch {}
+        dispatch(logoutAction());
         setIsLoading(false);
       }
     }, 3000);

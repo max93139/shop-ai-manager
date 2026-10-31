@@ -26,6 +26,16 @@ export default function BrandLoader({
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes brand-spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `,
+        }}
+      />
       <div
         className="relative flex w-full max-w-[340px] flex-col items-center text-center rounded-[28px] border border-white/80 bg-white/75 p-8 sm:p-9 backdrop-blur-2xl transition-all"
         style={{
@@ -90,6 +100,7 @@ export default function BrandLoader({
               borderStyle: 'solid',
               borderColor: 'rgba(15, 107, 79, 0.18)',
               borderTopColor: '#0F6B4F',
+              animation: 'brand-spin 0.8s linear infinite',
             }}
           />
         </div>
