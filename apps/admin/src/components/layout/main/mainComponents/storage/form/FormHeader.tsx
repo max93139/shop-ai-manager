@@ -33,7 +33,7 @@ export default function FormHeader({
             className="inline-flex items-center gap-1 hover:text-[var(--text)] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{t.storage}</span>
+            <span>{t.catalogAndInventory}</span>
           </button>
           <span>/</span>
           <span className="font-semibold text-[var(--text)]">

@@ -14,7 +14,6 @@ import ChannelPublisher from './ChannelPublisher';
 import AIAssistant from './AIAssistant';
 import Notifications from './Notifications';
 import Settings from './Settings';
-import Storage from './Storage';
 
 interface MainProps {
   children?: ReactNode;

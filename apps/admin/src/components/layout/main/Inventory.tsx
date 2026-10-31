@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchProducts,
@@ -21,6 +21,8 @@ import { CreateProductForm } from './mainComponents/storage';
 
 export default function Inventory() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -45,8 +47,6 @@ export default function Inventory() {
     const modeParam = searchParams.get('mode');
 
     if (actionParam === 'create' || modeParam === 'create') {
-      setIsCreating(true);
-    } else if (typeof window !== 'undefined' && localStorage.getItem('shop_ai_storage_mode') === 'create') {
       setIsCreating(true);
     }
 
@@ -73,37 +73,42 @@ export default function Inventory() {
   }, [dispatch, page, filters]);
 
   const convertBlobToBase64 = async (url: string): Promise<string> => {
+    if (!url) return '';
     if (url.startsWith('data:')) return url;
     if (!url.startsWith('blob:')) return url;
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return new Promise<string>((resolve, reject) => {
-      const img = new window.Image();
-      const imgUrl = URL.createObjectURL(blob);
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width;
-        let h = img.height;
-        const MAX = 800;
-        if (w > h && w > MAX) {
-          w *= MAX / w;
-          w = MAX;
-        } else if (h > MAX) {
-          w *= MAX / h;
-          h = MAX;
-        }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(imgUrl);
-        resolve(canvas.toDataURL('image/jpeg', 0.75));
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(imgUrl);
-        reject(new Error('img load fail'));
-      };
-      img.src = imgUrl;
-    });
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise<string>((resolve) => {
+        const img = new window.Image();
+        const imgUrl = URL.createObjectURL(blob);
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width;
+          let h = img.height;
+          const MAX = 800;
+          if (w > h && w > MAX) {
+            w *= MAX / w;
+            w = MAX;
+          } else if (h > MAX) {
+            w *= MAX / h;
+            h = MAX;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(imgUrl);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(imgUrl);
+          resolve('');
+        };
+        img.src = imgUrl;
+      });
+    } catch {
+      return '';
+    }
   };
 
   const handleSaveProduct = async (formData: any) => {
@@ -117,9 +122,10 @@ export default function Inventory() {
 
       let images: string[] = [];
       if (formData.imageUrls && formData.imageUrls.length > 0) {
-        images = await Promise.all(
+        const converted = await Promise.all(
           formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
         );
+        images = converted.filter(Boolean);
       }
 
       const payload = {
@@ -148,6 +154,11 @@ export default function Inventory() {
           localStorage.removeItem('shop_ai_storage_mode');
           localStorage.removeItem('shop_ai_create_product_draft');
         }
+        const action = searchParams.get('action');
+        const mode = searchParams.get('mode');
+        if (action || mode) {
+          router.replace(pathname || '/inventory', { scroll: false });
+        }
         dispatch(fetchProducts());
         dispatch(fetchFilterOptions());
       } else {
@@ -165,11 +176,16 @@ export default function Inventory() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('shop_ai_storage_mode');
     }
+    const action = searchParams.get('action');
+    const mode = searchParams.get('mode');
+    if (action || mode) {
+      router.replace(pathname || '/inventory', { scroll: false });
+    }
   };
 
   if (isCreating) {
     return (
-      <div className="flex flex-col p-5 sm:p-7 lg:p-8 animate-in fade-in duration-200">
+      <div className="flex flex-col w-full animate-in fade-in slide-in-from-right-4 duration-200">
         <CreateProductForm onBack={handleBackFromCreate} onSave={handleSaveProduct} />
       </div>
     );
