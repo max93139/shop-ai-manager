@@ -48,8 +48,8 @@ const initialNotifications: StoreNotification[] = [
     severity: 'info',
     read: false,
     timestamp: '3h ago',
-    actionUrl: '/channel-publisher',
-    actionLabel: 'Channel Status',
+    actionUrl: '/telegram-bot',
+    actionLabel: 'Bot Settings',
   },
   {
     id: 'n4',
