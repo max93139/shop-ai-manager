@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   OrdersHeader,
   OrdersStats,
@@ -11,6 +12,7 @@ import {
 import type { AdminOrder, OrderStatus, OrdersListResponse } from '@shop-ai/types';
 
 export default function Orders() {
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -83,6 +85,19 @@ export default function Orders() {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    const searchParam = searchParams.get('search');
+    if (statusParam) {
+      setSelectedStatus(statusParam.toUpperCase());
+      setPage(1);
+    }
+    if (searchParam) {
+      setSearchQuery(searchParam);
+      setPage(1);
+    }
+  }, [searchParams]);
 
   const handleStatusTabChange = (statusKey: string) => {
     setSelectedStatus(statusKey);

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchProducts,
@@ -19,6 +20,7 @@ import {
 
 export default function Inventory() {
   const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
   const {
     items,
     totalCount,
@@ -31,6 +33,22 @@ export default function Inventory() {
     loading,
     viewMode,
   } = useAppSelector((state) => state.products);
+
+  // Sync URL query params with product filters
+  useEffect(() => {
+    const statusParam = searchParams.get('status') as any;
+    const searchParam = searchParams.get('search');
+    if (statusParam || searchParam) {
+      dispatch(
+        setFilters({
+          ...(statusParam && ['all', 'active', 'low_stock', 'out_of_stock'].includes(statusParam)
+            ? { status: statusParam }
+            : {}),
+          ...(searchParam ? { search: searchParam } : {}),
+        })
+      );
+    }
+  }, [searchParams, dispatch]);
 
   // Initial load: fetch filter options once
   useEffect(() => {
