@@ -331,7 +331,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
       <div
         onKeyDown={handleKeyDown}
-        className="relative z-10 w-full max-w-[640px] rounded-[22px] border border-stone-200 bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="relative z-10 w-full max-w-[640px] rounded-[22px] border border-stone-200 bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden transition-all duration-200"
       >
         {/* Search Input Bar */}
         <div className="flex h-[60px] items-center gap-3.5 border-b border-stone-200 px-5 bg-white">
@@ -385,7 +385,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Actions Section */}
               {filteredActions.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-700">
                     {t.commandSectionActions}
                   </div>
                   {filteredActions.map((item) => {
@@ -434,7 +434,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Navigation Pages Section */}
               {filteredPages.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-700">
                     {t.commandSectionPages}
                   </div>
                   {filteredPages.map((item) => {
@@ -480,7 +480,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Products Section */}
               {products.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-700">
                     {t.commandSectionProducts}
                   </div>
                   {products.map((item) => {
@@ -548,7 +548,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Orders Section */}
               {orders.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-700">
                     {t.commandSectionOrders}
                   </div>
                   {orders.map((item) => {
@@ -603,23 +603,23 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
         {/* Apple-style Footer Shortcut Bar */}
         <div className="flex h-[44px] items-center justify-between border-t border-stone-200 bg-stone-50 px-4 text-[12px] text-stone-600 font-medium">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <span className="inline-flex items-center gap-1 shrink-0">
               <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">↑↓</kbd>
               <span>{isUk ? 'Навігація' : 'Navigate'}</span>
             </span>
-            <span className="text-stone-300">•</span>
-            <span className="inline-flex items-center gap-1">
+            <span className="text-stone-300 shrink-0">•</span>
+            <span className="inline-flex items-center gap-1 shrink-0">
               <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">↵</kbd>
               <span>{isUk ? 'Вибрати' : 'Select'}</span>
             </span>
-            <span className="text-stone-300">•</span>
-            <span className="inline-flex items-center gap-1">
+            <span className="text-stone-300 shrink-0">•</span>
+            <span className="inline-flex items-center gap-1 shrink-0">
               <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">Esc</kbd>
               <span>{isUk ? 'Закрити' : 'Close'}</span>
             </span>
           </div>
-          <span className="hidden sm:inline font-semibold text-[11px] text-stone-400 uppercase tracking-wider">
+          <span className="hidden sm:inline font-semibold text-[11px] text-stone-500 uppercase tracking-wider shrink-0">
             Shop AI Spotlight
           </span>
         </div>
