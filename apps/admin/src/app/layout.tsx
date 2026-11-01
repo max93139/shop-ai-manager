@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uk" className={inter.className}>
-      <body className={inter.className}>
+    <html lang="uk" className={`${inter.variable} ${inter.className}`}>
+      <body className={`${inter.variable} ${inter.className}`}>
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>

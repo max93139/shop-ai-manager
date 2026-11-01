@@ -24,9 +24,9 @@ module.exports = {
         'accent-line': 'var(--accent-line)',
       },
       fontFamily: {
-        sans: ['var(--font-body)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        display: ['var(--font-display)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        body: ['var(--font-body)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-body)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['var(--font-inter)', 'var(--font-display)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        body: ['var(--font-inter)', 'var(--font-body)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['var(--font-mono)', 'JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
