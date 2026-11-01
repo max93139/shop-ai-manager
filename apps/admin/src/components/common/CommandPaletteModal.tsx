@@ -326,25 +326,25 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity duration-200"
+        className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity duration-200"
       />
 
       <div
         onKeyDown={handleKeyDown}
-        className="relative z-10 w-full max-w-[640px] rounded-[22px] border border-[var(--border-strong)] bg-[var(--surface)] shadow-[0_24px_64px_-12px_rgba(28,27,25,0.22),0_0_0_1px_rgba(28,27,25,0.05)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="relative z-10 w-full max-w-[640px] rounded-[22px] border border-stone-200 bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Search Input Bar */}
-        <div className="flex h-[58px] items-center gap-3.5 border-b border-[var(--border)] px-5 bg-[var(--surface)]">
-          <Search className="h-5 w-5 shrink-0 text-[var(--accent)]" />
+        <div className="flex h-[60px] items-center gap-3.5 border-b border-stone-200 px-5 bg-white">
+          <Search className="h-5 w-5 shrink-0 text-[#0F6B4F]" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.commandInputPlaceholder}
-            className="w-full bg-transparent text-[15px] sm:text-[15.5px] font-medium text-[var(--text)] placeholder:text-[var(--text-tertiary)] focus:outline-none min-w-0"
+            className="w-full bg-transparent text-[15px] sm:text-[16px] font-medium text-stone-900 placeholder:text-stone-400 focus:outline-none min-w-0"
           />
-          {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[var(--accent)]" />}
+          {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#0F6B4F]" />}
           {query && !loading && (
             <button
               type="button"
@@ -352,14 +352,14 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="text-[var(--text-tertiary)] hover:text-[var(--text)] p-1 rounded-md hover:bg-[var(--surface-soft)] transition-colors"
+              className="text-stone-400 hover:text-stone-700 p-1 rounded-md hover:bg-stone-100 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
           )}
           <kbd
             onClick={onClose}
-            className="cursor-pointer font-mono text-[11px] font-semibold rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-2 py-0.5 text-[var(--text-secondary)] shrink-0 hover:text-[var(--text)] hover:border-[var(--border-strong)] transition-colors shadow-2xs"
+            className="cursor-pointer font-mono text-[11px] font-semibold rounded-[6px] border border-stone-200 bg-stone-100 px-2 py-0.5 text-stone-600 shrink-0 hover:text-stone-900 hover:border-stone-300 transition-colors shadow-2xs"
           >
             Esc
           </kbd>
@@ -368,15 +368,15 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         {/* Results List */}
         <div
           ref={listRef}
-          className="max-h-[58vh] overflow-y-auto p-2.5 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-1 bg-[var(--surface)]"
+          className="max-h-[58vh] overflow-y-auto p-2.5 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-1 bg-white"
         >
           {flatItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-10 text-center">
-              <Search className="h-8 w-8 text-[var(--text-tertiary)] mb-2" />
-              <h4 className="font-semibold text-[14.5px] text-[var(--text)]">
+              <Search className="h-8 w-8 text-stone-400 mb-2" />
+              <h4 className="font-semibold text-[15px] text-stone-900">
                 {t.commandNoResultsTitle}
               </h4>
-              <p className="text-[13px] text-[var(--text-secondary)] mt-1 max-w-[340px]">
+              <p className="text-[13px] text-stone-500 mt-1 max-w-[340px]">
                 {t.commandNoResultsDesc}
               </p>
             </div>
@@ -385,7 +385,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Actions Section */}
               {filteredActions.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
                     {t.commandSectionActions}
                   </div>
                   {filteredActions.map((item) => {
@@ -399,32 +399,32 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         onMouseEnter={() => setSelectedIndex(idx)}
                         className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
-                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
+                            ? 'bg-[#0F6B4F]/10 text-stone-900 ring-1 ring-[#0F6B4F]/30 shadow-xs'
+                            : 'text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white shadow-xs'
-                                : 'bg-[var(--surface-soft)] text-[var(--accent)] border border-[var(--border)]'
+                                ? 'bg-[#0F6B4F] text-white shadow-xs'
+                                : 'bg-stone-100 text-[#0F6B4F] border border-stone-200'
                             }`}
                           >
                             {item.icon}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
+                            <span className="text-[14px] font-semibold truncate text-stone-900 leading-snug">
                               {item.title}
                             </span>
                             {item.subtitle && (
-                              <span className="text-[12px] text-[var(--text-secondary)] truncate">
+                              <span className="text-[12px] text-stone-500 truncate">
                                 {item.subtitle}
                               </span>
                             )}
                           </div>
                         </div>
-                        <ArrowRight className={`h-4 w-4 shrink-0 transition-transform ${isSelected ? 'translate-x-0.5 text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`} />
+                        <ArrowRight className={`h-4 w-4 shrink-0 transition-transform ${isSelected ? 'translate-x-0.5 text-[#0F6B4F]' : 'text-stone-400'}`} />
                       </div>
                     );
                   })}
@@ -434,7 +434,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Navigation Pages Section */}
               {filteredPages.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
                     {t.commandSectionPages}
                   </div>
                   {filteredPages.map((item) => {
@@ -448,26 +448,26 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         onMouseEnter={() => setSelectedIndex(idx)}
                         className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
-                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
+                            ? 'bg-[#0F6B4F]/10 text-stone-900 ring-1 ring-[#0F6B4F]/30 shadow-xs'
+                            : 'text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white shadow-xs'
-                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
+                                ? 'bg-[#0F6B4F] text-white shadow-xs'
+                                : 'bg-stone-100 text-stone-600 border border-stone-200'
                             }`}
                           >
                             {item.icon}
                           </div>
-                          <span className="text-[13.5px] font-semibold truncate text-[var(--text)]">
+                          <span className="text-[14px] font-semibold truncate text-stone-900">
                             {item.title}
                           </span>
                         </div>
                         {item.badge && (
-                          <span className="text-[10.5px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]">
+                          <span className="text-[10.5px] font-semibold uppercase px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
                             {item.badge}
                           </span>
                         )}
@@ -480,7 +480,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Products Section */}
               {products.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
                     {t.commandSectionProducts}
                   </div>
                   {products.map((item) => {
@@ -494,25 +494,25 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         onMouseEnter={() => setSelectedIndex(idx)}
                         className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
-                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
+                            ? 'bg-[#0F6B4F]/10 text-stone-900 ring-1 ring-[#0F6B4F]/30 shadow-xs'
+                            : 'text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white shadow-xs'
-                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
+                                ? 'bg-[#0F6B4F] text-white shadow-xs'
+                                : 'bg-stone-100 text-stone-600 border border-stone-200'
                             }`}
                           >
                             <Package className="h-4 w-4" />
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
+                            <span className="text-[14px] font-semibold truncate text-stone-900 leading-snug">
                               {item.name}
                             </span>
-                            <span className="text-[12px] text-[var(--text-secondary)] truncate">
+                            <span className="text-[12px] text-stone-500 truncate">
                               SKU: {item.sku} • ₴{item.price.toLocaleString()} • {item.stock}{' '}
                               {isUk ? 'шт' : 'pcs'}
                             </span>
@@ -521,10 +521,10 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         <span
                           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
                             item.status === 'out_of_stock'
-                              ? 'bg-[#FDF1F1] text-[#B84343] border border-[#FBE0E0]'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
                               : item.status === 'low_stock'
-                              ? 'bg-[#FEF6E9] text-[#965A1A] border border-[#FDECD4]'
-                              : 'bg-[#EAF5EF] text-[#0F6B4F] border border-[#D5ECDF]'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           }`}
                         >
                           {item.status === 'out_of_stock'
@@ -548,7 +548,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
               {/* Orders Section */}
               {orders.length > 0 && (
                 <div className="flex flex-col mb-1">
-                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+                  <div className="px-3.5 pt-2.5 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-stone-500">
                     {t.commandSectionOrders}
                   </div>
                   {orders.map((item) => {
@@ -563,32 +563,32 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         onMouseEnter={() => setSelectedIndex(idx)}
                         className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
-                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
+                            ? 'bg-[#0F6B4F]/10 text-stone-900 ring-1 ring-[#0F6B4F]/30 shadow-xs'
+                            : 'text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white shadow-xs'
-                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
+                                ? 'bg-[#0F6B4F] text-white shadow-xs'
+                                : 'bg-stone-100 text-stone-600 border border-stone-200'
                             }`}
                           >
                             <Receipt className="h-4 w-4" />
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
+                            <span className="text-[14px] font-semibold truncate text-stone-900 leading-snug">
                               {isUk ? 'Замовлення' : 'Order'} #{orderNum}
                             </span>
-                            <span className="text-[12px] text-[var(--text-secondary)] truncate">
+                            <span className="text-[12px] text-stone-500 truncate">
                               {item.customerName || 'Клієнт'} • ₴
                               {(item.totalAmount || 0).toLocaleString()}
                             </span>
                           </div>
                         </div>
                         {item.status && (
-                          <span className="text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]">
+                          <span className="text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
                             {item.status}
                           </span>
                         )}
@@ -602,24 +602,24 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         </div>
 
         {/* Apple-style Footer Shortcut Bar */}
-        <div className="flex h-[42px] items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)]/90 px-4 text-[12px] text-[var(--text-secondary)] font-medium">
+        <div className="flex h-[44px] items-center justify-between border-t border-stone-200 bg-stone-50 px-4 text-[12px] text-stone-600 font-medium">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1">
-              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">↑↓</kbd>
+              <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">↑↓</kbd>
               <span>{isUk ? 'Навігація' : 'Navigate'}</span>
             </span>
-            <span className="text-[var(--border-strong)]">•</span>
+            <span className="text-stone-300">•</span>
             <span className="inline-flex items-center gap-1">
-              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">↵</kbd>
+              <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">↵</kbd>
               <span>{isUk ? 'Вибрати' : 'Select'}</span>
             </span>
-            <span className="text-[var(--border-strong)]">•</span>
+            <span className="text-stone-300">•</span>
             <span className="inline-flex items-center gap-1">
-              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">Esc</kbd>
+              <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 text-[10.5px] font-mono font-semibold text-stone-700 shadow-2xs">Esc</kbd>
               <span>{isUk ? 'Закрити' : 'Close'}</span>
             </span>
           </div>
-          <span className="hidden sm:inline font-semibold text-[11px] text-[var(--text-tertiary)] uppercase tracking-wider">
+          <span className="hidden sm:inline font-semibold text-[11px] text-stone-400 uppercase tracking-wider">
             Shop AI Spotlight
           </span>
         </div>
