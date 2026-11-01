@@ -66,7 +66,7 @@ export default function OrdersStats({
       {cards.map((card, idx) => (
         <div
           key={idx}
-          className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.02)]"
+          className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.02)] min-h-[142px]"
         >
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-semibold text-[var(--text-secondary)]">

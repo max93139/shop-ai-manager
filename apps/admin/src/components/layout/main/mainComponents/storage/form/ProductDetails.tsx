@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductDetailsProps {
@@ -33,6 +33,17 @@ export default function ProductDetails({
   const { t, translateCategory } = useTranslation();
   const [brandQuery, setBrandQuery] = useState(brand);
   const [isBrandListOpen, setIsBrandListOpen] = useState(false);
+  const brandRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (brandRef.current && !brandRef.current.contains(e.target as Node)) {
+        setIsBrandListOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelectBrand = (selectedBrand: string) => {
     onBrandChange(selectedBrand);
@@ -82,7 +93,7 @@ export default function ProductDetails({
       </div>
 
       {/* Brand Combobox */}
-      <div className="flex flex-col gap-1.5 relative">
+      <div ref={brandRef} className="flex flex-col gap-1.5 relative">
         <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.brandLabel}</label>
         <input
           type="text"

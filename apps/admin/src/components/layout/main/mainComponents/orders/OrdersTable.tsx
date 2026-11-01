@@ -233,7 +233,7 @@ export default function OrdersTable({
                     <select
                       value={ord.status}
                       onChange={(e) => onUpdateStatus(ord.id, e.target.value as OrderStatus)}
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold focus:outline-none cursor-pointer w-[120px] truncate ${badge.bg}`}
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold focus:outline-none cursor-pointer w-[138px] truncate ${badge.bg}`}
                     >
                       <option value="PENDING">{t.orderStatusPending}</option>
                       <option value="PAID">{t.orderStatusPaid}</option>
@@ -287,7 +287,7 @@ export default function OrdersTable({
                   <select
                     value={ord.status}
                     onChange={(e) => onUpdateStatus(ord.id, e.target.value as OrderStatus)}
-                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold focus:outline-none w-[110px] truncate ${badge.bg}`}
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold focus:outline-none w-[130px] truncate ${badge.bg}`}
                   >
                     <option value="PENDING">{t.orderStatusPending}</option>
                     <option value="PAID">{t.orderStatusPaid}</option>
@@ -373,7 +373,7 @@ export default function OrdersTable({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2 pt-2 text-[13px] text-[var(--text-secondary)]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 pt-2 text-[13px] text-[var(--text-secondary)]">
           <span>
             {t.showingPrefix} <strong>{orders.length}</strong> {t.showingOf} <strong>{totalCount}</strong>
           </span>

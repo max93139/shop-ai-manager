@@ -382,7 +382,7 @@ export default function OrderDetailsModal({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-5 shrink-0 pl-15 sm:pl-0">
+                    <div className="flex items-center justify-between sm:justify-end gap-5 shrink-0 pl-14 sm:pl-0">
                       <span className="text-[12.5px] font-medium text-[var(--text-secondary)]">
                         {item.quantity} × ₴{item.price.toFixed(2)}
                       </span>

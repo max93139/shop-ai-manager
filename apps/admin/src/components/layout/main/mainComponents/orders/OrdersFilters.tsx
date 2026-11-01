@@ -65,7 +65,7 @@ export default function OrdersFilters({
                 {isArchive && <Archive className="h-3.5 w-3.5 opacity-80" />}
                 <span>{tab.label}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.2 text-[11px] font-bold ${
+                  className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold ${
                     isSelected
                       ? 'bg-white/20 text-white'
                       : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
