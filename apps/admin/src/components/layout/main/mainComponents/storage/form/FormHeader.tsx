@@ -40,7 +40,7 @@ export default function FormHeader({
             {name.trim() || t.newProduct}
           </span>
         </div>
-        <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] text-[var(--text)] tracking-[-0.01em]">
+        <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text)] tracking-tight">
           {name.trim() || t.newProduct}
         </h1>
         <p className="font-mono text-[12.5px] sm:text-[13px] text-[var(--text-secondary)] mt-1">

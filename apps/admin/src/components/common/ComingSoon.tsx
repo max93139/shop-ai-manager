@@ -33,7 +33,7 @@ export default function ComingSoon({
       <div className="relative overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-10 shadow-[var(--shadow-md)] flex flex-col items-center text-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[340px] h-[160px] bg-[var(--accent)]/10 blur-[70px] rounded-full"
+          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[340px] h-[160px] bg-[#0F6B4F]/10 blur-[70px] rounded-full"
         />
 
         <div className="flex h-14 w-14 items-center justify-center rounded-[16px] bg-[var(--accent-soft)] text-[var(--accent)] mb-4 shadow-2xs">
@@ -44,7 +44,7 @@ export default function ComingSoon({
           {badge || (isUk ? 'Скоро у доступі' : 'Coming Soon')}
         </span>
 
-        <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[30px] font-[650] tracking-[-0.02em] text-[var(--text)] mb-2.5 max-w-[600px]">
+        <h1 className="text-[24px] sm:text-[30px] font-bold tracking-tight text-[var(--text)] mb-2.5 max-w-[600px]">
           {title}
         </h1>
 
@@ -79,25 +79,25 @@ export default function ComingSoon({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3.5">
         <div className="flex items-center gap-2 px-1">
           <Sparkles className="h-4 w-4 text-[var(--accent)]" />
-          <h2 className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] text-[var(--text)]">
+          <h2 className="text-[17px] font-bold text-[var(--text)]">
             {isUk ? 'Заплановані можливості модуля' : 'Planned Module Capabilities'}
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5">
           {features.map((feat, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between gap-3.5 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-xs min-h-[160px] transition-all hover:shadow-sm"
+              className="flex flex-col justify-between gap-4 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7 shadow-xs min-h-[175px] transition-all hover:shadow-sm"
             >
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--accent-soft)] text-[var(--accent)] shrink-0">
                   {feat.icon}
                 </div>
-                <h3 className="font-semibold text-[14px] text-[var(--text)] leading-snug">
+                <h3 className="font-semibold text-[15px] text-[var(--text)] leading-snug">
                   {feat.title}
                 </h3>
                 <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">

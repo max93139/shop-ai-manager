@@ -130,7 +130,7 @@ export default function Settings() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
             {t.storeSettingsTitle}
           </h1>
           <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
@@ -167,7 +167,7 @@ export default function Settings() {
               className={`inline-flex items-center gap-2 rounded-t-[8px] px-4 py-2.5 text-[13px] font-semibold transition-all select-none border-b-2 -mb-[1px] whitespace-nowrap ${
                 isActive
                   ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--surface-soft)]'
-                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]/50'
+                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -183,7 +183,7 @@ export default function Settings() {
         {activeTab === 'profile' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
+              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
                 {t.generalInfoTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -300,7 +300,7 @@ export default function Settings() {
         {activeTab === 'telegram' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
+              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
                 {t.telegramTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -395,7 +395,7 @@ export default function Settings() {
         {activeTab === 'inventory' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
+              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
                 {t.inventoryTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -489,7 +489,7 @@ export default function Settings() {
         {activeTab === 'security' && (
           <div className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
+              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
                 {t.securityTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">

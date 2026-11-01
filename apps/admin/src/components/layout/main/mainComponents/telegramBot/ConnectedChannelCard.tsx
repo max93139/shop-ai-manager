@@ -21,7 +21,7 @@ export default function ConnectedChannelCard({
 
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-      <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)] mb-4">
+      <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)] mb-4">
         {t.connectedChannelTitle}
       </h2>
 

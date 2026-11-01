@@ -174,7 +174,7 @@ export default function Analytics() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+          <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
             {t.analyticsTitle}
           </h1>
           <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
@@ -311,7 +311,7 @@ export default function Analytics() {
       <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6 border-b border-[var(--border)]">
           <div>
-            <h2 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] text-[var(--text)]">
+            <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
               {t.revenueTrendTitle}
             </h2>
             <p className="text-[13px] text-[var(--text-secondary)]">
@@ -390,7 +390,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
               <Layers className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] text-[var(--text)]">
+              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
                 {t.salesByCategoryTitle}
               </h3>
             </div>
@@ -433,7 +433,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
               <PackageCheck className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] text-[var(--text)]">
+              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
                 {language === 'uk' ? 'Статуси виконання замовлень' : 'Order Fulfillment Status'}
               </h3>
             </div>
@@ -497,7 +497,7 @@ export default function Analytics() {
         {/* Top Selling Products (2 columns wide) */}
         <div className="lg:col-span-2 flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
           <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-            <h3 className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] text-[var(--text)]">
+            <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
               {t.topProductsHeading}
             </h3>
             <span className="text-[12px] text-[var(--text-tertiary)]">
@@ -549,7 +549,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] text-[var(--text)]">
+              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
                 {t.deliveryGeographyTitle}
               </h3>
             </div>

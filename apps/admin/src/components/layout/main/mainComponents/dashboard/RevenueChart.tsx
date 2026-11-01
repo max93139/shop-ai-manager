@@ -41,7 +41,7 @@ export default function RevenueChart({
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
       <div className="flex flex-wrap items-center justify-between gap-2 pb-6">
-        <h2 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] tracking-[-0.01em] text-[var(--text)]">
+        <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
           {displayTitle}
         </h2>
         {peakInfo && (
@@ -65,7 +65,7 @@ export default function RevenueChart({
                 className={`w-full max-w-[42px] rounded-t-[8px] transition-all duration-300 ${
                   bar.isHighlight
                     ? 'bg-[var(--accent)] shadow-sm'
-                    : 'bg-[var(--accent-soft)] hover:bg-[var(--accent)]/60'
+                    : 'bg-[var(--accent-soft)] hover:bg-[#0F6B4F]/60'
                 }`}
               />
               <span className="mt-2 text-[12px] font-semibold text-[var(--text-secondary)]">

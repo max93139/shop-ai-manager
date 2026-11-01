@@ -90,7 +90,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
       <div className="flex items-center justify-between pb-5">
-        <h2 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] tracking-[-0.01em] text-[var(--text)]">
+        <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
           {t.latestOrdersTitle}
         </h2>
         <Link

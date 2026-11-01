@@ -126,7 +126,7 @@ export default function Sidebar() {
         {/* Sidebar Footer User Chip */}
         <div className="mt-auto border-t border-[var(--border)] pt-[14px]">
           <div className="flex cursor-pointer items-center gap-[9px] rounded-[var(--radius-sm)] p-2 transition-colors hover:bg-[var(--surface-soft)]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E7DFC9] to-[#CBB98A] font-['Fraunces',Georgia,serif] text-[12px] font-semibold text-[#4A3F1F]">
+            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E7DFC9] to-[#CBB98A] font-sans text-[12px] font-bold text-[#4A3F1F]">
               {userInitials}
             </div>
             <div className="flex flex-col min-w-0">

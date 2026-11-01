@@ -167,7 +167,7 @@ export default function Notifications() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+            <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
               {t.notificationsTitle}
             </h1>
             {unreadCount > 0 && (
@@ -225,7 +225,7 @@ export default function Notifications() {
               className={`inline-flex items-center gap-2 rounded-t-[8px] px-3.5 py-2 text-[13px] font-semibold transition-all select-none border-b-2 -mb-[1px] ${
                 isActive
                   ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--surface-soft)]'
-                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]/50'
+                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]'
               }`}
             >
               <span>{tab.label}</span>
@@ -249,7 +249,7 @@ export default function Notifications() {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface-soft)] text-[var(--text-tertiary)] mb-3">
             <CheckCircle2 className="h-6 w-6 text-[var(--accent)]" />
           </div>
-          <h3 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
+          <h3 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
             {t.noNotificationsTitle}
           </h3>
           <p className="text-[13px] text-[var(--text-secondary)] mt-1 max-w-[360px]">

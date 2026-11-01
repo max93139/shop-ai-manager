@@ -74,12 +74,12 @@ export default function BrandLoader({
         </div>
 
         <h1
-          className="mb-1 text-[18px] font-semibold tracking-[-0.01em] text-[var(--text)]"
+          className="mb-1 text-[18px] font-bold tracking-tight text-[var(--text)]"
           style={{
             fontSize: '18px',
-            fontWeight: 650,
+            fontWeight: 700,
             color: '#1C1B19',
-            fontFamily: "'Fraunces', Georgia, serif",
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             margin: '0 0 6px 0',
           }}
         >
@@ -91,7 +91,7 @@ export default function BrandLoader({
           style={{ margin: '20px 0' }}
         >
           <div
-            className="h-8 w-8 rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)] animate-spin"
+            className="h-8 w-8 rounded-full border-2 border-[#0F6B4F]/20 border-t-[#0F6B4F] animate-spin"
             style={{
               height: '32px',
               width: '32px',

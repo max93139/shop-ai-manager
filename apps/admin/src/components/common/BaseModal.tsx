@@ -53,7 +53,7 @@ export default function BaseModal({
         <div className="flex items-start justify-between pb-4">
           <div>
             {title && (
-              <h3 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] text-[var(--text)]">
+              <h3 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
                 {title}
               </h3>
             )}

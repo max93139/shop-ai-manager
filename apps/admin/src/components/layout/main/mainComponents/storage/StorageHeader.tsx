@@ -22,7 +22,7 @@ export default function StorageHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col">
-        <h1 className="font-['Fraunces',Georgia,serif] text-[24px] sm:text-[28px] font-[650] tracking-[-0.01em] text-[var(--text)]">
+        <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
           {t.storageTitle}
         </h1>
         <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)]">

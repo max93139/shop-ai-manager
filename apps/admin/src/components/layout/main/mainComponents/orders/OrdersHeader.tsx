@@ -26,7 +26,7 @@ export default function OrdersHeader({
           <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-soft)] text-[var(--accent)]">
             <ShoppingCart className="h-5 w-5" />
           </div>
-          <h1 className="font-['Fraunces',Georgia,serif] text-[24px] font-[650] text-[var(--text)] tracking-tight">
+          <h1 className="text-[24px] font-bold text-[var(--text)] tracking-tight">
             {t.ordersTitle}
           </h1>
           <span className="rounded-full bg-[var(--surface-sunken)] border border-[var(--border)] px-2.5 py-0.5 text-[12px] font-bold text-[var(--text-secondary)]">

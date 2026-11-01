@@ -1,6 +1,13 @@
 import React from 'react';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { StoreProvider } from '../store/provider';
+
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata = {
   title: 'Shop AI Manager | Admin',
@@ -21,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uk">
-      <body>
+    <html lang="uk" className={inter.className}>
+      <body className={inter.className}>
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
