@@ -46,21 +46,21 @@ export default function Sidebar() {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-[246px] shrink-0 flex-col gap-[22px] border-r border-[var(--border)] bg-[var(--surface)] p-[20px_12px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-[260px] shrink-0 flex-col gap-[22px] border-r border-[var(--border)] bg-[var(--surface)] p-[20px_14px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden transition-transform duration-300 ease-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:static lg:z-auto lg:translate-x-0`}
       >
         {/* Brand Header */}
-        <div className="flex items-center gap-[10px] px-2 pb-2 pt-1">
-          <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[var(--text)] text-white shadow-sm">
-            <ShoppingBag className="h-[15px] w-[15px] text-white" strokeWidth={2} />
+        <div className="flex items-center gap-3 px-2 pb-2 pt-1">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-gradient-to-br from-[#148362] to-[#0B523C] text-white shadow-sm">
+            <ShoppingBag className="h-[18px] w-[18px] text-white" strokeWidth={2} />
           </div>
-          <div className="flex flex-col">
-            <span className="font-['Fraunces',Georgia,serif] text-[17px] font-[650] leading-tight text-[var(--text)]">
-              {t.adminPanel}
+          <div className="flex flex-col min-w-0">
+            <span className="text-[15px] font-bold tracking-tight text-[var(--text)] truncate">
+              Shop AI Manager
             </span>
-            <span className="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-[var(--text-tertiary)] -mt-[2px]">
-              {t.storeOperations}
+            <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--text-tertiary)] -mt-[1px] truncate">
+              {t.adminPanel}
             </span>
           </div>
         </div>

@@ -259,64 +259,70 @@ export default function AIAssistant() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="flex flex-col justify-between rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[var(--accent-soft)] text-[var(--accent)]">
-              <Package className="h-4 w-4" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[var(--accent-soft)] text-[var(--accent)]">
+                <Package className="h-4 w-4" />
+              </div>
+              <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.inventoryAuditTitle}</span>
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.inventoryAuditTitle}</span>
+            <p className="text-[12.5px] text-[var(--text-secondary)] leading-relaxed">
+              {t.inventoryAuditDesc}
+            </p>
           </div>
-          <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            {t.inventoryAuditDesc}
-          </p>
           <button
             type="button"
             disabled={runningAction === 'audit'}
             onClick={handleInventoryAudit}
-            className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
+            className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-2 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${runningAction === 'audit' ? 'animate-spin' : ''}`} />
             <span>{runningAction === 'audit' ? t.runningAuditStatus : t.runAuditBtn}</span>
           </button>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#EBF2F9] text-[#1E5F8B]">
-              <Send className="h-4 w-4" />
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#EBF2F9] text-[#1E5F8B]">
+                <Send className="h-4 w-4" />
+              </div>
+              <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.channelSyncTitle}</span>
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.channelSyncTitle}</span>
+            <p className="text-[12.5px] text-[var(--text-secondary)] leading-relaxed">
+              {t.channelSyncDesc}
+            </p>
           </div>
-          <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            {t.channelSyncDesc}
-          </p>
           <button
             type="button"
             disabled={runningAction === 'channel'}
             onClick={handleChannelSync}
-            className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
+            className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-2 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${runningAction === 'channel' ? 'animate-spin' : ''}`} />
             <span>{runningAction === 'channel' ? t.syncingChannelStatus : t.syncChannelBtn}</span>
           </button>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#FEF6E9] text-[#965A1A]">
-              <Zap className="h-4 w-4" />
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#FEF6E9] text-[#965A1A]">
+                <Zap className="h-4 w-4" />
+              </div>
+              <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.healthCheckTitle}</span>
             </div>
-            <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.healthCheckTitle}</span>
+            <p className="text-[12.5px] text-[var(--text-secondary)] leading-relaxed">
+              {t.healthCheckDesc}
+            </p>
           </div>
-          <p className="text-[12.5px] text-[var(--text-secondary)] my-2.5">
-            {t.healthCheckDesc}
-          </p>
           <button
             type="button"
             disabled={runningAction === 'health'}
             onClick={handleHealthCheck}
-            className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-1.5 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
+            className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] py-2 text-[12.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-sunken)] transition-colors disabled:opacity-50 cursor-pointer"
           >
             {runningAction === 'health' ? (
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />

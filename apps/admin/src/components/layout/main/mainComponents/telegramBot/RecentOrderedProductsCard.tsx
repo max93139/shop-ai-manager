@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Package, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface RecentOrderItem {
   id: string;
@@ -23,21 +24,38 @@ export default function RecentOrderedProductsCard({
   orders,
   loading = false,
 }: RecentOrderedProductsCardProps) {
+  const { t, isUk } = useTranslation();
+
+  const getStatusText = (status: RecentOrderItem['status']) => {
+    switch (status) {
+      case 'Paid':
+        return isUk ? 'Оплачено' : 'Paid';
+      case 'Processing':
+        return isUk ? 'В обробці' : 'Processing';
+      case 'Delivered':
+        return isUk ? 'Доставлено' : 'Delivered';
+      case 'Pending':
+        return isUk ? 'Очікує' : 'Pending';
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)] h-full">
       <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
         <div className="flex flex-col">
           <h2 className="font-['Fraunces',Georgia,serif] text-[18px] font-[650] text-[var(--text)]">
-            Recent ordered products
+            {t.recentOrderedTitle}
           </h2>
-          <span className="text-[12px] text-[var(--text-secondary)]">Latest customer purchases</span>
+          <span className="text-[12px] text-[var(--text-secondary)]">{t.recentOrderedSubtitle}</span>
         </div>
 
         <Link
           href="/orders"
           className="group inline-flex items-center gap-1 text-[12.5px] font-semibold text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
         >
-          <span>View all</span>
+          <span>{t.recentOrderedViewAll}</span>
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
         </Link>
       </div>
@@ -59,7 +77,7 @@ export default function RecentOrderedProductsCard({
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <Package className="h-8 w-8 text-[var(--text-tertiary)] mb-2" />
-            <p className="text-[14px] font-medium text-[var(--text-secondary)]">No recent orders</p>
+            <p className="text-[14px] font-medium text-[var(--text-secondary)]">{t.recentOrderedEmpty}</p>
           </div>
         ) : (
           orders.map((item) => (
@@ -84,8 +102,8 @@ export default function RecentOrderedProductsCard({
                   <span className="text-[14px] font-semibold text-[var(--text)] truncate">
                     {item.name}
                   </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
-                    Ordered · {item.timeAgo}
+                  <span className="text-[12px] text-[var(--text-secondary)] truncate">
+                    {t.recentOrderedTimePrefix} · {item.timeAgo}
                   </span>
                 </div>
               </div>
@@ -94,7 +112,7 @@ export default function RecentOrderedProductsCard({
                 <span className="text-[14px] font-bold text-[var(--text)]">{item.price}</span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#E7F2ED] px-2 py-0.5 text-[11px] font-semibold text-[#0F6B4F]">
                   <CheckCircle2 className="h-3 w-3" />
-                  {item.status}
+                  {getStatusText(item.status)}
                 </span>
               </div>
             </div>

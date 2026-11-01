@@ -234,7 +234,7 @@ export default function Analytics() {
           <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : formatCurrency(data.summary.totalRevenue)}
           </div>
-          <div className="flex items-center gap-1.5 text-[12.5px]">
+          <div className="flex items-center gap-1.5 text-[12px] flex-wrap">
             {data.summary.revenueGrowth >= 0 ? (
               <span className="inline-flex items-center gap-0.5 font-semibold text-[#0F6B4F]">
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -246,11 +246,11 @@ export default function Analytics() {
                 {data.summary.revenueGrowth}%
               </span>
             )}
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'порівняно з мин. періодом' : 'vs prev period'}</span>
+            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'до мин. періоду' : 'vs prev period'}</span>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiTotalOrders}</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EBF2F9] text-[#1E5F8B]">
@@ -260,7 +260,7 @@ export default function Analytics() {
           <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : data.summary.totalOrders}
           </div>
-          <div className="flex items-center gap-1.5 text-[12.5px]">
+          <div className="flex items-center gap-1.5 text-[12px] flex-wrap">
             {data.summary.ordersGrowth >= 0 ? (
               <span className="inline-flex items-center gap-0.5 font-semibold text-[#0F6B4F]">
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -272,11 +272,11 @@ export default function Analytics() {
                 {data.summary.ordersGrowth}%
               </span>
             )}
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'порівняно з мин. періодом' : 'vs prev period'}</span>
+            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'до мин. періоду' : 'vs prev period'}</span>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiAov}</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#F4F1EA] text-[#63553A]">
@@ -286,12 +286,12 @@ export default function Analytics() {
           <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : formatCurrency(data.summary.aov)}
           </div>
-          <div className="flex items-center gap-1.5 text-[12.5px]">
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Середній чек замовлення' : 'Per customer check'}</span>
+          <div className="flex items-center gap-1.5 text-[12px]">
+            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Середній чек замовлення' : 'Avg order value'}</span>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiConversion}</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EAF5EF] text-[#0F6B4F]">
@@ -301,8 +301,8 @@ export default function Analytics() {
           <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
             {loading ? '...' : `${data.summary.conversionRate}%`}
           </div>
-          <div className="flex items-center gap-1.5 text-[12.5px]">
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Доставлені та оплачені замовлення' : 'Delivered & paid orders'}</span>
+          <div className="flex items-center gap-1.5 text-[12px]">
+            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Оплачені та доставлені' : 'Delivered & paid'}</span>
           </div>
         </div>
       </div>

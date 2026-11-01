@@ -351,6 +351,26 @@ export interface TranslationDictionary {
   telegramBotTitle: string;
   telegramBotSubtitle: string;
   botSettingsBtn: string;
+  botStatusTitle: string;
+  botOnline: string;
+  botOffline: string;
+  botHandleLabel: string;
+  botUptimeLabel: string;
+  botMessagesTodayLabel: string;
+  botActiveChatsLabel: string;
+  connectedChannelTitle: string;
+  subscribersSuffix: string;
+  channelConnected: string;
+  channelDisconnected: string;
+  queueStatusTitle: string;
+  queuePendingPosts: string;
+  queueScheduledToday: string;
+  queueFailedReview: string;
+  recentOrderedTitle: string;
+  recentOrderedSubtitle: string;
+  recentOrderedViewAll: string;
+  recentOrderedEmpty: string;
+  recentOrderedTimePrefix: string;
 
   loginWelcomeTitle: string;
   loginSubtitle: string;
@@ -880,6 +900,26 @@ export const translations: Record<Language, TranslationDictionary> = {
     telegramBotTitle: 'Telegram Бот',
     telegramBotSubtitle: 'Керування ботом-помічником вашого інтернет-магазину',
     botSettingsBtn: 'Налаштування бота',
+    botStatusTitle: 'Статус бота',
+    botOnline: 'В мережі',
+    botOffline: 'Не в мережі',
+    botHandleLabel: 'Юзернейм бота',
+    botUptimeLabel: 'Час роботи',
+    botMessagesTodayLabel: 'Повідомлень сьогодні',
+    botActiveChatsLabel: 'Активних діалогів',
+    connectedChannelTitle: 'Підключений канал',
+    subscribersSuffix: 'підписників',
+    channelConnected: 'Підключено',
+    channelDisconnected: 'Відключено',
+    queueStatusTitle: 'Черга публікацій',
+    queuePendingPosts: 'В очікуванні',
+    queueScheduledToday: 'Заплановано на сьогодні',
+    queueFailedReview: 'Помилка (потребує перевірки)',
+    recentOrderedTitle: 'Останні замовлені товари',
+    recentOrderedSubtitle: 'Останні покупки клієнтів',
+    recentOrderedViewAll: 'Всі замовлення',
+    recentOrderedEmpty: 'Немає недавніх замовлень',
+    recentOrderedTimePrefix: 'Замовлено',
 
     loginWelcomeTitle: 'Вхід до Панелі Керування',
     loginSubtitle: 'Увійдіть під обліковим записом адміністратора магазину',
@@ -1242,6 +1282,26 @@ export const translations: Record<Language, TranslationDictionary> = {
     telegramBotTitle: 'Telegram Bot',
     telegramBotSubtitle: 'Manage the assistant connected to your store',
     botSettingsBtn: 'Bot settings',
+    botStatusTitle: 'Bot status',
+    botOnline: 'Online',
+    botOffline: 'Offline',
+    botHandleLabel: 'Bot handle',
+    botUptimeLabel: 'Uptime',
+    botMessagesTodayLabel: 'Messages today',
+    botActiveChatsLabel: 'Active chats',
+    connectedChannelTitle: 'Connected channel',
+    subscribersSuffix: 'subscribers',
+    channelConnected: 'Connected',
+    channelDisconnected: 'Disconnected',
+    queueStatusTitle: 'Queue status',
+    queuePendingPosts: 'Pending posts',
+    queueScheduledToday: 'Scheduled today',
+    queueFailedReview: 'Failed (needs review)',
+    recentOrderedTitle: 'Recent ordered products',
+    recentOrderedSubtitle: 'Latest customer purchases',
+    recentOrderedViewAll: 'View all',
+    recentOrderedEmpty: 'No recent orders',
+    recentOrderedTimePrefix: 'Ordered',
 
     loginWelcomeTitle: 'Welcome to Admin Panel',
     loginSubtitle: 'Sign in with the account issued by your store admin',

@@ -32,7 +32,13 @@ module.exports = {
         md: 'var(--radius-md)',
         lg: 'var(--radius-lg)',
       },
+      spacing: {
+        '4.5': '1.125rem',
+      },
       boxShadow: {
+        '2xs': '0 1px 2px rgba(28, 27, 25, 0.03)',
+        xs: '0 1px 2px rgba(28, 27, 25, 0.05)',
+        sm: '0 2px 4px rgba(28, 27, 25, 0.04)',
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
         glass: 'inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 8px 32px rgba(28, 27, 25, 0.08)',

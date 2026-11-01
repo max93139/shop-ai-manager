@@ -230,7 +230,7 @@ export default function Notifications() {
             >
               <span>{tab.label}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[11px] font-mono ${
+                className={`rounded-full px-2 py-0.5 text-[11px] font-mono ${
                   isActive
                     ? 'bg-[var(--accent)] text-white'
                     : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
@@ -262,7 +262,7 @@ export default function Notifications() {
             <div
               key={item.id}
               onClick={() => !item.read && markItemAsRead(item.id)}
-              className={`group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 rounded-[16px] border p-4 sm:p-4.5 transition-all duration-150 cursor-pointer ${
+              className={`group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 rounded-[16px] border p-4 sm:p-5 transition-all duration-150 cursor-pointer ${
                 item.read
                   ? 'border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-soft)]'
                   : 'border-[var(--accent-line)] bg-[#FAFDFC] hover:bg-[#F3FAF6] shadow-[0_2px_10px_rgba(15,107,79,0.05)]'

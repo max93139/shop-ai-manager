@@ -322,27 +322,27 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-4 pt-[10vh] sm:pt-[14vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-4 pt-[9vh] sm:pt-[12vh]">
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-200"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity duration-200"
       />
 
       <div
         onKeyDown={handleKeyDown}
-        className="relative z-10 w-full max-w-[620px] rounded-[20px] border border-white/70 bg-[var(--surface)]/90 backdrop-blur-2xl shadow-glass flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="relative z-10 w-full max-w-[640px] rounded-[22px] border border-[var(--border-strong)] bg-[var(--surface)] shadow-[0_24px_64px_-12px_rgba(28,27,25,0.22),0_0_0_1px_rgba(28,27,25,0.05)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3.5 bg-transparent">
-          <Search className="h-5 w-5 shrink-0 text-[var(--text-tertiary)]" />
+        <div className="flex h-[58px] items-center gap-3.5 border-b border-[var(--border)] px-5 bg-[var(--surface)]">
+          <Search className="h-5 w-5 shrink-0 text-[var(--accent)]" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.commandInputPlaceholder}
-            className="w-full bg-transparent text-[14.5px] font-medium text-[var(--text)] placeholder:text-[var(--text-tertiary)] focus:outline-none min-w-0"
+            className="w-full bg-transparent text-[15px] sm:text-[15.5px] font-medium text-[var(--text)] placeholder:text-[var(--text-tertiary)] focus:outline-none min-w-0"
           />
           {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[var(--accent)]" />}
           {query && !loading && (
@@ -352,14 +352,14 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="text-[var(--text-tertiary)] hover:text-[var(--text)] p-0.5 rounded transition-colors"
+              className="text-[var(--text-tertiary)] hover:text-[var(--text)] p-1 rounded-md hover:bg-[var(--surface-soft)] transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
           )}
           <kbd
             onClick={onClose}
-            className="cursor-pointer font-mono text-[10.5px] font-semibold rounded-[5px] border border-[var(--border)] bg-[var(--surface-soft)] px-1.5 py-0.5 text-[var(--text-tertiary)] shrink-0 hover:text-[var(--text)]"
+            className="cursor-pointer font-mono text-[11px] font-semibold rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-2 py-0.5 text-[var(--text-secondary)] shrink-0 hover:text-[var(--text)] hover:border-[var(--border-strong)] transition-colors shadow-2xs"
           >
             Esc
           </kbd>
@@ -368,15 +368,15 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         {/* Results List */}
         <div
           ref={listRef}
-          className="max-h-[58vh] overflow-y-auto p-2 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-1"
+          className="max-h-[58vh] overflow-y-auto p-2.5 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-1 bg-[var(--surface)]"
         >
           {flatItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="flex flex-col items-center justify-center p-10 text-center">
               <Search className="h-8 w-8 text-[var(--text-tertiary)] mb-2" />
-              <h4 className="font-semibold text-[14px] text-[var(--text)]">
+              <h4 className="font-semibold text-[14.5px] text-[var(--text)]">
                 {t.commandNoResultsTitle}
               </h4>
-              <p className="text-[12.5px] text-[var(--text-secondary)] mt-1 max-w-[340px]">
+              <p className="text-[13px] text-[var(--text-secondary)] mt-1 max-w-[340px]">
                 {t.commandNoResultsDesc}
               </p>
             </div>
@@ -384,8 +384,8 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
             <>
               {/* Actions Section */}
               {filteredActions.length > 0 && (
-                <div className="flex flex-col">
-                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                <div className="flex flex-col mb-1">
+                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                     {t.commandSectionActions}
                   </div>
                   {filteredActions.map((item) => {
@@ -397,34 +397,34 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         data-command-index={idx}
                         onClick={() => handleSelect(flatItems[idx])}
                         onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-[12px] cursor-pointer transition-colors duration-100 ${
+                        className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[var(--surface-soft)] text-[var(--text)] ring-1 ring-[var(--border)]'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]/60'
+                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
+                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0">
                           <div
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] ${
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'
+                                ? 'bg-[var(--accent)] text-white shadow-xs'
+                                : 'bg-[var(--surface-soft)] text-[var(--accent)] border border-[var(--border)]'
                             }`}
                           >
                             {item.icon}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-medium truncate text-[var(--text)]">
+                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
                               {item.title}
                             </span>
                             {item.subtitle && (
-                              <span className="text-[11.5px] text-[var(--text-tertiary)] truncate">
+                              <span className="text-[12px] text-[var(--text-secondary)] truncate">
                                 {item.subtitle}
                               </span>
                             )}
                           </div>
                         </div>
-                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" />
+                        <ArrowRight className={`h-4 w-4 shrink-0 transition-transform ${isSelected ? 'translate-x-0.5 text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`} />
                       </div>
                     );
                   })}
@@ -433,8 +433,8 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
               {/* Navigation Pages Section */}
               {filteredPages.length > 0 && (
-                <div className="flex flex-col mt-1">
-                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                <div className="flex flex-col mb-1">
+                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                     {t.commandSectionPages}
                   </div>
                   {filteredPages.map((item) => {
@@ -446,28 +446,28 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         data-command-index={idx}
                         onClick={() => handleSelect(flatItems[idx])}
                         onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-[12px] cursor-pointer transition-colors duration-100 ${
+                        className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[var(--surface-soft)] text-[var(--text)] ring-1 ring-[var(--border)]'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]/60'
+                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
+                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0">
                           <div
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] ${
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'
+                                ? 'bg-[var(--accent)] text-white shadow-xs'
+                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
                             }`}
                           >
                             {item.icon}
                           </div>
-                          <span className="text-[13.5px] font-medium truncate text-[var(--text)]">
+                          <span className="text-[13.5px] font-semibold truncate text-[var(--text)]">
                             {item.title}
                           </span>
                         </div>
                         {item.badge && (
-                          <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-tertiary)]">
+                          <span className="text-[10.5px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]">
                             {item.badge}
                           </span>
                         )}
@@ -479,8 +479,8 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
               {/* Products Section */}
               {products.length > 0 && (
-                <div className="flex flex-col mt-1">
-                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                <div className="flex flex-col mb-1">
+                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                     {t.commandSectionProducts}
                   </div>
                   {products.map((item) => {
@@ -492,39 +492,39 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         data-command-index={idx}
                         onClick={() => handleSelect(flatItems[idx])}
                         onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-[12px] cursor-pointer transition-colors duration-100 ${
+                        className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[var(--surface-soft)] text-[var(--text)] ring-1 ring-[var(--border)]'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]/60'
+                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
+                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0">
                           <div
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] ${
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'
+                                ? 'bg-[var(--accent)] text-white shadow-xs'
+                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
                             }`}
                           >
                             <Package className="h-4 w-4" />
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-medium truncate text-[var(--text)]">
+                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
                               {item.name}
                             </span>
-                            <span className="text-[11.5px] text-[var(--text-tertiary)] truncate">
+                            <span className="text-[12px] text-[var(--text-secondary)] truncate">
                               SKU: {item.sku} • ₴{item.price.toLocaleString()} • {item.stock}{' '}
                               {isUk ? 'шт' : 'pcs'}
                             </span>
                           </div>
                         </div>
                         <span
-                          className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                          className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
                             item.status === 'out_of_stock'
-                              ? 'bg-[#FDF1F1] text-[#B84343]'
+                              ? 'bg-[#FDF1F1] text-[#B84343] border border-[#FBE0E0]'
                               : item.status === 'low_stock'
-                              ? 'bg-[#FEF6E9] text-[#965A1A]'
-                              : 'bg-[#EAF5EF] text-[#0F6B4F]'
+                              ? 'bg-[#FEF6E9] text-[#965A1A] border border-[#FDECD4]'
+                              : 'bg-[#EAF5EF] text-[#0F6B4F] border border-[#D5ECDF]'
                           }`}
                         >
                           {item.status === 'out_of_stock'
@@ -536,7 +536,7 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                               ? 'Мало'
                               : 'Low'
                             : isUk
-                            ? 'Активний'
+                            ? 'В наявності'
                             : 'Active'}
                         </span>
                       </div>
@@ -547,8 +547,8 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
 
               {/* Orders Section */}
               {orders.length > 0 && (
-                <div className="flex flex-col mt-1">
-                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                <div className="flex flex-col mb-1">
+                  <div className="px-3.5 pt-2 pb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                     {t.commandSectionOrders}
                   </div>
                   {orders.map((item) => {
@@ -561,34 +561,34 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
                         data-command-index={idx}
                         onClick={() => handleSelect(flatItems[idx])}
                         onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-[12px] cursor-pointer transition-colors duration-100 ${
+                        className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[12px] cursor-pointer transition-all duration-100 ${
                           isSelected
-                            ? 'bg-[var(--surface-soft)] text-[var(--text)] ring-1 ring-[var(--border)]'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]/60'
+                            ? 'bg-[#0F6B4F]/10 text-[var(--text)] ring-1 ring-[#0F6B4F]/25 shadow-xs'
+                            : 'text-[var(--text)] hover:bg-[var(--surface-soft)]'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0">
                           <div
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] ${
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] transition-colors ${
                               isSelected
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]'
+                                ? 'bg-[var(--accent)] text-white shadow-xs'
+                                : 'bg-[var(--surface-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
                             }`}
                           >
                             <Receipt className="h-4 w-4" />
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[13.5px] font-medium truncate text-[var(--text)]">
+                            <span className="text-[13.5px] font-semibold truncate text-[var(--text)] leading-snug">
                               {isUk ? 'Замовлення' : 'Order'} #{orderNum}
                             </span>
-                            <span className="text-[11.5px] text-[var(--text-tertiary)] truncate">
+                            <span className="text-[12px] text-[var(--text-secondary)] truncate">
                               {item.customerName || 'Клієнт'} • ₴
                               {(item.totalAmount || 0).toLocaleString()}
                             </span>
                           </div>
                         </div>
                         {item.status && (
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[var(--surface-sunken)] text-[var(--text-tertiary)]">
+                          <span className="text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-secondary)] border border-[var(--border)]">
                             {item.status}
                           </span>
                         )}
@@ -602,9 +602,24 @@ export default function CommandPaletteModal({ isOpen, onClose }: CommandPaletteM
         </div>
 
         {/* Apple-style Footer Shortcut Bar */}
-        <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)]/80 backdrop-blur-md px-4 py-2.5 text-[11.5px] text-[var(--text-tertiary)]">
-          <span>{t.commandFooterShortcuts}</span>
-          <span className="hidden sm:inline font-medium text-[var(--text-secondary)]">
+        <div className="flex h-[42px] items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)]/90 px-4 text-[12px] text-[var(--text-secondary)] font-medium">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1">
+              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">↑↓</kbd>
+              <span>{isUk ? 'Навігація' : 'Navigate'}</span>
+            </span>
+            <span className="text-[var(--border-strong)]">•</span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">↵</kbd>
+              <span>{isUk ? 'Вибрати' : 'Select'}</span>
+            </span>
+            <span className="text-[var(--border-strong)]">•</span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[10.5px] font-mono font-semibold shadow-2xs">Esc</kbd>
+              <span>{isUk ? 'Закрити' : 'Close'}</span>
+            </span>
+          </div>
+          <span className="hidden sm:inline font-semibold text-[11px] text-[var(--text-tertiary)] uppercase tracking-wider">
             Shop AI Spotlight
           </span>
         </div>

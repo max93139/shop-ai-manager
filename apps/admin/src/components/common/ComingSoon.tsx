@@ -87,21 +87,23 @@ export default function ComingSoon({
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feat, idx) => (
             <div
               key={idx}
-              className="flex flex-col gap-2 rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-4.5 shadow-2xs"
+              className="flex flex-col justify-between gap-3.5 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-xs min-h-[160px] transition-all hover:shadow-sm"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--surface-soft)] text-[var(--accent)]">
-                {feat.icon}
+              <div className="flex flex-col gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--accent-soft)] text-[var(--accent)] shrink-0">
+                  {feat.icon}
+                </div>
+                <h3 className="font-semibold text-[14px] text-[var(--text)] leading-snug">
+                  {feat.title}
+                </h3>
+                <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+                  {feat.description}
+                </p>
               </div>
-              <h3 className="font-semibold text-[13.5px] text-[var(--text)]">
-                {feat.title}
-              </h3>
-              <p className="text-[12.5px] text-[var(--text-secondary)] leading-relaxed">
-                {feat.description}
-              </p>
             </div>
           ))}
         </div>
