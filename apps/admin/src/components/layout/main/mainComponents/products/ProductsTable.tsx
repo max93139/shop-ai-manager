@@ -88,7 +88,7 @@ function ProductImage({ images, name }: { images: string[]; name: string }) {
   const src = images?.[0];
   if (!src) {
     return (
-      <div className="flex items-center justify-center bg-[var(--surface-sunken)] rounded-[10px] w-full aspect-[4/3] text-[var(--text-tertiary)]">
+      <div className="flex items-center justify-center bg-[var(--surface-sunken)] w-full h-full text-[var(--text-tertiary)]">
         <Package className="h-8 w-8" />
       </div>
     );
@@ -97,7 +97,7 @@ function ProductImage({ images, name }: { images: string[]; name: string }) {
     <img
       src={src}
       alt={name}
-      className="w-full aspect-[4/3] object-cover rounded-[10px] bg-[var(--surface-sunken)]"
+      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       loading="lazy"
     />
   );
@@ -353,26 +353,37 @@ function ProductCard({
   };
 
   return (
-    <div className="flex flex-col rounded-[14px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-      <ProductImage images={item.images} name={item.name} />
+    <div className="group flex flex-col rounded-[16px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
+      <div className="relative w-full aspect-[4/3] bg-[var(--surface-sunken)] overflow-hidden">
+        <ProductImage images={item.images} name={item.name} />
+        <div className="absolute top-2.5 left-2.5 z-10">
+          <StatusBadge status={item.status} labels={statusLabels} />
+        </div>
+        <div className="absolute top-2.5 right-2.5 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
+          <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
+        </div>
+      </div>
 
-      <div className="flex flex-col p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex flex-col min-w-0 flex-1 mr-2">
-            <span className="text-[14px] font-semibold text-[var(--text)] truncate">{item.name}</span>
-            <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <StatusBadge status={item.status} labels={statusLabels} />
-            <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
-          </div>
+      <div className="flex flex-col p-4 gap-3 flex-1 justify-between">
+        <div className="flex flex-col gap-1 min-w-0">
+          <span className="text-[14.5px] font-semibold text-[var(--text)] line-clamp-2 leading-snug">
+            {item.name}
+          </span>
+          <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">
+            {item.sku}
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 mb-2.5">
-          <ColorSwatch color={item.color} title={translateColor(item.color)} />
-          <span className="text-[13px] text-[var(--text-secondary)]">{translateColor(item.color)}</span>
-          <span className="text-[var(--text-tertiary)]">·</span>
-          <span className="text-[13px] text-[var(--text-secondary)]">{item.size}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2 py-1">
+            <ColorSwatch color={item.color} title={translateColor(item.color)} />
+            <span className="text-[12px] font-medium text-[var(--text-secondary)]">
+              {translateColor(item.color)}
+            </span>
+          </div>
+          <span className="inline-flex items-center rounded-md bg-[var(--surface-soft)] px-2 py-1 text-[12px] font-semibold text-[var(--text-secondary)]">
+            {item.size}
+          </span>
         </div>
 
         <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)]">
@@ -390,14 +401,11 @@ function ProductCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-[var(--border)]">
+        <div className="flex items-center justify-between text-[12px] text-[var(--text-secondary)] pt-2 border-t border-[var(--border)]">
+          <span className="font-medium truncate max-w-[140px]">{translateCategory(item.category)}</span>
           {item.brand && (
-            <>
-              <span className="text-[12px] text-[var(--text-secondary)] font-medium">{item.brand}</span>
-              <span className="text-[var(--text-tertiary)]">·</span>
-            </>
+            <span className="font-semibold text-[var(--text-tertiary)] truncate max-w-[100px]">{item.brand}</span>
           )}
-          <span className="text-[12px] text-[var(--text-secondary)]">{translateCategory(item.category)}</span>
         </div>
       </div>
     </div>

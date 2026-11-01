@@ -66,7 +66,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[12px] sm:gap-[16px] border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md px-[14px] sm:px-[20px] lg:px-[28px]">
+      <header className="sticky top-0 z-10 flex h-[64px] shrink-0 items-center gap-[12px] sm:gap-[16px] border-b border-[var(--border)] bg-[var(--surface)] px-[14px] sm:px-[20px] lg:px-[28px] shadow-2xs">
         {/* Mobile Sidebar Toggle */}
         <button
           type="button"

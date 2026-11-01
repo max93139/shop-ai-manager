@@ -154,7 +154,7 @@ export default function OrdersTable({
               return (
                 <tr
                   key={ord.id}
-                  className="transition-colors hover:bg-[var(--surface-soft)]/60 cursor-pointer"
+                  className="transition-colors hover:bg-[var(--surface-soft)] cursor-pointer"
                   onClick={() => onViewOrder(ord)}
                 >
                   <td className="py-4 px-5 font-mono font-bold text-[var(--text)]">
