@@ -31,12 +31,12 @@ export default function CatchAllPage({
   }, [isLoading, isAuthenticated, router, pathname]);
 
   if (isLoading) {
-    return <BrandLoader message="Verifying authentication..." />;
+    return <BrandLoader />;
   }
 
   if (isAuthenticated) {
     return <Layout />;
   }
 
-  return <BrandLoader message="Redirecting to login..." />;
+  return <BrandLoader />;
 }

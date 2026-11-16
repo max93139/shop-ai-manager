@@ -7,9 +7,11 @@ import AuthCard from '../../../components/auth/AuthCard';
 import LoginForm from '../../../components/auth/LoginForm';
 import { useAuth } from '../../../provider/authProvider';
 import BrandLoader from '../../../components/common/BrandLoader';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function LoginContent() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams?.get('redirect');
@@ -25,11 +27,11 @@ function LoginContent() {
   }, [isLoading, isAuthenticated, router, redirectTarget]);
 
   if (isLoading) {
-    return <BrandLoader message="Verifying authentication..." />;
+    return <BrandLoader />;
   }
 
   if (isAuthenticated) {
-    return <BrandLoader message="Redirecting to dashboard..." />;
+    return <BrandLoader />;
   }
 
   return (
@@ -40,7 +42,7 @@ function LoginContent() {
           <LoginForm onSuccess={() => router.replace(redirectTarget)} />
         </AuthCard>
         <div className="mt-5 text-center text-[12px] text-[var(--text-tertiary)]">
-          No account access yet? Contact your store admin.
+          {t.loginNoAccess}
         </div>
       </div>
     </main>
@@ -49,7 +51,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<BrandLoader message="Loading..." />}>
+    <Suspense fallback={<BrandLoader />}>
       <LoginContent />
     </Suspense>
   );
