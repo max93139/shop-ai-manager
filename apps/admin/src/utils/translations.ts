@@ -258,6 +258,17 @@ export interface TranslationDictionary {
   goodEvening: string;
   dashboardSubtitlePrefix: string;
   dashboardSubtitleToday: string;
+  priceFieldLabel: string;
+  uploadImages: string;
+  uploadHint: string;
+  uploadDropHere: string;
+  uploadMoreImages: string;
+  chartNoSalesTitle: string;
+  chartNoSalesHint: string;
+  loginNoAccess: string;
+  loaderVerifying: string;
+  comingSoonBadge: string;
+  comingSoonPlanned: string;
   statTodaySales: string;
   statRevenue30d: string;
   statOrders: string;
@@ -690,7 +701,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     exportCsvBtn: 'Експорт CSV',
 
     totalRevenueTitle: 'Загальний виторг',
-    fromAllRecordedSales: 'З усіх оформлених продажів',
+    fromAllRecordedSales: 'За обраним фільтром, без скасованих',
     activeOrdersTitle: 'Активні замовлення',
     inFulfillmentSuffix: 'у виконанні',
     pendingActionTitle: 'Очікують підтвердження',
@@ -761,7 +772,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     quantityLabel: 'Кількість',
     uniqueVariantsSuffix: 'унікальних варіантів',
     deletingText: 'Видалення…',
-    enterTtnPlaceholder: 'Введіть ТТН або натисніть Створити',
+    enterTtnPlaceholder: 'Номер ТТН',
     createBtn: 'Створити',
     saveBtn: 'Зберегти',
 
@@ -807,6 +818,17 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Доброго вечора',
     dashboardSubtitlePrefix: 'Ось що відбувається в магазині',
     dashboardSubtitleToday: 'сьогодні',
+    priceFieldLabel: 'Ціна, ₴',
+    uploadImages: 'Завантажити фото',
+    uploadHint: 'Натисніть або перетягніть файли сюди',
+    uploadDropHere: 'Відпустіть, щоб додати',
+    uploadMoreImages: 'Натисніть або перетягніть, щоб додати ще фото',
+    chartNoSalesTitle: "За цей період продажів не було",
+    chartNoSalesHint: "Графік з’явиться після першого оплаченого замовлення.",
+    loginNoAccess: "Немає доступу? Зверніться до адміністратора магазину.",
+    loaderVerifying: "Завантаження…",
+    comingSoonBadge: "У розробці",
+    comingSoonPlanned: "Що заплановано",
     statTodaySales: 'Продажі за сьогодні',
     statRevenue30d: 'Виторг (30 днів)',
     statOrders: 'Замовлення',
@@ -921,7 +943,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     recentOrderedEmpty: 'Немає недавніх замовлень',
     recentOrderedTimePrefix: 'Замовлено',
 
-    loginWelcomeTitle: 'Вхід до Панелі Керування',
+    loginWelcomeTitle: 'Вхід до панелі керування',
     loginSubtitle: 'Увійдіть під обліковим записом адміністратора магазину',
     emailLabel: 'Робочий Email',
     emailPlaceholder: 'admin@atelier.ua',
@@ -1189,6 +1211,17 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Good evening',
     dashboardSubtitlePrefix: "Here's what's happening at",
     dashboardSubtitleToday: 'today',
+    priceFieldLabel: 'Price, ₴',
+    uploadImages: 'Upload images',
+    uploadHint: 'Click or drag and drop files here',
+    uploadDropHere: 'Drop to add',
+    uploadMoreImages: 'Click or drag to add more images',
+    chartNoSalesTitle: "No sales in this period",
+    chartNoSalesHint: "The chart fills in after the first paid order.",
+    loginNoAccess: "No access yet? Contact your store admin.",
+    loaderVerifying: "Loading…",
+    comingSoonBadge: "In development",
+    comingSoonPlanned: "What is planned",
     statTodaySales: "Today's Sales",
     statRevenue30d: '30-Day Revenue',
     statOrders: 'Orders',

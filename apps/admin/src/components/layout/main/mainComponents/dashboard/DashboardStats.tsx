@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Receipt, BarChart3, Package, Users } from 'lucide-react';
-import StatCard, { type StatCardProps } from './StatCard';
-import type { DashboardOverviewData } from '@shop-ai/types';
+import React from 'react';
+import type { DashboardOverviewData, DashboardStatMetric } from '@shop-ai/types';
+import StatStrip, { type StatStripItem } from '@/components/common/StatStrip';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface DashboardStatsProps {
@@ -11,122 +10,27 @@ export interface DashboardStatsProps {
   loading?: boolean;
 }
 
+const toDelta = (metric?: DashboardStatMetric): number => {
+  const magnitude = Math.abs(parseFloat(metric?.change ?? '0')) || 0;
+  return metric?.changeType === 'decrease' ? -magnitude : magnitude;
+};
+
 export default function DashboardStats({ data, loading }: DashboardStatsProps) {
   const { t } = useTranslation();
-  const [activeIdx, setActiveIdx] = useState(0);
-  const scrollerRef = useRef<HTMLDivElement | null>(null);
 
-  const statItems: StatCardProps[] = data
-    ? [
-        {
-          ...data.todaySales,
-          title: t.statTodaySales,
-          timeframe: t.statVsYesterday,
-          icon: <Receipt className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
-          iconBgClass: 'bg-[#E7F2ED]',
-        },
-        {
-          ...data.revenue30d,
-          title: t.statRevenue30d,
-          timeframe: t.statVsLastMonth,
-          icon: <BarChart3 className="h-4 w-4 text-[#2B6CB0]" strokeWidth={1.8} />,
-          iconBgClass: 'bg-[#EBF8FF]',
-        },
-        {
-          ...data.orders,
-          title: t.statOrders,
-          timeframe: t.statVsYesterday,
-          icon: <Package className="h-4 w-4 text-[#B7791F]" strokeWidth={1.8} />,
-          iconBgClass: 'bg-[#FEFCBF]',
-        },
-        {
-          ...data.newCustomers,
-          title: t.statNewCustomers,
-          timeframe: t.statVsYesterday,
-          icon: <Users className="h-4 w-4 text-[#0F6B4F]" strokeWidth={1.8} />,
-          iconBgClass: 'bg-[#E7F2ED]',
-        },
-      ]
-    : [];
+  const metrics: Array<[string, DashboardStatMetric | undefined, string]> = [
+    [t.statTodaySales, data?.todaySales, t.statVsYesterday],
+    [t.statRevenue30d, data?.revenue30d, t.statVsLastMonth],
+    [t.statOrders, data?.orders, t.statVsYesterday],
+    [t.statNewCustomers, data?.newCustomers, t.statVsYesterday],
+  ];
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el || statItems.length === 0) return;
+  const items: StatStripItem[] = metrics.map(([label, metric, hint]) => ({
+    label,
+    value: metric?.value ?? '—',
+    delta: metric ? toDelta(metric) : undefined,
+    hint,
+  }));
 
-    const onScroll = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      if (max <= 0) {
-        setActiveIdx(0);
-        return;
-      }
-      const progress = Math.max(0, Math.min(1, el.scrollLeft / max));
-      const idx = Math.round(progress * (statItems.length - 1));
-      setActiveIdx(Math.max(0, Math.min(statItems.length - 1, idx)));
-    };
-
-    onScroll();
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [statItems.length]);
-
-  if (loading || !data) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
-        {[1, 2, 3, 4].map((idx) => (
-          <div
-            key={idx}
-            className="flex h-[134px] flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface-soft)] p-5 animate-pulse"
-          >
-            <div className="flex items-center justify-between">
-              <div className="h-4 w-24 rounded bg-[var(--border)]" />
-              <div className="h-9 w-9 rounded-[10px] bg-[var(--border)]" />
-            </div>
-            <div className="h-7 w-28 rounded bg-[var(--border)]" />
-            <div className="h-3.5 w-20 rounded bg-[var(--border)]" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {/* Mobile View (< sm): Horizontal carousel with scroll-snap & active dot indicator */}
-      <div className="sm:hidden">
-        <div
-          ref={scrollerRef}
-          className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 scroll-pl-5 scroll-pr-5"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          {statItems.map((stat) => (
-            <div key={stat.title} className="snap-start flex-[0_0_calc(85%-6px)] min-w-0">
-              <StatCard {...stat} />
-            </div>
-          ))}
-        </div>
-
-        {/* Carousel Pagination Dots */}
-        <div className="mt-3 flex justify-center gap-1.5">
-          {statItems.map((stat, i) => (
-            <span
-              key={stat.title}
-              aria-hidden
-              className={
-                i === activeIdx
-                  ? 'h-[5px] w-[16px] rounded-[3px] bg-[var(--accent)] transition-all duration-200'
-                  : 'h-[5px] w-[5px] rounded-full bg-[var(--border-strong)] transition-all duration-200'
-              }
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Desktop / Tablet View (>= sm): Grid layout */}
-      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
-        {statItems.map((stat) => (
-          <StatCard key={stat.title} {...stat} />
-        ))}
-      </div>
-    </div>
-  );
+  return <StatStrip items={items} loading={loading} />;
 }

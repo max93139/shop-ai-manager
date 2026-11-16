@@ -18,11 +18,11 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
   const getPaymentBadge = (status: LatestOrderItem['paymentStatus']) => {
     switch (status) {
       case 'Paid':
-        return 'bg-[#E7F2ED] text-[#0F6B4F]';
+        return 'bg-positive-soft text-positive';
       case 'Pending':
-        return 'bg-[#FEFCBF] text-[#B7791F]';
+        return 'bg-warning-soft text-warning';
       case 'Failed':
-        return 'bg-[#FBECEC] text-[#B84343]';
+        return 'bg-danger-soft text-danger';
       default:
         return 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]';
     }
@@ -44,13 +44,13 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
   const getFulfillmentBadge = (status: LatestOrderItem['fulfillmentStatus']) => {
     switch (status) {
       case 'Processing':
-        return 'bg-[#EBF8FF] text-[#2B6CB0]';
+        return 'bg-info-soft text-info';
       case 'Shipped':
-        return 'bg-[#EBF4FF] text-[#3182CE]';
+        return 'bg-info-soft text-info';
       case 'Unfulfilled':
-        return 'bg-[#FEFCBF] text-[#B7791F]';
+        return 'bg-warning-soft text-warning';
       case 'Delivered':
-        return 'bg-[#E7F2ED] text-[#0F6B4F]';
+        return 'bg-positive-soft text-positive';
       default:
         return 'bg-[var(--surface-sunken)] text-[var(--text-secondary)]';
     }
@@ -73,7 +73,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)] animate-pulse">
+      <div className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6">
         <div className="flex justify-between pb-6">
           <div className="h-5 w-36 rounded bg-[var(--border)]" />
           <div className="h-4 w-20 rounded bg-[var(--border)]" />
@@ -88,9 +88,9 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
   }
 
   return (
-    <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+    <div className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
       <div className="flex items-center justify-between pb-5">
-        <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
+        <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
           {t.latestOrdersTitle}
         </h2>
         <Link
@@ -109,7 +109,24 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
           <p className="text-[12px] text-[var(--text-tertiary)]">{t.noOrdersYetSub}</p>
         </div>
       ) : (
-        <div className="overflow-x-auto no-scrollbar">
+        <>
+        <ul className="flex flex-col divide-y divide-[var(--border)] sm:hidden">
+          {orderList.map((order) => (
+            <li key={order.id} className="flex items-start justify-between gap-3 py-3">
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate text-[13.5px] font-medium text-[var(--text)]">{order.customerName}</span>
+                <span className="font-mono text-[12px] text-[var(--text-tertiary)]">{order.orderNumber}</span>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-0.5">
+                <span className="text-[13.5px] font-semibold tabular-nums text-[var(--text)]">{order.totalAmount}</span>
+                <span className="text-[12px] text-[var(--text-secondary)]">
+                  {getFulfillmentStatusLabel(order.fulfillmentStatus)}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto no-scrollbar sm:block">
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="border-b border-[var(--border)] text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
@@ -123,7 +140,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
             <tbody className="divide-y divide-[var(--border)] text-[13.5px]">
               {orderList.map((order) => (
                 <tr key={order.id} className="transition-colors hover:bg-[var(--surface-soft)]">
-                  <td className="py-4 pl-1 font-mono font-bold text-[var(--text)]">
+                  <td className="py-4 pl-1 font-mono font-medium text-[var(--text)]">
                     {order.orderNumber}
                   </td>
                   <td className="py-4 font-medium text-[var(--text)]">
@@ -157,6 +174,7 @@ export default function LatestOrders({ orders, loading }: LatestOrdersProps) {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

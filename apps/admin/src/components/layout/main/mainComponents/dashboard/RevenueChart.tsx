@@ -3,6 +3,7 @@
 import React from 'react';
 import type { RevenueBarData } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney } from '@/utils/format';
 
 export interface RevenueChartProps {
   title?: string;
@@ -11,70 +12,63 @@ export interface RevenueChartProps {
   loading?: boolean;
 }
 
-export default function RevenueChart({
-  title,
-  peakInfo,
-  data,
-  loading,
-}: RevenueChartProps) {
-  const { t, translateDay, translatePeakInfo } = useTranslation();
-  const displayTitle = title || t.revenueLast7Days;
+export default function RevenueChart({ title, peakInfo, data, loading }: RevenueChartProps) {
+  const { t, language, translateDay, translatePeakInfo } = useTranslation();
   const bars = data || [];
-  const maxValue = Math.max(...bars.map((b) => b.value), 1);
-
-  if (loading || !data || bars.length === 0) {
-    return (
-      <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)] animate-pulse">
-        <div className="flex justify-between pb-6">
-          <div className="h-5 w-40 rounded bg-[var(--border)]" />
-          <div className="h-4 w-28 rounded bg-[var(--border)]" />
-        </div>
-        <div className="flex items-end justify-between gap-3 h-[180px] sm:h-[200px] pt-4">
-          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <div key={i} className="flex-1 rounded-[10px] bg-[var(--surface-soft)] h-[70%]" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const maxValue = Math.max(...bars.map((b) => b.value), 0);
+  const hasSales = maxValue > 0;
 
   return (
-    <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-6">
-        <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
-          {displayTitle}
+    <section className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 pb-5">
+        <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
+          {title || t.revenueLast7Days}
         </h2>
-        {peakInfo && (
-          <span className="text-[12.5px] sm:text-[13px] font-medium text-[var(--text-tertiary)]">
-            {translatePeakInfo(peakInfo)}
-          </span>
+        {hasSales && peakInfo && (
+          <span className="text-[12.5px] text-[var(--text-tertiary)]">{translatePeakInfo(peakInfo)}</span>
         )}
       </div>
 
-      <div className="flex h-[180px] sm:h-[200px] items-end justify-between gap-2.5 sm:gap-4 pt-2">
-        {bars.map((bar) => {
-          const heightPercent = maxValue > 0 ? Math.round((bar.value / maxValue) * 100) : 10;
+      {loading ? (
+        <div className="h-[200px] rounded-md bg-[var(--surface-soft)]" aria-hidden />
+      ) : !hasSales ? (
+        <div className="flex h-[200px] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-[var(--border-strong)] text-center">
+          <p className="text-[13.5px] font-medium text-[var(--text-secondary)]">{t.chartNoSalesTitle}</p>
+          <p className="text-[12.5px] text-[var(--text-tertiary)]">{t.chartNoSalesHint}</p>
+        </div>
+      ) : (
+        <div className="flex h-[200px] items-end justify-between gap-2.5 sm:gap-4">
+          {bars.map((bar) => {
+            const heightPercent = (bar.value / maxValue) * 100;
+            const label = formatMoney(bar.value, language);
 
-          return (
-            <div key={bar.day} className="group relative flex flex-1 flex-col items-center h-full justify-end">
-              <div className="pointer-events-none absolute -top-8 z-10 hidden rounded-[6px] bg-[var(--text)] px-2 py-1 text-[11px] font-medium text-white shadow-md group-hover:block transition-all">
-                ₴{bar.value.toLocaleString('uk-UA')}
-              </div>
+            return (
               <div
-                style={{ height: `${heightPercent}%` }}
-                className={`w-full max-w-[42px] rounded-t-[8px] transition-all duration-300 ${
-                  bar.isHighlight
-                    ? 'bg-[var(--accent)] shadow-sm'
-                    : 'bg-[var(--accent-soft)] hover:bg-[#0F6B4F]/60'
-                }`}
-              />
-              <span className="mt-2 text-[12px] font-semibold text-[var(--text-secondary)]">
-                {translateDay(bar.day)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+                key={bar.day}
+                className="group relative flex h-full flex-1 flex-col items-center justify-end"
+                title={`${translateDay(bar.day)}: ${label}`}
+              >
+                <div className="pointer-events-none absolute -top-1 z-10 hidden -translate-y-full whitespace-nowrap rounded-sm bg-[var(--text)] px-2 py-1 text-[11px] font-medium text-white group-hover:block">
+                  {label}
+                </div>
+                <div
+                  style={{ height: bar.value > 0 ? `max(${heightPercent}%, 3px)` : '1px' }}
+                  className={`w-full max-w-[44px] rounded-t-[3px] ${
+                    bar.value === 0
+                      ? 'bg-[var(--border-strong)]'
+                      : bar.isHighlight
+                      ? 'bg-[var(--accent)]'
+                      : 'bg-[var(--accent-line)] group-hover:bg-[var(--accent)]'
+                  }`}
+                />
+                <span className="mt-2 text-[12px] font-medium text-[var(--text-secondary)]">
+                  {translateDay(bar.day)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
