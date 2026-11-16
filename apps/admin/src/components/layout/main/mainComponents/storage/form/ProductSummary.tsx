@@ -16,7 +16,7 @@ export default function ProductSummary({
   const variantCount = Math.max(selectedSizes.length, 1) * Math.max(selectedColors.length, 1);
 
   return (
-    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-2">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-2">
       <h2 className="text-[15px] font-bold text-[var(--text)]">{t.summaryTitle}</h2>
       <p className="text-[12px] text-[var(--text-tertiary)] mb-2">
         {t.summarySubtitle}

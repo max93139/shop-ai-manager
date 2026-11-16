@@ -22,7 +22,7 @@ export default function StorageHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col">
-        <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
+        <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
           {t.storageTitle}
         </h1>
         <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)]">
@@ -34,7 +34,7 @@ export default function StorageHeader({
         <button
           type="button"
           onClick={onExport}
-          className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm transition-all duration-150 hover:bg-[var(--surface-soft)] active:scale-95"
+          className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm transition-all duration-150 hover:bg-[var(--surface-soft)]"
         >
           <Download className="h-4 w-4 text-[var(--text-secondary)]" strokeWidth={1.8} />
           <span>{t.exportBtn}</span>
@@ -43,7 +43,7 @@ export default function StorageHeader({
         <button
           type="button"
           onClick={onAddItem}
-          className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-[var(--accent-hover)] active:scale-95"
+          className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-all duration-150 hover:bg-[var(--accent-hover)]"
         >
           <Plus className="h-4 w-4 text-white" strokeWidth={2} />
           <span>{t.addProductBtn}</span>

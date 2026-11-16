@@ -40,7 +40,7 @@ export default function FormHeader({
             {name.trim() || t.newProduct}
           </span>
         </div>
-        <h1 className="text-[24px] sm:text-[28px] font-bold text-[var(--text)] tracking-tight">
+        <h1 className="text-[22px] sm:text-[24px] font-semibold text-[var(--text)] tracking-tight">
           {name.trim() || t.newProduct}
         </h1>
         <p className="font-mono text-[12.5px] sm:text-[13px] text-[var(--text-secondary)] mt-1">
@@ -53,7 +53,7 @@ export default function FormHeader({
         <button
           type="button"
           onClick={onPublishTelegram}
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm hover:bg-[var(--surface-soft)] transition-all active:scale-95"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] shadow-sm hover:bg-[var(--surface-soft)] transition-all"
         >
           <Send className="h-3.5 w-3.5 text-[#0088CC]" />
           <span>{t.publishToTelegramBtn}</span>
@@ -61,7 +61,7 @@ export default function FormHeader({
         <button
           type="button"
           onClick={onSave}
-          className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] transition-all active:scale-95"
+          className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] transition-all"
         >
           {t.saveChangesBtn}
         </button>

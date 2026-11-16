@@ -237,7 +237,7 @@ export default function VariantBuilder({
     : effectiveSizes.reduce((acc, sz) => acc + getStockForSize(sz), 0);
 
   return (
-    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col select-none">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col select-none">
       {/* Add Color Modal */}
       <AddColorModal
         isOpen={isAddColorModalOpen}
@@ -287,13 +287,13 @@ export default function VariantBuilder({
             : 'Pick a size format, then select or swipe across sizes to toggle multiple at once.'}
         </p>
         {/* Segmented Control */}
-        <div className="inline-flex rounded-[10px] bg-[var(--surface-sunken)] p-1 gap-1 mb-3.5 flex-wrap">
+        <div className="inline-flex rounded-md bg-[var(--surface-sunken)] p-1 gap-1 mb-3.5 flex-wrap">
           {sizeModes.map((m) => (
             <button
               key={m.key}
               type="button"
               onClick={() => onSizeModeChange(m.key)}
-              className={`rounded-[7px] px-3 py-1.5 text-[12.5px] font-semibold transition-all ${
+              className={`rounded-sm px-3 py-1.5 text-[12.5px] font-semibold transition-all ${
                 sizeMode === m.key
                   ? 'bg-[var(--surface)] text-[var(--text)] shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
@@ -459,7 +459,7 @@ export default function VariantBuilder({
 
         {/* Quick Bulk Stock Fill Toolbar */}
         {effectiveSizes.length > 1 && (
-          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface-soft)] p-2.5">
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-2.5">
             <span className="text-[12px] font-medium text-[var(--text-secondary)]">
               {isUk ? 'Встановити всім розмірам:' : 'Set all sizes to:'}
             </span>
@@ -470,12 +470,12 @@ export default function VariantBuilder({
               value={bulkStockInput}
               onChange={(e) => setBulkStockInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyBulkStock()}
-              className="w-20 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-center text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+              className="w-20 rounded-sm border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-center text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
             />
             <button
               type="button"
               onClick={handleApplyBulkStock}
-              className="rounded-[6px] bg-[var(--accent)] px-3 py-1 text-[12px] font-semibold text-white hover:bg-[var(--accent-hover)] transition-all"
+              className="rounded-sm bg-[var(--accent)] px-3 py-1 text-[12px] font-semibold text-white hover:bg-[var(--accent-hover)] transition-all"
             >
               {t.applyBtn}
             </button>
@@ -498,7 +498,7 @@ export default function VariantBuilder({
               return (
                 <div
                   key={colorName}
-                  className="rounded-[12px] border border-[var(--border)] bg-[var(--surface-soft)] p-3.5"
+                  className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-3.5"
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <span
@@ -516,9 +516,9 @@ export default function VariantBuilder({
                       return (
                         <div
                           key={sz}
-                          className="flex items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-2 min-w-0"
+                          className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 min-w-0"
                         >
-                          <span className="flex h-8 min-w-[32px] shrink-0 items-center justify-center rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-1.5 text-[12.5px] font-bold text-[var(--text)]">
+                          <span className="flex h-8 min-w-[32px] shrink-0 items-center justify-center rounded-sm border border-[var(--border)] bg-[var(--surface-sunken)] px-1.5 text-[12.5px] font-bold text-[var(--text)]">
                             {sz}
                           </span>
                           <div className="relative flex-1 min-w-0">
@@ -531,7 +531,7 @@ export default function VariantBuilder({
                               onChange={(e) =>
                                 handleStockValueChange(sz, e.target.value, colorName)
                               }
-                              className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                              className="w-full rounded-sm border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                             />
                             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
                               {isUk ? 'шт' : 'pcs'}
@@ -555,9 +555,9 @@ export default function VariantBuilder({
               return (
                 <div
                   key={sz}
-                  className="flex items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface-soft)] p-2 min-w-0"
+                  className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-2 min-w-0"
                 >
-                  <span className="flex h-8 min-w-[34px] shrink-0 items-center justify-center rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-1.5 text-[13px] font-bold text-[var(--text)] shadow-xs">
+                  <span className="flex h-8 min-w-[34px] shrink-0 items-center justify-center rounded-sm border border-[var(--border)] bg-[var(--surface)] px-1.5 text-[13px] font-bold text-[var(--text)] shadow-xs">
                     {sz}
                   </span>
 
@@ -571,7 +571,7 @@ export default function VariantBuilder({
                       onChange={(e) =>
                         handleStockValueChange(sz, e.target.value, primaryColor)
                       }
-                      className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                      className="w-full rounded-sm border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                     />
                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
                       {isUk ? 'шт' : 'pcs'}

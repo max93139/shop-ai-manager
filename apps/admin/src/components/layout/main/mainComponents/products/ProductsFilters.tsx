@@ -186,7 +186,7 @@ export default function ProductsFilters({
             type="button"
             onClick={() => onViewModeChange('grid')}
             title={t.viewModeGrid}
-            className={`rounded-[6px] p-1.5 transition-all ${
+            className={`rounded-sm p-1.5 transition-all ${
               viewMode === 'grid'
                 ? 'bg-[var(--accent)] text-white shadow-sm'
                 : 'text-[var(--text-tertiary)] hover:text-[var(--text)]'
@@ -198,7 +198,7 @@ export default function ProductsFilters({
             type="button"
             onClick={() => onViewModeChange('table')}
             title={t.viewModeTable}
-            className={`rounded-[6px] p-1.5 transition-all ${
+            className={`rounded-sm p-1.5 transition-all ${
               viewMode === 'table'
                 ? 'bg-[var(--accent)] text-white shadow-sm'
                 : 'text-[var(--text-tertiary)] hover:text-[var(--text)]'

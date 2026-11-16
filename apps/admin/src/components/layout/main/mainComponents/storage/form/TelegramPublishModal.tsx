@@ -239,7 +239,7 @@ export default function TelegramPublishModal({
             <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">
               Live Telegram Preview
             </label>
-            <div className="rounded-[16px] bg-[#17212B] p-3.5 text-white shadow-md border border-[#242F3D] flex flex-col gap-2 font-sans text-[13px] leading-relaxed relative overflow-hidden">
+            <div className="rounded-lg bg-[#17212B] p-3.5 text-white shadow-md border border-[#242F3D] flex flex-col gap-2 font-sans text-[13px] leading-relaxed relative overflow-hidden">
               {/* Telegram Header */}
               <div className="flex items-center gap-2 border-b border-[#242F3D] pb-2 text-[#7F91A4] text-[11px] font-medium">
                 <span className="h-2 w-2 rounded-full bg-[#0088CC]" />
@@ -248,11 +248,11 @@ export default function TelegramPublishModal({
 
               {/* Photo Preview in Post */}
               {selectedImage ? (
-                <div className="aspect-video w-full rounded-[10px] overflow-hidden bg-black/40 border border-[#242F3D]">
+                <div className="aspect-video w-full rounded-md overflow-hidden bg-black/40 border border-[#242F3D]">
                   <img src={selectedImage} alt="Telegram Post Media" className="h-full w-full object-cover" />
                 </div>
               ) : (
-                <div className="aspect-video w-full rounded-[10px] bg-[#242F3D]/60 flex flex-col items-center justify-center text-[#7F91A4] gap-1">
+                <div className="aspect-video w-full rounded-md bg-[#242F3D]/60 flex flex-col items-center justify-center text-[#7F91A4] gap-1">
                   <ImageIcon className="h-6 w-6" />
                   <span className="text-[11px]">No photo selected</span>
                 </div>
@@ -275,7 +275,7 @@ export default function TelegramPublishModal({
         <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
           <div className="text-[12px] text-[var(--text-tertiary)]">
             {isPublished && (
-              <span className="flex items-center gap-1 text-[#0F6B4F] font-semibold">
+              <span className="flex items-center gap-1 text-positive font-semibold">
                 <CheckCircle2 className="h-4 w-4" /> Published to channel!
               </span>
             )}
@@ -293,7 +293,7 @@ export default function TelegramPublishModal({
               type="button"
               onClick={handlePublish}
               disabled={isPublishing || isPublished}
-              className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-[#0088CC] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[#0077B5] transition-all active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-[#0088CC] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[#0077B5] transition-all disabled:opacity-50"
             >
               <Send className="h-3.5 w-3.5" />
               <span>{isPublishing ? 'Publishing…' : isPublished ? 'Published' : 'Publish now'}</span>

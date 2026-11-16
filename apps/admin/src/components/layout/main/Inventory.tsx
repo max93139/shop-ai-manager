@@ -185,14 +185,14 @@ export default function Inventory() {
 
   if (isCreating) {
     return (
-      <div className="flex flex-col w-full animate-in fade-in slide-in-from-right-4 duration-200">
+      <div className="flex flex-col w-full">
         <CreateProductForm onBack={handleBackFromCreate} onSave={handleSaveProduct} />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5 p-5 sm:p-7 lg:p-8">
+    <div className="page-container">
       <ProductsHeader
         totalCount={totalCount}
         loading={loading}

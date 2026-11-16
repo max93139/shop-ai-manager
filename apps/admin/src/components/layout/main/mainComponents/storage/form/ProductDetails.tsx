@@ -61,7 +61,7 @@ export default function ProductDetails({
   };
 
   return (
-    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-4">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col gap-4">
       <h2 className="text-[15px] font-bold text-[var(--text)]">{t.detailsSection}</h2>
 
       {/* Product Name */}
@@ -137,12 +137,12 @@ export default function ProductDetails({
 
       {/* Price */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.thPrice}</label>
+        <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">{t.priceFieldLabel}</label>
         <input
           type="text"
           value={price}
           onChange={(e) => onPriceChange(e.target.value)}
-          placeholder="0.00 ₴"
+          placeholder="0"
           className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
         />
       </div>

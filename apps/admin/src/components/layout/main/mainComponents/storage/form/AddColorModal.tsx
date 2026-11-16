@@ -130,7 +130,7 @@ export default function AddColorModal({
           <button
             type="button"
             onClick={handleConfirm}
-            className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] transition-all active:scale-95"
+            className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] transition-all"
           >
             {t.addColorBtn}
           </button>
