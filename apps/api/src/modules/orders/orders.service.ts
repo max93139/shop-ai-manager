@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { prisma, OrderStatus } from '@shop-ai/database';
+import { canTransitionOrder, type OrderStatus as SharedOrderStatus } from '@shop-ai/types';
 
 @Injectable()
 export class OrdersService {
@@ -363,33 +364,37 @@ export class OrdersService {
 
       const previousStatus = order.status;
 
-      // If order was not CANCELLED and is now being cancelled/refused -> restore stock
-      if (previousStatus !== OrderStatus.CANCELLED && status === OrderStatus.CANCELLED) {
+      if (!canTransitionOrder(previousStatus as SharedOrderStatus, status as SharedOrderStatus)) {
+        throw new BadRequestException(`Cannot change order status from ${previousStatus} to ${status}`);
+      }
+
+      if (previousStatus === status) {
+        return { success: true, id: order.id, status: order.status };
+      }
+
+      if (status === OrderStatus.CANCELLED) {
         for (const item of order.items) {
           if (!item.variantId) continue;
           await tx.productVariant.update({
             where: { id: item.variantId },
-            data: {
-              stock: {
-                increment: item.quantity,
-              },
-            },
+            data: { stock: { increment: item.quantity } },
           });
         }
       }
 
-      // If order was CANCELLED and is now being re-activated -> decrement stock again
-      if (previousStatus === OrderStatus.CANCELLED && status !== OrderStatus.CANCELLED) {
+      if (previousStatus === OrderStatus.CANCELLED) {
         for (const item of order.items) {
-          if (!item.variantId) continue;
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
+          const label = item.productName ?? item.sku ?? item.id;
+          if (!item.variantId) {
+            throw new BadRequestException(`Cannot restore the order: "${label}" was removed from the catalogue`);
+          }
+          const reserved = await tx.productVariant.updateMany({
+            where: { id: item.variantId, stock: { gte: item.quantity } },
+            data: { stock: { decrement: item.quantity } },
           });
+          if (reserved.count === 0) {
+            throw new BadRequestException(`Cannot restore the order: not enough stock for "${label}"`);
+          }
         }
       }
 

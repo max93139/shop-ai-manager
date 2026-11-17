@@ -13,7 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import BaseModal from '../../../../common/BaseModal';
-import { OrderStatus, type AdminOrder } from '@shop-ai/types';
+import { ORDER_STATUS_TRANSITIONS, OrderStatus, canTransitionOrder, type AdminOrder } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrderDetailsModalProps {
@@ -57,7 +57,9 @@ export default function OrderDetailsModal({
       if (res.ok) {
         setCurrentTtn(ttnInput.trim());
         order.ttn = ttnInput.trim();
-        await onUpdateStatus(order.id, OrderStatus.SHIPPED);
+        if (canTransitionOrder(order.status, OrderStatus.SHIPPED)) {
+          await onUpdateStatus(order.id, OrderStatus.SHIPPED);
+        }
       }
     } catch (err) {
       console.error('Failed to save TTN:', err);
@@ -84,7 +86,9 @@ export default function OrderDetailsModal({
           setCurrentTtn(data.ttn);
           setTtnInput(data.ttn);
           order.ttn = data.ttn;
+          if (canTransitionOrder(order.status, OrderStatus.SHIPPED)) {
           await onUpdateStatus(order.id, OrderStatus.SHIPPED);
+        }
         }
       }
     } catch (err) {
@@ -92,6 +96,15 @@ export default function OrderDetailsModal({
     } finally {
       setIsSavingTtn(false);
     }
+  };
+
+  const statusLabels: Record<OrderStatus, string> = {
+    [OrderStatus.PENDING]: t.orderStatusPending,
+    [OrderStatus.PAID]: t.orderStatusPaid,
+    [OrderStatus.PROCESSING]: t.orderStatusProcessing,
+    [OrderStatus.SHIPPED]: t.orderStatusShipped,
+    [OrderStatus.DELIVERED]: t.orderStatusDelivered,
+    [OrderStatus.CANCELLED]: t.orderStatusCancelled,
   };
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
@@ -205,12 +218,11 @@ export default function OrderDetailsModal({
               onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
               className="rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-50"
             >
-              <option value="PENDING">{t.orderStatusPending}</option>
-              <option value="PAID">{t.orderStatusPaid}</option>
-              <option value="PROCESSING">{t.orderStatusProcessing}</option>
-              <option value="SHIPPED">{t.orderStatusShipped}</option>
-              <option value="DELIVERED">{t.orderStatusDelivered}</option>
-              <option value="CANCELLED">{t.orderStatusCancelled}</option>
+              {[order.status, ...ORDER_STATUS_TRANSITIONS[order.status]].map((status) => (
+                <option key={status} value={status}>
+                  {statusLabels[status]}
+                </option>
+              ))}
             </select>
           </div>
         </div>

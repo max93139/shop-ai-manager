@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { prisma, OrderStatus } from '@shop-ai/database';
 import {
   NovaPoshtaSettlement,
@@ -118,6 +118,14 @@ export class NovaPoshtaService {
     };
   }
 
+  /** Attaching a TTN ships an open order, keeps DELIVERED as is and is refused for a cancelled one. */
+  private statusAfterTtn(current: OrderStatus): OrderStatus {
+    if (current === OrderStatus.CANCELLED) {
+      throw new BadRequestException('Cannot attach a TTN to a cancelled order');
+    }
+    return current === OrderStatus.DELIVERED ? current : OrderStatus.SHIPPED;
+  }
+
   async updateOrderTtn(orderId: string, ttn: string) {
     const order = await prisma.order.findUnique({ where: { id: orderId } });
     if (!order) {
@@ -131,7 +139,7 @@ export class NovaPoshtaService {
       where: { id: orderId },
       data: {
         ttn: cleanTtn,
-        status: OrderStatus.SHIPPED,
+        status: this.statusAfterTtn(order.status),
       },
     });
   }
@@ -160,7 +168,7 @@ export class NovaPoshtaService {
       where: { id: orderId },
       data: {
         ttn: generatedTtn,
-        status: OrderStatus.SHIPPED,
+        status: this.statusAfterTtn(order.status),
       },
     });
 
