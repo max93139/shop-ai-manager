@@ -109,7 +109,9 @@ export default function Settings() {
     }
   };
 
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwords.newPassword || passwords.newPassword.length < 8) {
       setPasswordError(t.passwordMinLength);
@@ -120,8 +122,38 @@ export default function Settings() {
       return;
     }
     setPasswordError(null);
-    showToast(t.passwordUpdatedSuccess);
-    setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setIsChangingPassword(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/auth/change-password`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword,
+        }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        const message = Array.isArray(body?.message) ? body.message[0] : body?.message;
+        setPasswordError(message === 'Current password is incorrect' ? t.passwordCurrentWrong : message || t.passwordChangeFailed);
+        return;
+      }
+      if (body?.access_token) {
+        localStorage.setItem('access_token', body.access_token);
+      }
+      showToast(t.passwordUpdatedSuccess);
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch {
+      setPasswordError(t.passwordChangeFailed);
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -545,7 +577,8 @@ export default function Settings() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--text)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:opacity-90 transition-opacity"
+                  disabled={isChangingPassword}
+                  className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--text)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {t.updatePasswordBtn}
                 </button>
