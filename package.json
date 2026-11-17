@@ -11,7 +11,8 @@
     "db:generate": "pnpm --filter @shop-ai/database db:generate",
     "db:push": "pnpm --filter @shop-ai/database db:push",
     "db:seed": "pnpm --filter @shop-ai/database db:seed",
-    "db:studio": "pnpm --filter @shop-ai/database db:studio"
+    "db:studio": "pnpm --filter @shop-ai/database db:studio",
+    "test:e2e": "pnpm --filter @shop-ai/api test:e2e"
   },
   "devDependencies": {
     "@shop-ai/config": "workspace:*",
