@@ -300,9 +300,18 @@ export interface TranslationDictionary {
   filterUnread: string;
   filterOrders: string;
   filterInventory: string;
-  filterSystem: string;
   noNotificationsTitle: string;
   noNotificationsDesc: string;
+  notifNewOrderTitle: string;
+  notifNewOrderMessage: string;
+  notifLowStockTitle: string;
+  notifOutOfStockTitle: string;
+  notifStockMessage: string;
+  notifOpenOrder: string;
+  notifOpenInventory: string;
+  notifLoadFailed: string;
+  notifDelete: string;
+  notifNewCount: string;
 
   analyticsTitle: string;
   analyticsSubtitle: string;
@@ -854,16 +863,25 @@ export const translations: Record<Language, TranslationDictionary> = {
     fulfillmentStatusDelivered: 'Доставлено',
 
     notificationsTitle: 'Сповіщення',
-    notificationsSubtitle: 'Події системи, зміна статусів замовлень та сповіщення про залишки',
+    notificationsSubtitle: 'Нові замовлення та попередження про залишки',
     markAllAsReadBtn: 'Позначити всі як прочитані',
     clearReadBtn: 'Очистити прочитані',
     filterAll: 'Всі',
     filterUnread: 'Непрочитані',
     filterOrders: 'Замовлення',
     filterInventory: 'Склад',
-    filterSystem: 'Система',
     noNotificationsTitle: 'Немає нових сповіщень',
-    noNotificationsDesc: 'Всі нові події вашого магазину з’являтимуться тут.',
+    noNotificationsDesc: 'Тут з’являтимуться нові замовлення та попередження про залишки.',
+    notifNewOrderTitle: 'Нове замовлення {number}',
+    notifNewOrderMessage: '{customer} · {items} од. на {total}',
+    notifLowStockTitle: 'Мало на складі: {product}',
+    notifOutOfStockTitle: 'Закінчився: {product}',
+    notifStockMessage: 'Варіант {color} / {size}: залишилось {stock} од.',
+    notifOpenOrder: 'Відкрити замовлення',
+    notifOpenInventory: 'Перейти до складу',
+    notifLoadFailed: 'Не вдалося завантажити сповіщення',
+    notifDelete: 'Видалити сповіщення',
+    notifNewCount: 'нових',
 
     analyticsTitle: 'Аналітика та ефективність',
     analyticsSubtitle: 'Детальна фінансова статистика, категорії та географія замовлень',
@@ -1248,16 +1266,25 @@ export const translations: Record<Language, TranslationDictionary> = {
     fulfillmentStatusDelivered: 'Delivered',
 
     notificationsTitle: 'Notifications',
-    notificationsSubtitle: 'System events, order status updates, and inventory warnings',
+    notificationsSubtitle: 'New orders and stock warnings',
     markAllAsReadBtn: 'Mark all as read',
     clearReadBtn: 'Clear read',
     filterAll: 'All',
     filterUnread: 'Unread',
     filterOrders: 'Orders',
     filterInventory: 'Inventory',
-    filterSystem: 'System',
     noNotificationsTitle: 'No notifications',
-    noNotificationsDesc: 'All new system events will appear here.',
+    noNotificationsDesc: 'New orders and stock warnings will appear here.',
+    notifNewOrderTitle: 'New order {number}',
+    notifNewOrderMessage: '{customer} · {items} items, {total}',
+    notifLowStockTitle: 'Low stock: {product}',
+    notifOutOfStockTitle: 'Out of stock: {product}',
+    notifStockMessage: 'Variant {color} / {size}: {stock} left',
+    notifOpenOrder: 'View order',
+    notifOpenInventory: 'Open inventory',
+    notifLoadFailed: 'Could not load notifications',
+    notifDelete: 'Delete notification',
+    notifNewCount: 'new',
 
     analyticsTitle: 'Analytics & Performance',
     analyticsSubtitle: 'Detailed financial analytics, category performance, and delivery geography',

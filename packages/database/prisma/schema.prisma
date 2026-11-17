@@ -119,6 +119,25 @@ model OrderItem {
   @@map("order_items")
 }
 
+enum NotificationKind {
+  NEW_ORDER
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+/// Admin feed entry. The admin renders the text from `kind` and `data`, so it follows the UI language.
+model Notification {
+  id        String           @id @default(uuid())
+  kind      NotificationKind
+  data      Json
+  orderId   String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([createdAt])
+  @@map("notifications")
+}
+
 model Session {
   key       String   @id
   value     String   @db.Text
