@@ -215,6 +215,7 @@ export class OrdersService {
         { city: { contains: search, mode: 'insensitive' } },
         { postOffice: { contains: search, mode: 'insensitive' } },
         { user: { name: { contains: search, mode: 'insensitive' } } },
+        { items: { some: { productName: { contains: search, mode: 'insensitive' } } } },
         {
           items: {
             some: {
@@ -305,13 +306,13 @@ export class OrdersService {
       const itemsDetail = ord.items.map((item) => ({
         id: item.id,
         variantId: item.variantId,
-        productName: item.variant?.product?.name || 'Product',
-        sku: item.variant?.sku || '',
-        size: item.variant?.size || 'Standard',
-        color: item.variant?.color || 'Standard',
+        productName: item.productName ?? item.variant?.product?.name ?? 'Product',
+        sku: item.sku ?? item.variant?.sku ?? '',
+        size: item.size ?? item.variant?.size ?? 'Standard',
+        color: item.color ?? item.variant?.color ?? 'Standard',
         price: Number(item.price),
         quantity: item.quantity,
-        image: item.variant?.product?.images?.[0] || undefined,
+        image: item.image ?? item.variant?.product?.images?.[0] ?? undefined,
       }));
 
       const totalItemsCount = ord.items.reduce((acc, curr) => acc + curr.quantity, 0);
@@ -365,6 +366,7 @@ export class OrdersService {
       // If order was not CANCELLED and is now being cancelled/refused -> restore stock
       if (previousStatus !== OrderStatus.CANCELLED && status === OrderStatus.CANCELLED) {
         for (const item of order.items) {
+          if (!item.variantId) continue;
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: {
@@ -379,6 +381,7 @@ export class OrdersService {
       // If order was CANCELLED and is now being re-activated -> decrement stock again
       if (previousStatus === OrderStatus.CANCELLED && status !== OrderStatus.CANCELLED) {
         for (const item of order.items) {
+          if (!item.variantId) continue;
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: {
@@ -542,17 +545,19 @@ export class OrdersService {
 
         categoryRevMap.set(catName, (categoryRevMap.get(catName) || 0) + itemRev);
 
-        if (prod) {
-          const existingProd = productStatsMap.get(prod.id) || {
-            id: prod.id,
-            name: prod.name,
+        const productName = item.productName ?? prod?.name;
+        const productKey = prod?.id ?? (productName ? `deleted:${productName}` : null);
+        if (productKey && productName) {
+          const existingProd = productStatsMap.get(productKey) || {
+            id: productKey,
+            name: productName,
             category: catName,
             salesCount: 0,
             revenue: 0,
           };
           existingProd.salesCount += item.quantity;
           existingProd.revenue += itemRev;
-          productStatsMap.set(prod.id, existingProd);
+          productStatsMap.set(productKey, existingProd);
         }
       }
     }

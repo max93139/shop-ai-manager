@@ -130,7 +130,7 @@ export interface DashboardFullData {
 
 export interface AdminOrderItemDetail {
   id: string;
-  variantId: string;
+  variantId: string | null;
   productName: string;
   sku: string;
   size: string;
