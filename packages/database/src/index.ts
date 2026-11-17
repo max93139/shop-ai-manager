@@ -14,3 +14,13 @@ if (process.env.NODE_ENV !== 'production') {
 export function getStoreSettings() {
   return prisma.storeSettings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } });
 }
+
+/**
+ * Brand of a product. Older rows kept it in `description` as "Brand: X" before the column existed,
+ * so that form is still read until the backfill has run everywhere.
+ */
+export function brandOf(product: { brand?: string | null; description?: string | null }): string {
+  if (product.brand) return product.brand;
+  const legacy = product.description?.match(/Brand:\s*(.+)/i);
+  return legacy ? legacy[1].trim() : '';
+}
