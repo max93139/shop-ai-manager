@@ -24,65 +24,68 @@ export class OrdersService {
       minimumFractionDigits: 2,
     });
 
-    // 1. STATS METRICS
-    const todaySalesAgg = await prisma.order.aggregate({
-      _sum: { totalAmount: true },
-      where: {
-        createdAt: { gte: startOfToday },
-        status: { not: OrderStatus.CANCELLED },
-      },
-    });
+    // 1. STATS METRICS: each value is compared with the previous period of the same length.
+    const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+    const notCancelled = { not: OrderStatus.CANCELLED };
 
-    const revenue30dAgg = await prisma.order.aggregate({
-      _sum: { totalAmount: true },
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-        status: { not: OrderStatus.CANCELLED },
-      },
-    });
+    const sumBetween = async (from: Date, to?: Date) =>
+      Number(
+        (
+          await prisma.order.aggregate({
+            _sum: { totalAmount: true },
+            where: { createdAt: { gte: from, ...(to ? { lt: to } : {}) }, status: notCancelled },
+          })
+        )._sum.totalAmount || 0,
+      );
+    const countBetween = (from: Date, to?: Date) =>
+      prisma.order.count({ where: { createdAt: { gte: from, ...(to ? { lt: to } : {}) }, status: notCancelled } });
+    const customersBetween = (from: Date, to?: Date) =>
+      prisma.user.count({ where: { role: 'CUSTOMER', createdAt: { gte: from, ...(to ? { lt: to } : {}) } } });
 
-    const todayOrdersCount = await prisma.order.count({
-      where: {
-        createdAt: { gte: startOfToday },
-        status: { not: OrderStatus.CANCELLED },
-      },
-    });
+    const [todaySales, yesterdaySales, revenue30d, revenuePrev30d, todayOrders, yesterdayOrders, customers30d, customersPrev30d] =
+      await Promise.all([
+        sumBetween(startOfToday),
+        sumBetween(startOfYesterday, startOfToday),
+        sumBetween(thirtyDaysAgo),
+        sumBetween(sixtyDaysAgo, thirtyDaysAgo),
+        countBetween(startOfToday),
+        countBetween(startOfYesterday, startOfToday),
+        customersBetween(thirtyDaysAgo),
+        customersBetween(sixtyDaysAgo, thirtyDaysAgo),
+      ]);
 
-    const newCustomersCount = await prisma.user.count({
-      where: {
-        role: 'CUSTOMER',
-        createdAt: { gte: thirtyDaysAgo },
-      },
-    });
+    /** Percent change; an empty string when there is no previous value to compare with. */
+    const change = (current: number, previous: number) => {
+      if (previous <= 0) return { change: '', changeType: 'increase' as const };
+      const pct = Math.round(((current - previous) / previous) * 1000) / 10;
+      return { change: `${Math.abs(pct)}%`, changeType: pct < 0 ? ('decrease' as const) : ('increase' as const) };
+    };
 
     const stats = {
       todaySales: {
         title: "Today's sales",
-        value: currencyFormatter.format(Number(todaySalesAgg._sum.totalAmount || 0)),
-        change: '0%',
-        changeType: 'increase' as const,
+        value: currencyFormatter.format(todaySales),
+        ...change(todaySales, yesterdaySales),
         timeframe: 'vs yesterday',
       },
       revenue30d: {
         title: 'Revenue (30d)',
-        value: currencyFormatter.format(Number(revenue30dAgg._sum.totalAmount || 0)),
-        change: '0%',
-        changeType: 'increase' as const,
-        timeframe: 'vs last month',
+        value: currencyFormatter.format(revenue30d),
+        ...change(revenue30d, revenuePrev30d),
+        timeframe: 'vs previous 30 days',
       },
       orders: {
         title: 'Orders',
-        value: todayOrdersCount.toString(),
-        change: '0%',
-        changeType: 'increase' as const,
+        value: todayOrders.toString(),
+        ...change(todayOrders, yesterdayOrders),
         timeframe: 'vs yesterday',
       },
       newCustomers: {
-        title: 'New customers',
-        value: newCustomersCount.toString(),
-        change: '0%',
-        changeType: 'increase' as const,
-        timeframe: 'vs yesterday',
+        title: 'New customers (30d)',
+        value: customers30d.toString(),
+        ...change(customers30d, customersPrev30d),
+        timeframe: 'vs previous 30 days',
       },
     };
 
@@ -141,8 +144,7 @@ export class OrdersService {
       include: { user: true },
     });
 
-    const latestOrders = rawOrders.map((ord, index) => {
-      const shortId = (10482 - index).toString();
+    const latestOrders = rawOrders.map((ord) => {
       const customerName = ord.fullName || ord.user?.name || 'Customer';
       const formattedTotal = detailedCurrencyFormatter.format(Number(ord.totalAmount));
 
@@ -157,7 +159,7 @@ export class OrdersService {
 
       return {
         id: ord.id,
-        orderNumber: `#${shortId}`,
+        orderNumber: `#${ord.id.slice(0, 8).toUpperCase()}`,
         customerName,
         phone: ord.phone || undefined,
         city: ord.city || undefined,

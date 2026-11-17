@@ -266,6 +266,7 @@ export interface TranslationDictionary {
   goodEvening: string;
   dashboardSubtitlePrefix: string;
   dashboardSubtitleToday: string;
+  dashboardSubtitleNoName: string;
   priceFieldLabel: string;
   uploadImages: string;
   uploadHint: string;
@@ -843,6 +844,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Доброго вечора',
     dashboardSubtitlePrefix: 'Ось що відбувається в магазині',
     dashboardSubtitleToday: 'сьогодні',
+    dashboardSubtitleNoName: 'Ось що відбувається в магазині сьогодні, {date}.',
     priceFieldLabel: 'Ціна, ₴',
     uploadImages: 'Завантажити фото',
     uploadHint: 'Натисніть або перетягніть файли сюди',
@@ -1253,6 +1255,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Good evening',
     dashboardSubtitlePrefix: "Here's what's happening at",
     dashboardSubtitleToday: 'today',
+    dashboardSubtitleNoName: "Here's what's happening in your store today, {date}.",
     priceFieldLabel: 'Price, ₴',
     uploadImages: 'Upload images',
     uploadHint: 'Click or drag and drop files here',

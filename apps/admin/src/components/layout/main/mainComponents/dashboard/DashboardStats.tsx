@@ -10,8 +10,10 @@ export interface DashboardStatsProps {
   loading?: boolean;
 }
 
-const toDelta = (metric?: DashboardStatMetric): number => {
-  const magnitude = Math.abs(parseFloat(metric?.change ?? '0')) || 0;
+/** Undefined when the API has nothing to compare with, so no delta is shown instead of a fake 0%. */
+const toDelta = (metric?: DashboardStatMetric): number | undefined => {
+  const magnitude = Math.abs(parseFloat(metric?.change ?? ''));
+  if (!Number.isFinite(magnitude)) return undefined;
   return metric?.changeType === 'decrease' ? -magnitude : magnitude;
 };
 
@@ -22,13 +24,13 @@ export default function DashboardStats({ data, loading }: DashboardStatsProps) {
     [t.statTodaySales, data?.todaySales, t.statVsYesterday],
     [t.statRevenue30d, data?.revenue30d, t.statVsLastMonth],
     [t.statOrders, data?.orders, t.statVsYesterday],
-    [t.statNewCustomers, data?.newCustomers, t.statVsYesterday],
+    [t.statNewCustomers, data?.newCustomers, t.statVsLastMonth],
   ];
 
   const items: StatStripItem[] = metrics.map(([label, metric, hint]) => ({
     label,
     value: metric?.value ?? '—',
-    delta: metric ? toDelta(metric) : undefined,
+    delta: toDelta(metric),
     hint,
   }));
 
