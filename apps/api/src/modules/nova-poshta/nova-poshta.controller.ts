@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { NovaPoshtaService } from './nova-poshta.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateTtnDto } from './dto/create-ttn.dto';
 
 @Controller('nova-poshta')
 export class NovaPoshtaController {
@@ -46,8 +47,8 @@ export class NovaPoshtaController {
 
   @Post('orders/:id/create-ttn')
   @UseGuards(JwtAuthGuard)
-  async createTtn(@Param('id') orderId: string) {
-    return this.novaPoshtaService.createTtnForOrder(orderId);
+  async createTtn(@Param('id') orderId: string, @Body() dto: CreateTtnDto) {
+    return this.novaPoshtaService.createTtnForOrder(orderId, dto);
   }
 
   @Patch('orders/:id/ttn')

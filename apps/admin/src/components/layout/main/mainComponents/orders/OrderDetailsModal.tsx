@@ -80,15 +80,18 @@ export default function OrderDetailsModal({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ttn) {
-          setCurrentTtn(data.ttn);
-          setTtnInput(data.ttn);
-          order.ttn = data.ttn;
-          if (canTransitionOrder(order.status, OrderStatus.SHIPPED)) {
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        alert(body?.message || t.ttnCreateFailed);
+        return;
+      }
+      const data = await res.json();
+      if (data.ttn) {
+        setCurrentTtn(data.ttn);
+        setTtnInput(data.ttn);
+        order.ttn = data.ttn;
+        if (canTransitionOrder(order.status, OrderStatus.SHIPPED)) {
           await onUpdateStatus(order.id, OrderStatus.SHIPPED);
-        }
         }
       }
     } catch (err) {
