@@ -148,7 +148,8 @@ export default function Orders() {
         }
         await fetchOrders();
       } else {
-        alert('Failed to update order status');
+        const body = await res.json().catch(() => null);
+        alert(body?.message || 'Failed to update order status');
       }
     } catch (err) {
       console.error('Error updating order status:', err);

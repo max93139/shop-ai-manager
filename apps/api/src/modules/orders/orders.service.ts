@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { prisma, OrderStatus } from '@shop-ai/database';
+import { canTransitionOrder, type OrderStatus as SharedOrderStatus } from '@shop-ai/types';
 
 @Injectable()
 export class OrdersService {
@@ -215,6 +216,7 @@ export class OrdersService {
         { city: { contains: search, mode: 'insensitive' } },
         { postOffice: { contains: search, mode: 'insensitive' } },
         { user: { name: { contains: search, mode: 'insensitive' } } },
+        { items: { some: { productName: { contains: search, mode: 'insensitive' } } } },
         {
           items: {
             some: {
@@ -305,13 +307,13 @@ export class OrdersService {
       const itemsDetail = ord.items.map((item) => ({
         id: item.id,
         variantId: item.variantId,
-        productName: item.variant?.product?.name || 'Product',
-        sku: item.variant?.sku || '',
-        size: item.variant?.size || 'Standard',
-        color: item.variant?.color || 'Standard',
+        productName: item.productName ?? item.variant?.product?.name ?? 'Product',
+        sku: item.sku ?? item.variant?.sku ?? '',
+        size: item.size ?? item.variant?.size ?? 'Standard',
+        color: item.color ?? item.variant?.color ?? 'Standard',
         price: Number(item.price),
         quantity: item.quantity,
-        image: item.variant?.product?.images?.[0] || undefined,
+        image: item.image ?? item.variant?.product?.images?.[0] ?? undefined,
       }));
 
       const totalItemsCount = ord.items.reduce((acc, curr) => acc + curr.quantity, 0);
@@ -362,31 +364,37 @@ export class OrdersService {
 
       const previousStatus = order.status;
 
-      // If order was not CANCELLED and is now being cancelled/refused -> restore stock
-      if (previousStatus !== OrderStatus.CANCELLED && status === OrderStatus.CANCELLED) {
+      if (!canTransitionOrder(previousStatus as SharedOrderStatus, status as SharedOrderStatus)) {
+        throw new BadRequestException(`Cannot change order status from ${previousStatus} to ${status}`);
+      }
+
+      if (previousStatus === status) {
+        return { success: true, id: order.id, status: order.status };
+      }
+
+      if (status === OrderStatus.CANCELLED) {
         for (const item of order.items) {
+          if (!item.variantId) continue;
           await tx.productVariant.update({
             where: { id: item.variantId },
-            data: {
-              stock: {
-                increment: item.quantity,
-              },
-            },
+            data: { stock: { increment: item.quantity } },
           });
         }
       }
 
-      // If order was CANCELLED and is now being re-activated -> decrement stock again
-      if (previousStatus === OrderStatus.CANCELLED && status !== OrderStatus.CANCELLED) {
+      if (previousStatus === OrderStatus.CANCELLED) {
         for (const item of order.items) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
+          const label = item.productName ?? item.sku ?? item.id;
+          if (!item.variantId) {
+            throw new BadRequestException(`Cannot restore the order: "${label}" was removed from the catalogue`);
+          }
+          const reserved = await tx.productVariant.updateMany({
+            where: { id: item.variantId, stock: { gte: item.quantity } },
+            data: { stock: { decrement: item.quantity } },
           });
+          if (reserved.count === 0) {
+            throw new BadRequestException(`Cannot restore the order: not enough stock for "${label}"`);
+          }
         }
       }
 
@@ -542,17 +550,19 @@ export class OrdersService {
 
         categoryRevMap.set(catName, (categoryRevMap.get(catName) || 0) + itemRev);
 
-        if (prod) {
-          const existingProd = productStatsMap.get(prod.id) || {
-            id: prod.id,
-            name: prod.name,
+        const productName = item.productName ?? prod?.name;
+        const productKey = prod?.id ?? (productName ? `deleted:${productName}` : null);
+        if (productKey && productName) {
+          const existingProd = productStatsMap.get(productKey) || {
+            id: productKey,
+            name: productName,
             category: catName,
             salesCount: 0,
             revenue: 0,
           };
           existingProd.salesCount += item.quantity;
           existingProd.revenue += itemRev;
-          productStatsMap.set(prod.id, existingProd);
+          productStatsMap.set(productKey, existingProd);
         }
       }
     }

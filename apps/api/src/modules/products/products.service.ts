@@ -1,18 +1,15 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { prisma } from '@shop-ai/database';
+import type { CreateProductDto } from './dto/create-product.dto';
+import type { UpdateVariantDto } from './dto/update-variant.dto';
 
-export interface CreateProductDto {
-  name: string;
-  category: string;
-  brand?: string;
-  price?: string | number;
-  selectedSizes?: string[];
-  selectedColors?: string[];
-  sizeStocks?: Record<string, number>;
-  variantStocks?: Record<string, number>;
-  colorStocks?: Record<string, number>;
-  inStock?: string | number;
-  images?: string[];
+/** Reads a stock value from a client map, rejecting anything that is not a whole number >= 0. */
+function parseStock(value: unknown, key: string): number {
+  const stock = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
+  if (typeof stock !== 'number' || !Number.isInteger(stock) || stock < 0) {
+    throw new BadRequestException(`Stock for "${key}" must be a whole number of 0 or more`);
+  }
+  return stock;
 }
 
 export interface ProductsQueryDto {
@@ -208,11 +205,41 @@ export class ProductsService {
     }
 
     const categoryName = dto.category?.trim() || 'General';
-    const rawPrice = typeof dto.price === 'number' ? dto.price : parseFloat(dto.price || '0') || 0;
+    const rawPrice = dto.price;
 
-    let fallbackStock = typeof dto.inStock === 'number' ? dto.inStock : parseInt(dto.inStock || '0', 10) || 0;
+    let fallbackStock = dto.inStock ?? 0;
     if (dto.colorStocks && Object.keys(dto.colorStocks).length > 0) {
-      fallbackStock = Object.values(dto.colorStocks).reduce((acc, curr) => acc + (curr || 0), 0);
+      fallbackStock = Object.entries(dto.colorStocks).reduce((acc, [key, value]) => acc + parseStock(value, key), 0);
+    }
+
+    // Build and validate the variant matrix before anything is written.
+    const sizes = dto.selectedSizes && dto.selectedSizes.length > 0 ? dto.selectedSizes : ['One size'];
+    const colors = dto.selectedColors && dto.selectedColors.length > 0 ? dto.selectedColors : ['Standard'];
+
+    const matrix: Array<{ size: string; color: string; stock: number }> = [];
+
+    for (const size of sizes) {
+      for (const color of colors) {
+        // Determine stock priority: variantStocks (color+size) -> sizeStocks (size) -> colorStocks (color) -> fallbackStock
+        let variantStock = fallbackStock;
+        const variantKey1 = `${color}:::${size}`;
+        const variantKey2 = `${color}_${size}`;
+
+        if (dto.variantStocks && variantKey1 in dto.variantStocks) {
+          variantStock = parseStock(dto.variantStocks[variantKey1], variantKey1);
+        } else if (dto.variantStocks && variantKey2 in dto.variantStocks) {
+          variantStock = parseStock(dto.variantStocks[variantKey2], variantKey2);
+        } else if (dto.variantStocks && size in dto.variantStocks) {
+          variantStock = parseStock(dto.variantStocks[size], size);
+        } else if (dto.sizeStocks && size in dto.sizeStocks) {
+          variantStock = parseStock(dto.sizeStocks[size], size);
+        } else if (dto.colorStocks && color in dto.colorStocks) {
+          variantStock = parseStock(dto.colorStocks[color], color);
+        }
+
+        // Zero-stock variants are kept so the size can be restocked later and shows as sold out in the bot.
+        matrix.push({ size, color, stock: variantStock });
+      }
     }
 
     // Generate unique slug
@@ -246,70 +273,37 @@ export class ProductsService {
       });
     }
 
-    // 2. Create Product
-    const product = await prisma.product.create({
-      data: {
-        name,
-        slug,
-        categoryId: category.id,
-        description: dto.brand ? `Brand: ${dto.brand}` : undefined,
-        images: dto.images || [],
-      },
-    });
+    const categoryId = category.id;
 
-    // 3. Create Variants Matrix
-    const sizes = dto.selectedSizes && dto.selectedSizes.length > 0 ? dto.selectedSizes : ['One size'];
-    const colors = dto.selectedColors && dto.selectedColors.length > 0 ? dto.selectedColors : ['Standard'];
+    // 2. Create the product and its variants together
+    const product = await prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: {
+          name,
+          slug,
+          categoryId,
+          description: dto.brand ? `Brand: ${dto.brand}` : undefined,
+          images: dto.images || [],
+        },
+      });
 
-    const variantData = [];
-    const zeroStockFallback = [];
+      await tx.productVariant.createMany({
+        data: matrix.map(({ size, color, stock }) => {
+          const skuRandom = Math.floor(10000 + Math.random() * 90000);
+          const cleanSize = size.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
+          const cleanColor = color.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
+          return {
+            productId: created.id,
+            sku: `SKU-${cleanSize}-${cleanColor}-${skuRandom}`,
+            size,
+            color,
+            price: rawPrice,
+            stock,
+          };
+        }),
+      });
 
-    for (const size of sizes) {
-      for (const color of colors) {
-        const skuRandom = Math.floor(10000 + Math.random() * 90000);
-        const cleanSize = size.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
-        const cleanColor = color.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'STD';
-        const sku = `SKU-${cleanSize}-${cleanColor}-${skuRandom}`;
-
-        // Determine stock priority: variantStocks (color+size) -> sizeStocks (size) -> colorStocks (color) -> fallbackStock
-        let variantStock = fallbackStock;
-        const variantKey1 = `${color}:::${size}`;
-        const variantKey2 = `${color}_${size}`;
-
-        if (dto.variantStocks && variantKey1 in dto.variantStocks) {
-          variantStock = Number(dto.variantStocks[variantKey1]) || 0;
-        } else if (dto.variantStocks && variantKey2 in dto.variantStocks) {
-          variantStock = Number(dto.variantStocks[variantKey2]) || 0;
-        } else if (dto.variantStocks && size in dto.variantStocks) {
-          variantStock = Number(dto.variantStocks[size]) || 0;
-        } else if (dto.sizeStocks && size in dto.sizeStocks) {
-          variantStock = Number(dto.sizeStocks[size]) || 0;
-        } else if (dto.colorStocks && color in dto.colorStocks) {
-          variantStock = Number(dto.colorStocks[color]) || 0;
-        }
-
-        const candidateVariant = {
-          productId: product.id,
-          sku,
-          size,
-          color,
-          price: rawPrice,
-          stock: Math.max(0, variantStock),
-        };
-
-        if (variantStock > 0) {
-          variantData.push(candidateVariant);
-        } else {
-          zeroStockFallback.push(candidateVariant);
-        }
-      }
-    }
-
-    // Only create variants that have stock > 0. If user gave 0 for all variants, create 1 fallback variant.
-    const finalVariants = variantData.length > 0 ? variantData : zeroStockFallback.slice(0, 1);
-
-    await prisma.productVariant.createMany({
-      data: finalVariants,
+      return created;
     });
 
     return prisma.product.findUnique({
@@ -321,7 +315,7 @@ export class ProductsService {
     });
   }
 
-  async updateVariant(variantId: string, dto: { stock?: number; price?: number }) {
+  async updateVariant(variantId: string, dto: UpdateVariantDto) {
     const variant = await prisma.productVariant.findUnique({
       where: { id: variantId },
     });
@@ -330,12 +324,12 @@ export class ProductsService {
       throw new BadRequestException('Product variant not found');
     }
 
-    const dataToUpdate: any = {};
+    const dataToUpdate: { stock?: number; price?: number } = {};
     if (dto.stock !== undefined) {
-      dataToUpdate.stock = Math.max(0, Number(dto.stock) || 0);
+      dataToUpdate.stock = dto.stock;
     }
     if (dto.price !== undefined) {
-      dataToUpdate.price = Math.max(0, Number(dto.price) || 0);
+      dataToUpdate.price = dto.price;
     }
 
     const updated = await prisma.productVariant.update({

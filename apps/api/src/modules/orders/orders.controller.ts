@@ -1,7 +1,7 @@
 import { Controller, Get, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { OrderStatus } from '@shop-ai/database';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -34,9 +34,9 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   async updateStatus(
     @Param('id') id: string,
-    @Body('status') status: OrderStatus,
+    @Body() dto: UpdateOrderStatusDto,
   ) {
-    return this.ordersService.updateOrderStatus(id, status);
+    return this.ordersService.updateOrderStatus(id, dto.status);
   }
 
   @Delete(':id')

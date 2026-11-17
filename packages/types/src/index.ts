@@ -13,6 +13,23 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
+/**
+ * Statuses an order may move to from each status. Shipping straight from PENDING covers
+ * cash-on-delivery orders; CANCELLED -> PENDING re-reserves stock and is rejected if stock is short.
+ */
+export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
+  [OrderStatus.PENDING]: [OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+  [OrderStatus.PAID]: [OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+  [OrderStatus.PROCESSING]: [OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+  [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
+  [OrderStatus.DELIVERED]: [],
+  [OrderStatus.CANCELLED]: [OrderStatus.PENDING],
+};
+
+export function canTransitionOrder(from: OrderStatus, to: OrderStatus): boolean {
+  return from === to || ORDER_STATUS_TRANSITIONS[from].includes(to);
+}
+
 export interface UserProfile {
   id: string;
   email?: string | null;
@@ -130,7 +147,7 @@ export interface DashboardFullData {
 
 export interface AdminOrderItemDetail {
   id: string;
-  variantId: string;
+  variantId: string | null;
   productName: string;
   sku: string;
   size: string;

@@ -823,8 +823,9 @@ bot.on('message:text', async (ctx) => {
   const step = ctx.session.checkoutStep;
 
   if (step === 'AWAITING_FULL_NAME') {
-    if (text.length < 3) {
-      return ctx.reply('Будь ласка, введіть повне ПІБ (щонайменше 3 символи):');
+    // Nova Poshta needs at least a last and a first name to issue a TTN.
+    if (text.trim().split(/\s+/).length < 2) {
+      return ctx.reply('Будь ласка, введіть прізвище та ім\'я (по батькові за бажанням), наприклад: Шевченко Тарас:');
     }
     ctx.session.checkoutData.fullName = text;
     ctx.session.checkoutStep = 'AWAITING_PHONE';
@@ -1098,6 +1099,8 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
     let order;
     try {
       order = await prisma.$transaction(async (tx) => {
+        const snapshots = new Map<string, { productName: string; sku: string; size: string; color: string; image: string | null }>();
+
         // 1. Atomically verify stock and decrement inventory using row-level locking
         for (const item of cart) {
           const updateRes = await tx.productVariant.updateMany({
@@ -1127,6 +1130,18 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
               `INSUFFICIENT_STOCK:${prodName} (${item.color} / ${item.size}) — в наявності лише ${variant.stock} шт., а у вашому кошику ${item.quantity} шт.`
             );
           }
+
+          const reserved = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
+            include: { product: true },
+          });
+          snapshots.set(item.variantId, {
+            productName: reserved?.product.name ?? item.productName,
+            sku: reserved?.sku ?? '',
+            size: reserved?.size ?? item.size,
+            color: reserved?.color ?? item.color,
+            image: reserved?.product.images[0] ?? null,
+          });
         }
 
         // 3. Create the Order
@@ -1144,6 +1159,7 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
             items: {
               create: cart.map((i) => ({
                 variantId: i.variantId,
+                ...snapshots.get(i.variantId),
                 quantity: i.quantity,
                 price: i.price,
               })),
@@ -1254,7 +1270,10 @@ async function showMyOrders(ctx: MyContext) {
     }
     text += `   Товари:\n`;
     ord.items.forEach((it) => {
-      text += `   • ${it.variant?.product?.name || 'Товар'} (${it.variant?.color}/${it.variant?.size}) x${it.quantity}\n`;
+      const name = it.productName ?? it.variant?.product?.name ?? 'Товар';
+      const color = it.color ?? it.variant?.color ?? '—';
+      const size = it.size ?? it.variant?.size ?? '—';
+      text += `   • ${name} (${color}/${size}) x${it.quantity}\n`;
     });
     text += `\n`;
   });

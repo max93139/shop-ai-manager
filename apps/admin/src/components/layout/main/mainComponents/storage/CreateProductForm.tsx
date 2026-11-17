@@ -208,31 +208,12 @@ export default function CreateProductForm({ onBack, onSave, productId }: CreateP
   };
 
   const handleSave = () => {
-    // Preserve sizes that have positive stock (either in base sizeStocks or across any selected color)
-    const validSizes = selectedSizes.filter((sz) => {
-      // Check if any selected color has positive stock for this size
-      if (selectedColors.length > 0) {
-        const hasColorStock = selectedColors.some((c) => {
-          const key = `${c}:::${sz}`;
-          return key in sizeStocks && Number(sizeStocks[key]) > 0;
-        });
-        if (hasColorStock) return true;
-      }
-      // Check base size stock
-      if (sz in sizeStocks) {
-        return Number(sizeStocks[sz]) > 0;
-      }
-      return true;
-    });
-
-    const finalSizes = validSizes.length > 0 ? validSizes : selectedSizes;
-
     onSave?.({
       name,
       category,
       brand,
       price,
-      selectedSizes: finalSizes,
+      selectedSizes,
       selectedColors,
       sizeStocks,
       imageUrls,
