@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Image as ImageIcon, Upload, Plus } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ImageUploaderProps {
   imageUrls: string[];
@@ -16,6 +17,7 @@ export default function ImageUploader({
   onImageUrlsChange,
   onActiveIndexChange,
 }: ImageUploaderProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -65,7 +67,7 @@ export default function ImageUploader({
   };
 
   return (
-    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm">
       {/* Hidden File Input */}
       <input
         type="file"
@@ -93,7 +95,7 @@ export default function ImageUploader({
                     fileInputRef.current?.click();
                   }
                 }}
-                className={`relative h-[60px] w-[60px] rounded-[10px] bg-[var(--surface-sunken)] shrink-0 cursor-pointer overflow-hidden transition-all ${
+                className={`relative h-[60px] w-[60px] rounded-md bg-[var(--surface-sunken)] shrink-0 cursor-pointer overflow-hidden transition-all ${
                   isActive
                     ? 'border-2 border-[var(--accent)]'
                     : 'border border-transparent hover:border-[var(--border-strong)]'
@@ -133,12 +135,12 @@ export default function ImageUploader({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`relative aspect-square w-full rounded-[14px] flex flex-col items-center justify-center gap-2 cursor-pointer overflow-hidden transition-all duration-200 ${
+          className={`relative aspect-square w-full rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer overflow-hidden transition-all duration-200 ${
             isDragging
               ? 'border-2 border-dashed border-[var(--accent)] bg-[var(--accent-soft)]'
               : imageUrls.length > 0
               ? 'border border-[var(--border)] bg-black/5'
-              : 'bg-gradient-to-br from-[#F1EEE6] to-[#E4DFD2] hover:opacity-95'
+              : 'bg-[var(--surface-sunken)] hover:bg-[var(--border)]'
           }`}
         >
           {imageUrls.length > 0 ? (
@@ -150,17 +152,17 @@ export default function ImageUploader({
               />
               <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 text-white font-medium text-[13px]">
                 <Upload className="h-5 w-5" />
-                <span>Click or drag to add more images</span>
+                <span>{t.uploadMoreImages}</span>
               </div>
             </>
           ) : (
             <>
               <ImageIcon className="h-10 w-10 text-[var(--text-tertiary)]" strokeWidth={1.5} />
               <span className="text-[12px] font-medium text-[var(--text-secondary)] flex items-center gap-1">
-                <Upload className="h-3.5 w-3.5" /> Upload images
+                <Upload className="h-3.5 w-3.5" /> {t.uploadImages}
               </span>
               <span className="text-[11px] text-[var(--text-tertiary)]">
-                {isDragging ? 'Drop images here...' : 'Click or drag & drop files here'}
+                {isDragging ? t.uploadDropHere : t.uploadHint}
               </span>
             </>
           )}

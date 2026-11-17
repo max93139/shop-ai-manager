@@ -1,88 +1,57 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  TrendingUp,
-  CreditCard,
-  ShoppingBag,
-  Percent,
-  Download,
-  Calendar,
-  Layers,
-  MapPin,
-  PackageCheck,
-  ChevronRight,
-  ArrowUpRight,
-  ArrowDownRight,
-  BarChart2,
-} from 'lucide-react';
+import { Download } from 'lucide-react';
 import type { AnalyticsData } from '@shop-ai/types';
+import StatStrip from '@/components/common/StatStrip';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney, formatShortDate } from '@/utils/format';
 
-const defaultAnalyticsData: AnalyticsData = {
+type Timeframe = '7d' | '30d' | '90d' | 'all';
+type ChartMetric = 'revenue' | 'orders';
+
+const emptyAnalytics: AnalyticsData = {
   timeframe: '30d',
-  summary: {
-    totalRevenue: 284500,
-    totalOrders: 142,
-    aov: 2004,
-    conversionRate: 88.5,
-    revenueGrowth: 16.4,
-    ordersGrowth: 9.2,
-  },
-  revenueTrend: [
-    { date: '2026-09-08', label: '8 Sep', revenue: 14200, orders: 7 },
-    { date: '2026-09-11', label: '11 Sep', revenue: 19800, orders: 10 },
-    { date: '2026-09-14', label: '14 Sep', revenue: 22400, orders: 11 },
-    { date: '2026-09-17', label: '17 Sep', revenue: 18100, orders: 9 },
-    { date: '2026-09-20', label: '20 Sep', revenue: 26500, orders: 13 },
-    { date: '2026-09-23', label: '23 Sep', revenue: 31200, orders: 15 },
-    { date: '2026-09-26', label: '26 Sep', revenue: 24300, orders: 12 },
-    { date: '2026-09-29', label: '29 Sep', revenue: 28900, orders: 14 },
-    { date: '2026-10-02', label: '2 Oct', revenue: 38600, orders: 19 },
-    { date: '2026-10-05', label: '5 Oct', revenue: 42100, orders: 21 },
-    { date: '2026-10-07', label: '7 Oct', revenue: 48300, orders: 21 },
-  ],
-  categories: [
-    { name: 'Outerwear', revenue: 118400, percentage: 41.6 },
-    { name: 'Knitwear', revenue: 76800, percentage: 27.0 },
-    { name: 'Footwear', revenue: 54100, percentage: 19.0 },
-    { name: 'Accessories', revenue: 35200, percentage: 12.4 },
-  ],
-  topProducts: [
-    { id: '1', name: 'Cashmere Oversized Coat', category: 'Outerwear', salesCount: 38, revenue: 98800 },
-    { id: '2', name: 'Merino Wool Turtleneck', category: 'Knitwear', salesCount: 46, revenue: 55200 },
-    { id: '3', name: 'Leather Chelsea Boots', category: 'Footwear', salesCount: 24, revenue: 48000 },
-    { id: '4', name: 'Minimalist Tote Bag', category: 'Accessories', salesCount: 32, revenue: 28800 },
-    { id: '5', name: 'Alpaca Blend Cardigan', category: 'Knitwear', salesCount: 18, revenue: 21600 },
-  ],
-  cities: [
-    { city: 'Kyiv', ordersCount: 68, totalAmount: 136000 },
-    { city: 'Lviv', ordersCount: 34, totalAmount: 68000 },
-    { city: 'Odesa', ordersCount: 19, totalAmount: 38000 },
-    { city: 'Dnipro', ordersCount: 12, totalAmount: 24000 },
-    { city: 'Kharkiv', ordersCount: 9, totalAmount: 18500 },
-  ],
-  statusBreakdown: {
-    delivered: 92,
-    shipped: 24,
-    processing: 14,
-    paid: 8,
-    pending: 4,
-    cancelled: 2,
-  },
+  summary: { totalRevenue: 0, totalOrders: 0, aov: 0, conversionRate: 0, revenueGrowth: 0, ordersGrowth: 0 },
+  revenueTrend: [],
+  categories: [],
+  topProducts: [],
+  cities: [],
+  statusBreakdown: { delivered: 0, shipped: 0, processing: 0, paid: 0, pending: 0, cancelled: 0 },
 };
 
+const csvCell = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
+
+const panelClass = 'flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6';
+
+function PanelHeader({ title, note }: { title: string; note?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-[var(--border)] pb-4">
+      <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">{title}</h2>
+      {note && <span className="shrink-0 text-[12px] text-[var(--text-tertiary)]">{note}</span>}
+    </div>
+  );
+}
+
+function EmptyNote({ children }: { children: React.ReactNode }) {
+  return <p className="py-8 text-center text-[13px] text-[var(--text-tertiary)]">{children}</p>;
+}
+
 export default function Analytics() {
-  const { t, language } = useTranslation();
-  const [timeframe, setTimeframe] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
-  const [activeChartMetric, setActiveChartMetric] = useState<'revenue' | 'orders'>('revenue');
-  const [data, setData] = useState<AnalyticsData>(defaultAnalyticsData);
+  const { t, language, translateCategory } = useTranslation();
+  const tr = (uk: string, en: string) => (language === 'uk' ? uk : en);
+
+  const [timeframe, setTimeframe] = useState<Timeframe>('30d');
+  const [activeChartMetric, setActiveChartMetric] = useState<ChartMetric>('revenue');
+  const [data, setData] = useState<AnalyticsData>(emptyAnalytics);
   const [loading, setLoading] = useState<boolean>(true);
+  const [failed, setFailed] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
     const fetchAnalytics = async () => {
       setLoading(true);
+      setFailed(false);
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -94,36 +63,28 @@ export default function Analytics() {
           credentials: 'include',
         });
 
-        if (res.ok) {
-          const resData = await res.json();
-          if (isMounted && resData) {
-            setData({
-              timeframe: resData.timeframe || timeframe,
-              summary: {
-                totalRevenue: resData.summary?.totalRevenue ?? 0,
-                totalOrders: resData.summary?.totalOrders ?? 0,
-                aov: resData.summary?.aov ?? 0,
-                conversionRate: resData.summary?.conversionRate ?? 0,
-                revenueGrowth: resData.summary?.revenueGrowth ?? 0,
-                ordersGrowth: resData.summary?.ordersGrowth ?? 0,
-              },
-              revenueTrend:
-                resData.revenueTrend && resData.revenueTrend.length > 0
-                  ? resData.revenueTrend
-                  : defaultAnalyticsData.revenueTrend,
-              categories: resData.categories || [],
-              topProducts: resData.topProducts || [],
-              cities: resData.cities || [],
-              statusBreakdown: resData.statusBreakdown || defaultAnalyticsData.statusBreakdown,
-            });
-          }
+        if (!res.ok) throw new Error(`Analytics request failed with ${res.status}`);
+
+        const resData = await res.json();
+        if (isMounted) {
+          setData({
+            timeframe: resData?.timeframe || timeframe,
+            summary: { ...emptyAnalytics.summary, ...(resData?.summary || {}) },
+            revenueTrend: resData?.revenueTrend || [],
+            categories: resData?.categories || [],
+            topProducts: resData?.topProducts || [],
+            cities: resData?.cities || [],
+            statusBreakdown: { ...emptyAnalytics.statusBreakdown, ...(resData?.statusBreakdown || {}) },
+          });
         }
       } catch (err) {
-        console.warn('Using baseline analytics store data:', err);
-      } finally {
+        console.error('Failed to load analytics:', err);
         if (isMounted) {
-          setLoading(false);
+          setData(emptyAnalytics);
+          setFailed(true);
         }
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -134,454 +95,318 @@ export default function Analytics() {
     };
   }, [timeframe]);
 
-  const formatCurrency = (val: number) => {
-    return `₴${val.toLocaleString('uk-UA')}`;
-  };
+  const money = (value: number) => formatMoney(value, language);
 
   const handleExportCSV = () => {
-    const csvRows = [
+    const rows: Array<Array<string | number>> = [
       ['Metric', 'Value'],
-      ['Total Revenue', formatCurrency(data.summary.totalRevenue)],
-      ['Total Orders', data.summary.totalOrders.toString()],
-      ['Average Order Value', formatCurrency(data.summary.aov)],
-      ['Fulfillment Rate', `${data.summary.conversionRate}%`],
+      ['Total Revenue (UAH)', data.summary.totalRevenue],
+      ['Total Orders', data.summary.totalOrders],
+      ['Average Order Value (UAH)', data.summary.aov],
+      ['Fulfillment Rate (%)', data.summary.conversionRate],
       [],
-      ['Top Products', 'Category', 'Quantity Sold', 'Revenue'],
-      ...data.topProducts.map((p) => [p.name, p.category, p.salesCount.toString(), formatCurrency(p.revenue)]),
+      ['Top Products', 'Category', 'Quantity Sold', 'Revenue (UAH)'],
+      ...data.topProducts.map((p) => [p.name, p.category, p.salesCount, p.revenue]),
       [],
-      ['City', 'Orders', 'Revenue'],
-      ...data.cities.map((c) => [c.city, c.ordersCount.toString(), formatCurrency(c.totalAmount)]),
+      ['City', 'Orders', 'Revenue (UAH)'],
+      ...data.cities.map((c) => [c.city, c.ordersCount, c.totalAmount]),
     ];
 
-    const csvContent =
-      'data:text/csv;charset=utf-8,' + csvRows.map((row) => row.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csv = '﻿' + rows.map((row) => row.map(csvCell).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `store-analytics-${timeframe}.csv`);
+    link.href = url;
+    link.download = `store-analytics-${timeframe}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  const trendMax = Math.max(
-    ...data.revenueTrend.map((t) => (activeChartMetric === 'revenue' ? t.revenue : t.orders)),
-    1
-  );
+  const timeframes: Array<[Timeframe, string]> = [
+    ['7d', t.timeframe7d],
+    ['30d', t.timeframe30d],
+    ['90d', t.timeframe90d],
+    ['all', t.timeframeYear],
+  ];
+  const timeframeLabel = timeframes.find(([key]) => key === timeframe)?.[1] ?? '';
+
+  const metricOf = (point: AnalyticsData['revenueTrend'][number]) =>
+    activeChartMetric === 'revenue' ? point.revenue : point.orders;
+  const trendMax = Math.max(...data.revenueTrend.map(metricOf), 0);
+  const formatMetric = (value: number) =>
+    activeChartMetric === 'revenue' ? money(value) : `${value} ${tr('замовл.', 'orders')}`;
+
+  const statuses: Array<{ key: keyof AnalyticsData['statusBreakdown']; label: string; dot: string }> = [
+    { key: 'pending', label: t.orderStatusPending, dot: 'bg-[var(--text-tertiary)]' },
+    { key: 'paid', label: t.orderStatusPaid, dot: 'bg-warning' },
+    { key: 'processing', label: t.orderStatusProcessing, dot: 'bg-warning' },
+    { key: 'shipped', label: t.orderStatusShipped, dot: 'bg-info' },
+    { key: 'delivered', label: t.orderStatusDelivered, dot: 'bg-positive' },
+    { key: 'cancelled', label: t.orderStatusCancelled, dot: 'bg-danger' },
+  ];
+  const statusTotal = statuses.reduce((sum, s) => sum + data.statusBreakdown[s.key], 0);
+
+  const segmentClass = (active: boolean) =>
+    `rounded-sm px-3 py-1 font-medium transition-colors select-none ${
+      active
+        ? 'bg-[var(--surface)] text-[var(--text)] shadow-xs'
+        : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
+    }`;
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[1400px] w-full mx-auto">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="page-container">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
+          <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
             {t.analyticsTitle}
           </h1>
-          <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
-            {t.analyticsSubtitle}
-          </p>
+          <p className="mt-0.5 text-[13px] sm:text-[14px] text-[var(--text-secondary)]">{t.analyticsSubtitle}</p>
         </div>
 
-        {/* Controls: Timeframe & Export */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <div className="inline-flex rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] p-1 text-[13px]">
-            {(['7d', '30d', '90d', 'all'] as const).map((period) => {
-              const label =
-                period === '7d'
-                  ? t.timeframe7d
-                  : period === '30d'
-                  ? t.timeframe30d
-                  : period === '90d'
-                  ? t.timeframe90d
-                  : t.timeframeYear;
-              return (
-                <button
-                  key={period}
-                  type="button"
-                  onClick={() => setTimeframe(period)}
-                  className={`rounded-[6px] px-3 py-1 font-medium transition-colors select-none ${
-                    timeframe === period
-                      ? 'bg-[var(--accent)] text-white shadow-xs font-semibold'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-md bg-[var(--surface-sunken)] p-1 text-[13px]" role="group">
+            {timeframes.map(([period, label]) => (
+              <button
+                key={period}
+                type="button"
+                aria-pressed={timeframe === period}
+                onClick={() => setTimeframe(period)}
+                className={segmentClass(timeframe === period)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--text-secondary)] shadow-xs transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text)]"
+            aria-label={t.exportBtn}
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-[7px] text-[13px] font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface-soft)]"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4 text-[var(--text-secondary)]" aria-hidden />
             <span className="hidden sm:inline">{t.exportBtn}</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiTotalRevenue}</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-soft)] text-[var(--accent)]">
-              <CreditCard className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
-            {loading ? '...' : formatCurrency(data.summary.totalRevenue)}
-          </div>
-          <div className="flex items-center gap-1.5 text-[12px] flex-wrap">
-            {data.summary.revenueGrowth >= 0 ? (
-              <span className="inline-flex items-center gap-0.5 font-semibold text-[#0F6B4F]">
-                <ArrowUpRight className="h-3.5 w-3.5" />
-                +{data.summary.revenueGrowth}%
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-0.5 font-semibold text-[#B84343]">
-                <ArrowDownRight className="h-3.5 w-3.5" />
-                {data.summary.revenueGrowth}%
-              </span>
-            )}
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'до мин. періоду' : 'vs prev period'}</span>
-          </div>
-        </div>
+      {failed && (
+        <p role="alert" className="rounded-md border border-[var(--border-strong)] bg-danger-soft px-4 py-3 text-[13px] text-danger">
+          {tr(
+            'Не вдалося завантажити аналітику. Перевірте з’єднання із сервером і спробуйте ще раз.',
+            'Analytics could not be loaded. Check the server connection and try again.'
+          )}
+        </p>
+      )}
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiTotalOrders}</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EBF2F9] text-[#1E5F8B]">
-              <ShoppingBag className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
-            {loading ? '...' : data.summary.totalOrders}
-          </div>
-          <div className="flex items-center gap-1.5 text-[12px] flex-wrap">
-            {data.summary.ordersGrowth >= 0 ? (
-              <span className="inline-flex items-center gap-0.5 font-semibold text-[#0F6B4F]">
-                <ArrowUpRight className="h-3.5 w-3.5" />
-                +{data.summary.ordersGrowth}%
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-0.5 font-semibold text-[#B84343]">
-                <ArrowDownRight className="h-3.5 w-3.5" />
-                {data.summary.ordersGrowth}%
-              </span>
-            )}
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'до мин. періоду' : 'vs prev period'}</span>
-          </div>
-        </div>
+      <StatStrip
+        loading={loading}
+        items={[
+          {
+            label: t.kpiTotalRevenue,
+            value: money(data.summary.totalRevenue),
+            delta: data.summary.revenueGrowth,
+            hint: tr('до попер. періоду', 'vs prev. period'),
+          },
+          {
+            label: t.kpiTotalOrders,
+            value: String(data.summary.totalOrders),
+            delta: data.summary.ordersGrowth,
+            hint: tr('до попер. періоду', 'vs prev. period'),
+          },
+          { label: t.kpiAov, value: money(data.summary.aov), hint: tr('на одне замовлення', 'per order') },
+          {
+            label: t.kpiConversion,
+            value: `${data.summary.conversionRate}%`,
+            hint: tr('оплачені та доставлені', 'paid and delivered'),
+          },
+        ]}
+      />
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiAov}</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#F4F1EA] text-[#63553A]">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
-            {loading ? '...' : formatCurrency(data.summary.aov)}
-          </div>
-          <div className="flex items-center gap-1.5 text-[12px]">
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Середній чек замовлення' : 'Avg order value'}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] min-h-[148px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t.kpiConversion}</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EAF5EF] text-[#0F6B4F]">
-              <Percent className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="my-3 font-sans text-[26px] sm:text-[28px] font-bold tracking-tight tabular-nums text-[var(--text)]">
-            {loading ? '...' : `${data.summary.conversionRate}%`}
-          </div>
-          <div className="flex items-center gap-1.5 text-[12px]">
-            <span className="text-[var(--text-tertiary)]">{language === 'uk' ? 'Оплачені та доставлені' : 'Delivered & paid'}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Interactive Chart Section */}
-      <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-6 border-b border-[var(--border)]">
+      <section className={panelClass}>
+        <div className="flex flex-col gap-3 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)]">
-              {t.revenueTrendTitle}
-            </h2>
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              {language === 'uk'
-                ? `Динаміка показників за обраний період (${timeframe.toUpperCase()})`
-                : `Interactive timeline for selected range (${timeframe.toUpperCase()})`}
+            <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">{t.revenueTrendTitle}</h2>
+            <p className="text-[12.5px] text-[var(--text-tertiary)]">
+              {tr('Період', 'Range')}: {timeframeLabel}
             </p>
           </div>
 
-          <div className="inline-flex rounded-[8px] bg-[var(--surface-soft)] p-1 text-[12px] font-semibold">
+          <div className="inline-flex self-start rounded-md bg-[var(--surface-sunken)] p-1 text-[12.5px]" role="group">
             <button
               type="button"
+              aria-pressed={activeChartMetric === 'revenue'}
               onClick={() => setActiveChartMetric('revenue')}
-              className={`rounded-[6px] px-3 py-1 transition-colors ${
-                activeChartMetric === 'revenue'
-                  ? 'bg-[var(--surface)] text-[var(--text)] shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
-              }`}
+              className={segmentClass(activeChartMetric === 'revenue')}
             >
-              {language === 'uk' ? 'Виторг (₴)' : 'Revenue (₴)'}
+              {tr('Виторг', 'Revenue')}
             </button>
             <button
               type="button"
+              aria-pressed={activeChartMetric === 'orders'}
               onClick={() => setActiveChartMetric('orders')}
-              className={`rounded-[6px] px-3 py-1 transition-colors ${
-                activeChartMetric === 'orders'
-                  ? 'bg-[var(--surface)] text-[var(--text)] shadow-xs'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
-              }`}
+              className={segmentClass(activeChartMetric === 'orders')}
             >
-              {language === 'uk' ? 'Кількість замовлень' : 'Order Count'}
+              {tr('Замовлення', 'Orders')}
             </button>
           </div>
         </div>
 
-        {/* Dynamic Bars */}
-        <div className="w-full overflow-x-auto pb-2 scrollbar-none">
-          <div className="flex h-[200px] sm:h-[230px] items-end justify-between gap-2 sm:gap-3 pt-6 pb-2 min-w-[500px] sm:min-w-0">
-            {data.revenueTrend.map((point) => {
-              const currentVal = activeChartMetric === 'revenue' ? point.revenue : point.orders;
-              const heightPercent = trendMax > 0 ? Math.max(12, Math.round((currentVal / trendMax) * 100)) : 15;
-              const isHighest = currentVal === trendMax;
+        {loading ? (
+          <div className="h-[220px] rounded-md bg-[var(--surface-soft)]" aria-hidden />
+        ) : trendMax === 0 ? (
+          <div className="flex h-[220px] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-[var(--border-strong)] text-center">
+            <p className="text-[13.5px] font-medium text-[var(--text-secondary)]">{t.chartNoSalesTitle}</p>
+            <p className="text-[12.5px] text-[var(--text-tertiary)]">{t.chartNoSalesHint}</p>
+          </div>
+        ) : (
+          <div className="w-full overflow-x-auto no-scrollbar">
+            <div
+              className="flex h-[220px] items-end gap-2 pt-7 sm:gap-3"
+              style={{ minWidth: `${data.revenueTrend.length * 44}px` }}
+            >
+              {data.revenueTrend.map((point) => {
+                const value = metricOf(point);
+                const dateLabel = formatShortDate(point.date, language) || point.label;
 
-              return (
-                <div key={point.date} className="group relative flex flex-1 flex-col items-center h-full justify-end">
-                  {/* Tooltip */}
-                  <div className="pointer-events-none absolute -top-10 z-20 hidden rounded-[6px] bg-[var(--text)] px-2.5 py-1 text-[11px] font-medium text-white shadow-md group-hover:block whitespace-nowrap transition-all">
-                    <span className="font-semibold">{point.label}</span>: {activeChartMetric === 'revenue' ? formatCurrency(point.revenue) : `${point.orders} orders`}
-                  </div>
-
-                  {/* Bar */}
+                return (
                   <div
-                    style={{ height: `${heightPercent}%` }}
-                    className={`w-full max-w-[42px] rounded-t-[7px] transition-all duration-300 ${
-                      isHighest
-                        ? 'bg-[var(--accent)] hover:bg-[var(--accent-hover)]'
-                        : 'bg-[#DCD8CF] hover:bg-[#C9C3B6]'
-                    }`}
-                  />
-
-                  {/* Day Label */}
-                  <span className="mt-2 text-[11px] font-medium text-[var(--text-secondary)] truncate">
-                    {point.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Two Column Grid: Categories Breakdown & Order Status Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
-        {/* Categories Distribution */}
-        <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
-                {t.salesByCategoryTitle}
-              </h3>
+                    key={point.date}
+                    className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end"
+                    title={`${dateLabel}: ${formatMetric(value)}`}
+                  >
+                    <div className="pointer-events-none absolute top-0 z-20 hidden whitespace-nowrap rounded-sm bg-[var(--text)] px-2 py-1 text-[11px] font-medium text-white group-hover:block">
+                      {formatMetric(value)}
+                    </div>
+                    <div
+                      style={{ height: value > 0 ? `max(${(value / trendMax) * 100}%, 3px)` : '1px' }}
+                      className={`w-full max-w-[44px] rounded-t-[3px] ${
+                        value === 0
+                          ? 'bg-[var(--border-strong)]'
+                          : value === trendMax
+                          ? 'bg-[var(--accent)]'
+                          : 'bg-[var(--accent-line)] group-hover:bg-[var(--accent)]'
+                      }`}
+                    />
+                    <span className="mt-2 w-full truncate text-center text-[11px] text-[var(--text-secondary)]">
+                      {dateLabel}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-            <span className="text-[12px] text-[var(--text-tertiary)]">
-              {data.categories.length} {language === 'uk' ? 'активних категорій' : 'active groups'}
-            </span>
           </div>
+        )}
+      </section>
 
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <section className={panelClass}>
+          <PanelHeader title={t.salesByCategoryTitle} />
           <div className="flex flex-col gap-4 pt-4">
             {data.categories.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-[var(--text-tertiary)]">
-                {language === 'uk' ? 'Продажів за категоріями не зафіксовано.' : 'No category sales recorded in this period.'}
-              </p>
+              <EmptyNote>{tr('Продажів за категоріями ще немає.', 'No category sales in this period.')}</EmptyNote>
             ) : (
               data.categories.map((cat) => (
                 <div key={cat.name} className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between text-[13px]">
-                    <span className="font-semibold text-[var(--text)]">{cat.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[var(--text-secondary)]">{formatCurrency(cat.revenue)}</span>
-                      <span className="font-mono text-[11.5px] font-semibold text-[var(--text-tertiary)]">
-                        {cat.percentage}%
-                      </span>
-                    </div>
+                  <div className="flex items-baseline justify-between gap-3 text-[13px]">
+                    <span className="truncate font-medium text-[var(--text)]">{translateCategory(cat.name)}</span>
+                    <span className="shrink-0 tabular-nums text-[var(--text-secondary)]">
+                      {money(cat.revenue)}
+                      <span className="ml-2 text-[var(--text-tertiary)]">{cat.percentage}%</span>
+                    </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-[var(--surface-soft)] overflow-hidden">
-                    <div
-                      style={{ width: `${cat.percentage}%` }}
-                      className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
-                    />
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-sunken)]">
+                    <div style={{ width: `${cat.percentage}%` }} className="h-full rounded-full bg-[var(--accent)]" />
                   </div>
                 </div>
               ))
             )}
           </div>
-        </div>
+        </section>
 
-        {/* Fulfillment Status Funnel */}
-        <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-            <div className="flex items-center gap-2">
-              <PackageCheck className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
-                {language === 'uk' ? 'Статуси виконання замовлень' : 'Order Fulfillment Status'}
-              </h3>
-            </div>
-            <span className="text-[12px] text-[var(--text-tertiary)]">{language === 'uk' ? 'Життєвий цикл' : 'Real-time lifecycle'}</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4">
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#EAF5EF] border border-[#BFDDD0]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#0F6B4F]">{t.orderStatusDelivered}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[#0F6B4F] mt-1">
-                {data.statusBreakdown.delivered}
-              </span>
-              <span className="text-[11px] text-[#0F6B4F]/80">{language === 'uk' ? 'Виконано' : 'Completed orders'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#EBF2F9] border border-[#BDD6EC]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#1E5F8B]">{t.orderStatusShipped}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[#1E5F8B] mt-1">
-                {data.statusBreakdown.shipped}
-              </span>
-              <span className="text-[11px] text-[#1E5F8B]/80">{language === 'uk' ? 'В дорозі' : 'In transit'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#FEF6E9] border border-[#F5DCB7]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#965A1A]">{t.orderStatusProcessing}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[#965A1A] mt-1">
-                {data.statusBreakdown.processing}
-              </span>
-              <span className="text-[11px] text-[#965A1A]/80">{language === 'uk' ? 'Комплектується' : 'Being packed'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#F4F1EA] border border-[#DDD7C9]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#544B36]">{t.orderStatusPaid}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[#544B36] mt-1">
-                {data.statusBreakdown.paid}
-              </span>
-              <span className="text-[11px] text-[#544B36]/80">{language === 'uk' ? 'Очікує пакування' : 'Awaiting packing'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#F8F7F5] border border-[var(--border)]">
-              <span className="text-[11.5px] font-semibold uppercase text-[var(--text-secondary)]">{t.orderStatusPending}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[var(--text)] mt-1">
-                {data.statusBreakdown.pending}
-              </span>
-              <span className="text-[11px] text-[var(--text-tertiary)]">{language === 'uk' ? 'Нові замовлення' : 'New checkouts'}</span>
-            </div>
-
-            <div className="flex flex-col p-3 rounded-[12px] bg-[#FDF1F1] border border-[#F7CDCD]">
-              <span className="text-[11.5px] font-semibold uppercase text-[#B84343]">{t.orderStatusCancelled}</span>
-              <span className="font-sans text-[22px] font-bold tabular-nums text-[#B84343] mt-1">
-                {data.statusBreakdown.cancelled}
-              </span>
-              <span className="text-[11px] text-[#B84343]/80">{language === 'uk' ? 'Скасовано' : 'Returned/declined'}</span>
-            </div>
-          </div>
-        </div>
+        <section className={panelClass}>
+          <PanelHeader
+            title={tr('Замовлення за статусами', 'Orders by status')}
+            note={`${tr('Усього', 'Total')}: ${statusTotal}`}
+          />
+          <ul className="flex flex-col divide-y divide-[var(--border)]">
+            {statuses.map((status) => {
+              const count = data.statusBreakdown[status.key];
+              const share = statusTotal > 0 ? Math.round((count / statusTotal) * 100) : 0;
+              return (
+                <li key={status.key} className="flex items-center gap-3 py-2.5 text-[13px]">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${status.dot}`} aria-hidden />
+                  <span className="flex-1 truncate text-[var(--text)]">{status.label}</span>
+                  <span className="w-10 text-right tabular-nums text-[var(--text-tertiary)]">{share}%</span>
+                  <span className="w-10 text-right font-semibold tabular-nums text-[var(--text)]">{count}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       </div>
 
-      {/* Two Column Grid: Top Selling Products & Delivery Geography */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-        {/* Top Selling Products (2 columns wide) */}
-        <div className="lg:col-span-2 flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-            <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
-              {t.topProductsHeading}
-            </h3>
-            <span className="text-[12px] text-[var(--text-tertiary)]">
-              {language === 'uk' ? 'За обсягом виторгу' : 'By revenue generated'}
-            </span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[13px] mt-2">
-              <thead>
-                <tr className="border-b border-[var(--border)] text-[11px] font-semibold uppercase text-[var(--text-tertiary)] tracking-wider">
-                  <th className="py-2.5 pl-1">{t.thProduct}</th>
-                  <th className="py-2.5 px-3">{t.thCategory}</th>
-                  <th className="py-2.5 px-3 text-right">{language === 'uk' ? 'Продано' : 'Sold'}</th>
-                  <th className="py-2.5 pr-1 text-right">{t.thTotal}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {data.topProducts.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="py-8 text-center text-[13px] text-[var(--text-tertiary)]">
-                      {language === 'uk' ? 'Дані продажів відсутні за цей період.' : 'No product sales recorded in this period.'}
-                    </td>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <section className={`${panelClass} lg:col-span-2`}>
+          <PanelHeader title={t.topProductsHeading} note={tr('за виторгом', 'by revenue')} />
+          {data.topProducts.length === 0 ? (
+            <EmptyNote>{tr('За цей період продажів не було.', 'No product sales in this period.')}</EmptyNote>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[420px] text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-[var(--border)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                    <th className="py-2.5 pr-3 font-semibold">{t.thProduct}</th>
+                    <th className="px-3 py-2.5 font-semibold">{t.thCategory}</th>
+                    <th className="px-3 py-2.5 text-right font-semibold">{tr('Продано', 'Sold')}</th>
+                    <th className="py-2.5 pl-3 text-right font-semibold">{t.thTotal}</th>
                   </tr>
-                ) : (
-                  data.topProducts.map((prod, index) => (
-                    <tr key={prod.id} className="hover:bg-[var(--surface-soft)] transition-colors">
-                      <td className="py-3 pl-1 font-medium text-[var(--text)] flex items-center gap-2.5">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-soft)] font-mono text-[11px] text-[var(--text-secondary)] font-bold">
-                          {index + 1}
-                        </span>
-                        <span className="truncate max-w-[200px] sm:max-w-none">{prod.name}</span>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {data.topProducts.map((prod, index) => (
+                    <tr key={prod.id}>
+                      <td className="max-w-[260px] py-3 pr-3 font-medium text-[var(--text)]">
+                        <div className="flex items-baseline gap-2">
+                          <span className="w-4 shrink-0 tabular-nums text-[var(--text-tertiary)]">{index + 1}</span>
+                          <span className="truncate">{prod.name}</span>
+                        </div>
                       </td>
-                      <td className="py-3 px-3 text-[var(--text-secondary)]">{prod.category}</td>
-                      <td className="py-3 px-3 text-right font-medium text-[var(--text)]">{prod.salesCount}</td>
-                      <td className="py-3 pr-1 text-right font-semibold text-[var(--accent)]">
-                        {formatCurrency(prod.revenue)}
+                      <td className="px-3 py-3 text-[var(--text-secondary)]">{translateCategory(prod.category)}</td>
+                      <td className="px-3 py-3 text-right tabular-nums text-[var(--text)]">{prod.salesCount}</td>
+                      <td className="whitespace-nowrap py-3 pl-3 text-right font-semibold tabular-nums text-[var(--text)]">
+                        {money(prod.revenue)}
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Delivery Geography Breakdown */}
-        <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
-          <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-[var(--accent)]" />
-              <h3 className="text-[17px] font-bold tracking-tight text-[var(--text)]">
-                {t.deliveryGeographyTitle}
-              </h3>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <span className="text-[12px] text-[var(--text-tertiary)]">
-              {language === 'uk' ? 'За містами доставки' : 'By destination'}
-            </span>
-          </div>
+          )}
+        </section>
 
-          <div className="flex flex-col divide-y divide-[var(--border)] pt-1">
-            {data.cities.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-[var(--text-tertiary)]">
-                {language === 'uk' ? 'Дані доставки відсутні за цей період.' : 'No delivery hub data recorded in this period.'}
-              </p>
-            ) : (
-              data.cities.map((cityItem) => (
-                <div key={cityItem.city} className="flex items-center justify-between py-3">
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-[13.5px] text-[var(--text)]">{cityItem.city}</span>
-                    <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                      {cityItem.ordersCount} {language === 'uk' ? 'замовлень доставлено' : 'orders shipped'}
+        <section className={panelClass}>
+          <PanelHeader title={t.deliveryGeographyTitle} />
+          {data.cities.length === 0 ? (
+            <EmptyNote>{tr('Даних про доставку за цей період немає.', 'No delivery data in this period.')}</EmptyNote>
+          ) : (
+            <ul className="flex flex-col divide-y divide-[var(--border)]">
+              {data.cities.map((cityItem) => (
+                <li key={cityItem.city} className="flex items-center justify-between gap-3 py-3">
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-[13.5px] font-medium text-[var(--text)]">{cityItem.city}</span>
+                    <span className="text-[12px] text-[var(--text-tertiary)]">
+                      {cityItem.ordersCount} {tr('замовл.', 'orders')}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="font-semibold text-[13px] text-[var(--text)]">
-                      {formatCurrency(cityItem.totalAmount)}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                  <span className="shrink-0 text-[13px] font-semibold tabular-nums text-[var(--text)]">
+                    {money(cityItem.totalAmount)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatShortDate } from '@/utils/format';
 
 export interface DashboardHeaderProps {
   storeName?: string;
@@ -19,19 +20,11 @@ export default function DashboardHeader({
     return t.goodAfternoon;
   };
 
-  const formattedDate = new Date().toLocaleDateString(language === 'uk' ? 'uk-UA' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-
-  const subtitle =
-    language === 'uk'
-      ? `${t.dashboardSubtitlePrefix} ${storeName} ${t.dashboardSubtitleToday}, ${formattedDate}.`
-      : `${t.dashboardSubtitlePrefix} ${storeName} ${t.dashboardSubtitleToday}, ${formattedDate}.`;
+  const subtitle = `${t.dashboardSubtitlePrefix} ${storeName} ${t.dashboardSubtitleToday}, ${formatShortDate(new Date(), language)}.`;
 
   return (
     <div className="flex flex-col gap-1">
-      <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
+      <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
         {getGreeting()}
       </h1>
       <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)]">

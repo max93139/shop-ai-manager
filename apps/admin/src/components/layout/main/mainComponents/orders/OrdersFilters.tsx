@@ -43,7 +43,7 @@ export default function OrdersFilters({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {tabs.map((tab) => {
             const isSelected = selectedStatus === tab.key;
@@ -54,21 +54,17 @@ export default function OrdersFilters({
                 key={tab.key}
                 type="button"
                 onClick={() => onSelectStatus(tab.key)}
-                className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-all select-none ${
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors select-none ${
                   isSelected
-                    ? isArchive
-                      ? 'bg-[#3D3A34] text-white shadow-xs'
-                      : 'bg-[var(--accent)] text-white shadow-xs'
+                    ? 'bg-[var(--text)] text-white'
                     : 'bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]'
                 }`}
               >
                 {isArchive && <Archive className="h-3.5 w-3.5 opacity-80" />}
                 <span>{tab.label}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold ${
-                    isSelected
-                      ? 'bg-white/20 text-white'
-                      : 'bg-[var(--surface-sunken)] text-[var(--text-tertiary)]'
+                  className={`text-[12px] tabular-nums ${
+                    isSelected ? 'text-white/70' : 'text-[var(--text-tertiary)]'
                   }`}
                 >
                   {tab.count}
@@ -78,13 +74,14 @@ export default function OrdersFilters({
           })}
         </div>
 
-        <div className="relative min-w-[240px] sm:min-w-[280px]">
+        <div className="relative w-full sm:max-w-[420px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t.searchOrdersPlaceholder}
+            aria-label={t.searchOrdersPlaceholder}
             className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-8 text-[13px] text-[var(--text)] placeholder-[var(--text-tertiary)] focus:border-[var(--accent)] focus:outline-none transition-colors"
           />
           {searchQuery && (

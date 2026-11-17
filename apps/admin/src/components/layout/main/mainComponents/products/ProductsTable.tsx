@@ -10,6 +10,7 @@ import {
   type ProductItem,
 } from '../../../../../store/slices/productsSlice';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney } from '@/utils/format';
 
 export interface ProductsTableProps {
   items: ProductItem[];
@@ -25,9 +26,9 @@ function StatusBadge({
   labels: { active: string; low_stock: string; out_of_stock: string };
 }) {
   const config = {
-    active: { label: labels.active, dot: 'bg-[#0F6B4F]', bg: 'bg-[#E7F2ED]', text: 'text-[#0F6B4F]' },
-    low_stock: { label: labels.low_stock, dot: 'bg-[#B7791F]', bg: 'bg-[#FEFCBF]', text: 'text-[#B7791F]' },
-    out_of_stock: { label: labels.out_of_stock, dot: 'bg-[#B84343]', bg: 'bg-[#FBECEC]', text: 'text-[#B84343]' },
+    active: { label: labels.active, dot: 'bg-accent', bg: 'bg-positive-soft', text: 'text-positive' },
+    low_stock: { label: labels.low_stock, dot: 'bg-[#B7791F]', bg: 'bg-warning-soft', text: 'text-warning' },
+    out_of_stock: { label: labels.out_of_stock, dot: 'bg-danger', bg: 'bg-danger-soft', text: 'text-danger' },
   }[status];
 
   return (
@@ -247,7 +248,7 @@ function PriceControl({
       className="cursor-pointer font-bold tabular-nums text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
       title={title}
     >
-      ₴{item.price}
+      {formatMoney(Number(item.price))}
     </span>
   );
 }
@@ -281,7 +282,7 @@ function DeleteButton({
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded bg-[#B84343] px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
+          className="rounded bg-danger px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
         >
           {labels.delete}
         </button>
@@ -293,7 +294,7 @@ function DeleteButton({
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="p-1.5 text-[var(--text-tertiary)] transition-colors hover:text-[#B84343] rounded hover:bg-[var(--surface-soft)]"
+      className="p-1.5 text-[var(--text-tertiary)] transition-colors hover:text-danger rounded hover:bg-[var(--surface-soft)]"
       title={`${labels.tooltip} ${productName}`}
     >
       <Trash2 className="h-4 w-4" />
@@ -353,13 +354,13 @@ function ProductCard({
   };
 
   return (
-    <div className="group flex flex-col rounded-[16px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
+    <div className="group flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
       <div className="relative w-full aspect-[4/3] bg-[var(--surface-sunken)] overflow-hidden">
         <ProductImage images={item.images} name={item.name} />
         <div className="absolute top-2.5 left-2.5 z-10">
           <StatusBadge status={item.status} labels={statusLabels} />
         </div>
-        <div className="absolute top-2.5 right-2.5 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2.5 right-2.5 z-10 bg-white/90 rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
           <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
         </div>
       </div>
@@ -438,14 +439,14 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-[220px] rounded-[14px] bg-[var(--surface-soft)] border border-[var(--border)]" />
+            <div key={i} className="h-[220px] rounded-lg bg-[var(--surface-soft)] border border-[var(--border)]" />
           ))}
         </div>
       );
     }
 
     return (
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.03)] overflow-hidden">
+      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
@@ -492,7 +493,7 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
   }
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.03)] overflow-hidden">
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
       <div className="overflow-x-auto no-scrollbar">
         <table className="w-full text-left border-collapse min-w-[850px]">
           <thead>

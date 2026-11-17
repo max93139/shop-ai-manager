@@ -66,7 +66,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit}>
       {error && (
-        <div className="mb-4 rounded-[var(--radius-sm)] bg-[#FBECEC] p-3 text-[12.5px] font-medium text-[#B84343]">
+        <div className="mb-4 rounded-[var(--radius-sm)] bg-danger-soft p-3 text-[12.5px] font-medium text-danger">
           {error}
         </div>
       )}

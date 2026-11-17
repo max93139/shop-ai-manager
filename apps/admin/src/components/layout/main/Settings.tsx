@@ -48,6 +48,13 @@ export default function Settings() {
     language: currentLang,
   });
   const [activeTab, setActiveTab] = useState<'profile' | 'telegram' | 'inventory' | 'security'>('profile');
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (requested === 'profile' || requested === 'telegram' || requested === 'inventory' || requested === 'security') {
+      setActiveTab(requested);
+    }
+  }, []);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -118,39 +125,29 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[1100px] w-full mx-auto">
+    <div className="page-container">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-[12px] bg-[#1C1B19] px-4 py-3 text-[13px] font-medium text-white shadow-xl animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-md bg-[#1C1B19] px-4 py-3 text-[13px] font-medium text-white shadow-lg">
           <CheckCircle2 className="h-4 w-4 text-[var(--accent)]" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
         <div>
-          <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
+          <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
             {t.storeSettingsTitle}
           </h1>
           <p className="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5">
             {t.storeSettingsSubtitle}
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={() => handleSave()}
-          disabled={isSaving}
-          className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-all hover:bg-[var(--accent-hover)] active:scale-[0.98] disabled:opacity-60"
-        >
-          <Save className="h-4 w-4" />
-          <span>{isSaving ? t.saving : t.saveChanges}</span>
-        </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--border)]">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar border-b border-[var(--border)]">
         {[
           { key: 'profile', label: t.tabProfile, icon: Store },
           { key: 'telegram', label: t.tabTelegram, icon: Send },
@@ -164,10 +161,10 @@ export default function Settings() {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key as any)}
-              className={`inline-flex items-center gap-2 rounded-t-[8px] px-4 py-2.5 text-[13px] font-semibold transition-all select-none border-b-2 -mb-[1px] whitespace-nowrap ${
+              className={`inline-flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium transition-colors select-none border-b-2 -mb-[1px] whitespace-nowrap ${
                 isActive
-                  ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--surface-soft)]'
-                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-soft)]'
+                  ? 'border-[var(--text)] text-[var(--text)]'
+                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -178,12 +175,12 @@ export default function Settings() {
       </div>
 
       {/* Tab Panels */}
-      <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7">
         {/* Tab 1: Store Profile */}
         {activeTab === 'profile' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+              <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
                 {t.generalInfoTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -300,7 +297,7 @@ export default function Settings() {
         {activeTab === 'telegram' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+              <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
                 {t.telegramTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -319,7 +316,9 @@ export default function Settings() {
                   placeholder="@your_channel_handle"
                 />
                 <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  The bot must be added as an Administrator with &quot;Post Messages&quot; permission.
+                  {currentLang === 'uk'
+                    ? 'Бота потрібно додати до каналу адміністратором із правом публікувати повідомлення.'
+                    : 'The bot must be added to the channel as an administrator with permission to post messages.'}
                 </span>
               </div>
 
@@ -338,7 +337,7 @@ export default function Settings() {
               </div>
 
               {/* Toggles */}
-              <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
+              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
                     {t.autoPublishLabel}
@@ -357,14 +356,14 @@ export default function Settings() {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
                       settings.autoPublishNewProducts ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
+              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
                     {t.botTokenStatusLabel}
@@ -373,9 +372,9 @@ export default function Settings() {
                     {t.botTokenConfigured}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF5EF] px-2.5 py-1 text-[11.5px] font-semibold text-[#0F6B4F]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-positive-soft px-2.5 py-1 text-[11.5px] font-semibold text-positive">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Connected
+                  {currentLang === 'uk' ? 'Підключено' : 'Connected'}
                 </span>
               </div>
             </div>
@@ -395,7 +394,7 @@ export default function Settings() {
         {activeTab === 'inventory' && (
           <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+              <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
                 {t.inventoryTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -423,7 +422,7 @@ export default function Settings() {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
+              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
                     {t.soundAlertsLabel}
@@ -440,14 +439,14 @@ export default function Settings() {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
                       settings.soundAlerts ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 rounded-[12px] bg-[var(--surface-soft)] border border-[var(--border)]">
+              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
                 <div className="flex flex-col">
                   <span className="font-semibold text-[13.5px] text-[var(--text)]">
                     {t.autoArchiveLabel}
@@ -466,7 +465,7 @@ export default function Settings() {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
                       settings.autoArchiveCompleted ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
@@ -489,7 +488,7 @@ export default function Settings() {
         {activeTab === 'security' && (
           <div className="flex flex-col gap-6 max-w-[700px]">
             <div>
-              <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+              <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
                 {t.securityTitle}
               </h2>
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -499,7 +498,7 @@ export default function Settings() {
 
             <form onSubmit={handlePasswordUpdate} className="flex flex-col gap-4">
               {passwordError && (
-                <div className="flex items-center gap-2 rounded-[8px] bg-[#FDF1F1] border border-[#F7CDCD] p-3 text-[12.5px] text-[#B84343]">
+                <div className="flex items-center gap-2 rounded-[8px] bg-danger-soft border border-[#F7CDCD] p-3 text-[12.5px] text-danger">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   <span>{passwordError}</span>
                 </div>

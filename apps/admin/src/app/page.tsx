@@ -17,12 +17,12 @@ export default function Page() {
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
-    return <BrandLoader message="Verifying authentication..." />;
+    return <BrandLoader />;
   }
 
   if (isAuthenticated) {
     return <Layout />;
   }
 
-  return <BrandLoader message="Redirecting to login..." />;
+  return <BrandLoader />;
 }

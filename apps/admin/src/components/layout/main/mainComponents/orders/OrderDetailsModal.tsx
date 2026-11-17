@@ -15,6 +15,7 @@ import {
 import BaseModal from '../../../../common/BaseModal';
 import { ORDER_STATUS_TRANSITIONS, OrderStatus, canTransitionOrder, type AdminOrder } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney } from '@/utils/format';
 
 export interface OrderDetailsModalProps {
   order: AdminOrder | null;
@@ -135,19 +136,19 @@ export default function OrderDetailsModal({
     switch (status) {
       case 'PENDING':
         return {
-          bg: 'bg-[#FEF6E7] text-[#B87A00] border-[#FBE3B5]',
+          bg: 'bg-warning-soft text-warning border-[#FBE3B5]',
           label: t.orderStatusPending,
           icon: <Clock className="h-3.5 w-3.5" />,
         };
       case 'PAID':
         return {
-          bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
+          bg: 'bg-positive-soft text-positive border-accent-line',
           label: t.orderStatusPaid,
           icon: <CheckCircle2 className="h-3.5 w-3.5" />,
         };
       case 'PROCESSING':
         return {
-          bg: 'bg-[#EBF2FC] text-[#1E60B5] border-[#C3DCF8]',
+          bg: 'bg-info-soft text-info border-[#C3DCF8]',
           label: t.orderStatusProcessing,
           icon: <Package className="h-3.5 w-3.5" />,
         };
@@ -159,13 +160,13 @@ export default function OrderDetailsModal({
         };
       case 'DELIVERED':
         return {
-          bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
+          bg: 'bg-positive-soft text-positive border-accent-line',
           label: t.orderStatusDelivered,
           icon: <CheckCircle2 className="h-3.5 w-3.5" />,
         };
       case 'CANCELLED':
         return {
-          bg: 'bg-[#FBECEC] text-[#B84343] border-[#F5C4C4]',
+          bg: 'bg-danger-soft text-danger border-[#F5C4C4]',
           label: t.orderStatusCancelled,
           icon: <AlertCircle className="h-3.5 w-3.5" />,
         };
@@ -197,7 +198,7 @@ export default function OrderDetailsModal({
     >
       <div className="flex flex-col gap-6 pt-2 select-none">
         {/* Status bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
           <div className="flex items-center gap-2">
             <span className="text-[12.5px] font-semibold text-[var(--text-secondary)]">
               {t.currentStatusLabel}
@@ -219,7 +220,7 @@ export default function OrderDetailsModal({
               value={order.status}
               disabled={updating}
               onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
-              className="rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-50"
+              className="rounded-sm border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-50"
             >
               {[order.status, ...ORDER_STATUS_TRANSITIONS[order.status]].map((status) => (
                 <option key={status} value={status}>
@@ -233,7 +234,7 @@ export default function OrderDetailsModal({
         {/* Customer & Delivery Information Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Customer Details */}
-          <div className="flex flex-col gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4">
+          <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
             <div className="flex items-center gap-2 text-[13px] font-bold text-[var(--text)] border-b border-[var(--border)] pb-2">
               <User className="h-4 w-4 text-[var(--accent)]" />
               <span>{t.customerDetailsTitle}</span>
@@ -270,7 +271,7 @@ export default function OrderDetailsModal({
           </div>
 
           {/* Delivery Details */}
-          <div className="flex flex-col gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-4">
+          <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
             <div className="flex items-center gap-2 text-[13px] font-bold text-[var(--text)] border-b border-[var(--border)] pb-2">
               <Truck className="h-4 w-4 text-[var(--accent)]" />
               <span>{t.deliveryTitle}</span>
@@ -302,7 +303,7 @@ export default function OrderDetailsModal({
                       href={`https://tracking.novaposhta.ua/#/uk/cargo/${currentTtn}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 font-mono font-bold text-[12px] text-[#0F6B4F] hover:underline"
+                      className="inline-flex items-center gap-1 font-mono font-bold text-[12px] text-positive hover:underline"
                     >
                       <Truck className="h-3.5 w-3.5" />
                       <span>{currentTtn}</span>
@@ -320,13 +321,13 @@ export default function OrderDetailsModal({
                       placeholder={t.enterTtnPlaceholder}
                       value={ttnInput}
                       onChange={(e) => setTtnInput(e.target.value)}
-                      className="flex-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-2.5 py-1 text-[12px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+                      className="flex-1 rounded-sm border border-[var(--border)] bg-[var(--surface-sunken)] px-2.5 py-1 text-[12px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
                     />
                     <button
                       type="button"
                       disabled={isSavingTtn || !ttnInput.trim()}
                       onClick={handleSaveTtn}
-                      className="rounded-[6px] bg-[var(--accent)] px-2.5 py-1 text-[11.5px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                      className="rounded-sm bg-[var(--accent)] px-2.5 py-1 text-[11.5px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
                       {isSavingTtn ? '...' : t.saveBtn}
                     </button>
@@ -334,7 +335,7 @@ export default function OrderDetailsModal({
                       type="button"
                       disabled={isSavingTtn}
                       onClick={handleGenerateTtn}
-                      className="rounded-[6px] border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] disabled:opacity-50"
+                      className="rounded-sm border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] disabled:opacity-50"
                     >
                       {t.createBtn}
                     </button>
@@ -354,7 +355,7 @@ export default function OrderDetailsModal({
             </span>
           </h3>
 
-          <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)]">
+          <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
             <div className="divide-y divide-[var(--border)]">
               {order.items.map((item) => {
                 const itemTotal = item.price * item.quantity;
@@ -399,10 +400,10 @@ export default function OrderDetailsModal({
 
                     <div className="flex items-center justify-between sm:justify-end gap-5 shrink-0 pl-14 sm:pl-0">
                       <span className="text-[12.5px] font-medium text-[var(--text-secondary)]">
-                        {item.quantity} × ₴{item.price.toFixed(2)}
+                        {item.quantity} × {formatMoney(item.price)}
                       </span>
                       <span className="text-[14px] font-bold text-[var(--text)] min-w-[70px] text-right">
-                        ₴{itemTotal.toFixed(2)}
+                        {formatMoney(itemTotal)}
                       </span>
                     </div>
                   </div>
@@ -414,7 +415,7 @@ export default function OrderDetailsModal({
             <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface-soft)] p-4">
               <span className="text-[14px] font-bold text-[var(--text)]">{t.totalAmountLabel}:</span>
               <span className="font-sans text-[19px] font-bold tabular-nums text-[var(--text)]">
-                ₴{order.totalAmount.toFixed(2)}
+                {formatMoney(order.totalAmount)}
               </span>
             </div>
           </div>
@@ -426,7 +427,7 @@ export default function OrderDetailsModal({
             type="button"
             onClick={handleDelete}
             disabled={deleting}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[#F5C4C4] bg-[#FBECEC] px-3.5 py-2 text-[12.5px] font-semibold text-[#B84343] hover:bg-[#F8DADA] transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[#F5C4C4] bg-danger-soft px-3.5 py-2 text-[12.5px] font-semibold text-danger hover:bg-[#F8DADA] transition-all disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>{deleting ? t.deletingText : t.deleteOrderBtn}</span>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import type { AdminOrder, OrderStatus } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney } from '@/utils/format';
 
 export interface OrdersTableProps {
   orders: AdminOrder[];
@@ -42,19 +43,19 @@ export default function OrdersTable({
     switch (status) {
       case 'PENDING':
         return {
-          bg: 'bg-[#FEF6E7] text-[#B87A00] border-[#FBE3B5]',
+          bg: 'bg-warning-soft text-warning border-[#FBE3B5]',
           label: t.orderStatusPending,
           icon: <Clock className="h-3 w-3" />,
         };
       case 'PAID':
         return {
-          bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
+          bg: 'bg-positive-soft text-positive border-accent-line',
           label: t.orderStatusPaid,
           icon: <CheckCircle2 className="h-3 w-3" />,
         };
       case 'PROCESSING':
         return {
-          bg: 'bg-[#EBF2FC] text-[#1E60B5] border-[#C3DCF8]',
+          bg: 'bg-info-soft text-info border-[#C3DCF8]',
           label: t.orderStatusProcessing,
           icon: <Package className="h-3 w-3" />,
         };
@@ -66,13 +67,13 @@ export default function OrdersTable({
         };
       case 'DELIVERED':
         return {
-          bg: 'bg-[#E7F2ED] text-[#0F6B4F] border-[#BBE2D1]',
+          bg: 'bg-positive-soft text-positive border-accent-line',
           label: t.orderStatusDelivered,
           icon: <CheckCircle2 className="h-3 w-3" />,
         };
       case 'CANCELLED':
         return {
-          bg: 'bg-[#FBECEC] text-[#B84343] border-[#F5C4C4]',
+          bg: 'bg-danger-soft text-danger border-[#F5C4C4]',
           label: t.orderStatusCancelled,
           icon: <AlertCircle className="h-3 w-3" />,
         };
@@ -98,7 +99,7 @@ export default function OrdersTable({
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-3 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5">
+      <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex items-center justify-between py-4 animate-pulse border-b border-[var(--border)] last:border-0">
             <div className="flex items-center gap-3">
@@ -117,7 +118,7 @@ export default function OrdersTable({
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-[18px] border border-[var(--border)] bg-[var(--surface)] py-14 px-4 text-center">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] py-14 px-4 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-soft)] text-[var(--text-tertiary)] mb-3">
           <Package className="h-7 w-7" />
         </div>
@@ -132,7 +133,7 @@ export default function OrdersTable({
   return (
     <div className="flex flex-col gap-4">
       {/* Desktop Table View */}
-      <div className="hidden lg:block overflow-hidden rounded-[18px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(28,27,25,0.02)]">
+      <div className="hidden lg:block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
@@ -188,7 +189,7 @@ export default function OrdersTable({
                           href={`https://tracking.novaposhta.ua/#/uk/cargo/${ord.ttn}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[#0F6B4F] hover:underline"
+                          className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-positive hover:underline"
                         >
                           <Truck className="h-3 w-3" />
                           <span>{ord.ttn}</span>
@@ -203,10 +204,10 @@ export default function OrdersTable({
                         <img
                           src={firstItem.image}
                           alt={firstItem.productName}
-                          className="h-8 w-8 rounded-[6px] object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
+                          className="h-8 w-8 rounded-sm object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
                         />
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-[6px] bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0">
                           <Package className="h-4 w-4" />
                         </div>
                       )}
@@ -226,7 +227,7 @@ export default function OrdersTable({
                   </td>
 
                   <td className="py-4 px-4 font-bold text-[var(--text)] whitespace-nowrap">
-                    ₴{ord.totalAmount.toFixed(2)}
+                    {formatMoney(ord.totalAmount)}
                   </td>
 
                   <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
@@ -248,7 +249,7 @@ export default function OrdersTable({
                     <button
                       type="button"
                       onClick={() => onViewOrder(ord)}
-                      className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all"
+                      className="inline-flex items-center gap-1 rounded-sm border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all"
                     >
                       <Eye className="h-3.5 w-3.5 text-[var(--accent)]" />
                       <span>{t.viewDetailsBtn}</span>
@@ -271,7 +272,7 @@ export default function OrdersTable({
             <div
               key={ord.id}
               onClick={() => onViewOrder(ord)}
-              className="flex flex-col rounded-[16px] border border-[var(--border)] bg-[var(--surface)] p-4 gap-3 shadow-xs active:scale-[0.99] transition-transform"
+              className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 gap-3 shadow-xs transition-transform"
             >
               <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
                 <div className="flex items-center gap-2">
@@ -323,7 +324,7 @@ export default function OrdersTable({
                       href={`https://tracking.novaposhta.ua/#/uk/cargo/${ord.ttn}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[#0F6B4F] hover:underline"
+                      className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-positive hover:underline"
                     >
                       <Truck className="h-3 w-3" />
                       <span>{ord.ttn}</span>
@@ -338,10 +339,10 @@ export default function OrdersTable({
                     <img
                       src={firstItem.image}
                       alt={firstItem.productName}
-                      className="h-8 w-8 rounded-[6px] object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
+                      className="h-8 w-8 rounded-sm object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
                     />
                   ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-[6px] bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0">
                       <Package className="h-4 w-4" />
                     </div>
                   )}
@@ -352,7 +353,7 @@ export default function OrdersTable({
 
                 <div className="flex items-center gap-3">
                   <span className="font-sans text-[15px] font-bold tabular-nums text-[var(--text)]">
-                    ₴{ord.totalAmount.toFixed(2)}
+                    {formatMoney(ord.totalAmount)}
                   </span>
                   <button
                     type="button"
@@ -360,7 +361,7 @@ export default function OrdersTable({
                       e.stopPropagation();
                       onViewOrder(ord);
                     }}
-                    className="rounded-[6px] bg-[var(--surface-soft)] p-1.5 text-[var(--text)] hover:bg-[var(--border)]"
+                    className="rounded-sm bg-[var(--surface-soft)] p-1.5 text-[var(--text)] hover:bg-[var(--border)]"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
@@ -383,7 +384,7 @@ export default function OrdersTable({
               type="button"
               disabled={page <= 1}
               onClick={() => onPageChange(page - 1)}
-              className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-sm border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>{t.btnPrevious}</span>
@@ -397,7 +398,7 @@ export default function OrdersTable({
               type="button"
               disabled={page >= totalPages}
               onClick={() => onPageChange(page + 1)}
-              className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-sm border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] disabled:opacity-40"
             >
               <span>{t.btnNext}</span>
               <ChevronRight className="h-4 w-4" />

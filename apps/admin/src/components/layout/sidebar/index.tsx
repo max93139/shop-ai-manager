@@ -4,11 +4,8 @@ import React from 'react';
 import {
   LayoutGrid,
   BarChart3,
-  Tag,
   Package,
   Receipt,
-  Users,
-  Target,
   Bot,
   Megaphone,
   Workflow,
@@ -30,8 +27,8 @@ export default function Sidebar() {
   const language = useAppSelector((state) => state.ui.language);
   const t = translations[language] || translations.uk;
 
-  const userName = user?.name || 'Maksym K.';
-  const userRole = user?.role || 'Owner';
+  const userName = user?.name || '—';
+  const userRole = user?.role || '';
   const userInitials = getUserInitials(userName);
 
   return (
@@ -40,7 +37,7 @@ export default function Sidebar() {
       <div
         aria-hidden
         onClick={() => dispatch(setSidebarOpen(false))}
-        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-200 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 lg:hidden ${
           sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
@@ -52,14 +49,14 @@ export default function Sidebar() {
       >
         {/* Brand Header */}
         <div className="flex items-center gap-3 px-2 pb-2 pt-1">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-gradient-to-br from-[#148362] to-[#0B523C] text-white shadow-sm">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--accent)] text-white">
             <ShoppingBag className="h-[18px] w-[18px] text-white" strokeWidth={2} />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-[15px] font-bold tracking-tight text-[var(--text)] truncate">
+            <span className="text-[14.5px] font-semibold tracking-tight text-[var(--text)] truncate">
               Shop AI Manager
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--text-tertiary)] -mt-[1px] truncate">
+            <span className="text-[11.5px] text-[var(--text-tertiary)] truncate">
               {t.adminPanel}
             </span>
           </div>
@@ -69,7 +66,7 @@ export default function Sidebar() {
         <nav className="flex flex-col gap-[22px]">
           {/* Overview Group */}
           <div className="flex flex-col gap-[1px]">
-            <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            <div className="px-[10px] pb-[6px] pt-[10px] text-[11.5px] font-medium text-[var(--text-tertiary)]">
               {t.overview}
             </div>
             <SidebarItem label={t.dashboard} href="/" icon={<LayoutGrid className="h-[17px] w-[17px]" />} />
@@ -78,7 +75,7 @@ export default function Sidebar() {
 
           {/* Catalog Group */}
           <div className="flex flex-col gap-[1px]">
-            <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            <div className="px-[10px] pb-[6px] pt-[10px] text-[11.5px] font-medium text-[var(--text-tertiary)]">
               {t.catalog}
             </div>
             <SidebarItem
@@ -91,7 +88,7 @@ export default function Sidebar() {
 
           {/* Sales Group */}
           <div className="flex flex-col gap-[1px]">
-            <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            <div className="px-[10px] pb-[6px] pt-[10px] text-[11.5px] font-medium text-[var(--text-tertiary)]">
               {t.sales}
             </div>
             <SidebarItem label={t.orders} href="/orders" icon={<Receipt className="h-[17px] w-[17px]" />} />
@@ -99,7 +96,7 @@ export default function Sidebar() {
 
           {/* Automation Group */}
           <div className="flex flex-col gap-[1px]">
-            <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            <div className="px-[10px] pb-[6px] pt-[10px] text-[11.5px] font-medium text-[var(--text-tertiary)]">
               {t.automation}
             </div>
             <SidebarItem label={t.telegramBot} href="/telegram-bot" icon={<Bot className="h-[17px] w-[17px]" />} />
@@ -115,7 +112,7 @@ export default function Sidebar() {
 
           {/* System Group */}
           <div className="flex flex-col gap-[1px]">
-            <div className="px-[10px] pb-[6px] pt-[10px] text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            <div className="px-[10px] pb-[6px] pt-[10px] text-[11.5px] font-medium text-[var(--text-tertiary)]">
               {t.system}
             </div>
             <SidebarItem label={t.notifications} href="/notifications" icon={<Bell className="h-[17px] w-[17px]" />} />
@@ -125,15 +122,15 @@ export default function Sidebar() {
 
         {/* Sidebar Footer User Chip */}
         <div className="mt-auto border-t border-[var(--border)] pt-[14px]">
-          <div className="flex cursor-pointer items-center gap-[9px] rounded-[var(--radius-sm)] p-2 transition-colors hover:bg-[var(--surface-soft)]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E7DFC9] to-[#CBB98A] font-sans text-[12px] font-bold text-[#4A3F1F]">
+          <div className="flex items-center gap-[9px] p-2">
+            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[var(--surface-sunken)] text-[12px] font-semibold text-[var(--text-secondary)]">
               {userInitials}
             </div>
             <div className="flex flex-col min-w-0">
               <span className="truncate text-[13px] font-semibold text-[var(--text)]">
                 {userName}
               </span>
-              <span className="text-[11px] text-[var(--text-tertiary)] capitalize">
+              <span className="text-[11px] text-[var(--text-tertiary)] lowercase first-letter:uppercase">
                 {userRole}
               </span>
             </div>

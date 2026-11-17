@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Package, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Package } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface RecentOrderItem {
@@ -42,10 +42,10 @@ export default function RecentOrderedProductsCard({
   };
 
   return (
-    <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)] h-full">
+    <div className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 h-full">
       <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
         <div className="flex flex-col">
-          <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+          <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
             {t.recentOrderedTitle}
           </h2>
           <span className="text-[12px] text-[var(--text-secondary)]">{t.recentOrderedSubtitle}</span>
@@ -65,7 +65,7 @@ export default function RecentOrderedProductsCard({
           Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="flex items-center justify-between py-3.5 animate-pulse">
               <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-[10px] bg-[var(--surface-soft)]" />
+                <div className="h-11 w-11 rounded-md bg-[var(--surface-soft)]" />
                 <div className="flex flex-col gap-1.5">
                   <div className="h-4 w-28 rounded bg-[var(--border)]" />
                   <div className="h-3 w-20 rounded bg-[var(--surface-soft)]" />
@@ -90,10 +90,10 @@ export default function RecentOrderedProductsCard({
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="h-11 w-11 rounded-[10px] object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
+                    className="h-11 w-11 rounded-md object-cover bg-[var(--surface-sunken)] border border-[var(--border)] shrink-0"
                   />
                 ) : (
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0 border border-[var(--border)]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[var(--surface-sunken)] text-[var(--text-tertiary)] shrink-0 border border-[var(--border)]">
                     <Package className="h-5 w-5" />
                   </div>
                 )}
@@ -109,11 +109,8 @@ export default function RecentOrderedProductsCard({
               </div>
 
               <div className="flex flex-col items-end shrink-0 ml-3">
-                <span className="text-[14px] font-bold text-[var(--text)]">{item.price}</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#E7F2ED] px-2 py-0.5 text-[11px] font-semibold text-[#0F6B4F]">
-                  <CheckCircle2 className="h-3 w-3" />
-                  {getStatusText(item.status)}
-                </span>
+                <span className="text-[14px] font-semibold tabular-nums text-[var(--text)]">{item.price}</span>
+                <span className="text-[12px] text-[var(--text-secondary)]">{getStatusText(item.status)}</span>
               </div>
             </div>
           ))

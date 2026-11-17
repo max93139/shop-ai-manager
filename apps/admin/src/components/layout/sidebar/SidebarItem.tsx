@@ -45,7 +45,7 @@ export default function SidebarItem({
       <span className={`h-4 w-4 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-85 group-hover:opacity-100'}`}>
         {icon}
       </span>
-      <span className="truncate">{label}</span>
+      <span className="truncate" title={label}>{label}</span>
       {count !== undefined && (
         <span
           className={`ml-auto font-mono text-[11px] px-1.5 py-0.5 rounded-full ${
@@ -58,7 +58,7 @@ export default function SidebarItem({
         </span>
       )}
       {isComingSoon && (
-        <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--surface-sunken)] text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)]">
+        <span className="ml-auto shrink-0 text-[11px] text-[var(--text-tertiary)]">
           {badge || 'Скоро'}
         </span>
       )}

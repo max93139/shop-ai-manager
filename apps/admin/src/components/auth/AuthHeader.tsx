@@ -1,24 +1,23 @@
 'use client';
 
 import React from 'react';
-import { UserRound } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AuthHeader() {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="mb-[22px] flex h-[56px] w-[56px] items-center justify-center rounded-full bg-[var(--accent-soft)]">
-        <UserRound className="h-6 w-6 text-[var(--accent)]" strokeWidth={1.7} />
+    <div className="mb-6 flex w-full flex-col">
+      <div className="mb-6 flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--accent)] text-white">
+          <ShoppingBag className="h-4 w-4" strokeWidth={2} aria-hidden />
+        </div>
+        <span className="text-[14.5px] font-semibold tracking-tight text-[var(--text)]">Shop AI Manager</span>
       </div>
 
-      <h1 className="mb-[6px] text-[26px] font-bold tracking-tight text-[var(--text)]">
-        {t.loginWelcomeTitle}
-      </h1>
-      <p className="mb-[30px] text-[13.5px] text-[var(--text-secondary)]">
-        {t.loginSubtitle}
-      </p>
+      <h1 className="mb-1 text-[22px] font-semibold tracking-tight text-[var(--text)]">{t.loginWelcomeTitle}</h1>
+      <p className="text-[13.5px] text-[var(--text-secondary)]">{t.loginSubtitle}</p>
     </div>
   );
 }

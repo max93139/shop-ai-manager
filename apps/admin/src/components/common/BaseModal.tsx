@@ -42,18 +42,21 @@ export default function BaseModal({
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200"
+        className="fixed inset-0 bg-black/40"
       />
 
       {/* Modal Dialog Card */}
       <div
-        className={`relative z-10 w-full ${maxWidthClass} max-h-[90vh] flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xl transition-all duration-150`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={`relative z-10 w-full ${maxWidthClass} max-h-[90vh] flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-lg`}
       >
         {/* Modal Header */}
         <div className="flex items-start justify-between pb-4 shrink-0 border-b border-[var(--border)] mb-4">
           <div className="min-w-0 pr-2">
             {title && (
-              <h3 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)] truncate">
+              <h3 className="text-[16px] font-semibold tracking-tight text-[var(--text)] truncate">
                 {title}
               </h3>
             )}
@@ -66,6 +69,7 @@ export default function BaseModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close"
             className="rounded-[8px] p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors shrink-0"
           >
             <X className="h-4 w-4" />

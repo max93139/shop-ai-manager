@@ -50,7 +50,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8">
+    <div className="page-container">
       <DashboardHeader />
       <DashboardStats data={dashboardData?.stats} loading={loading} />
       <RevenueChart

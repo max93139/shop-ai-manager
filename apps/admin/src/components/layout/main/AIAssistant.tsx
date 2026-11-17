@@ -237,9 +237,9 @@ export default function AIAssistant() {
   const enabledCount = rules.filter((r) => r.enabled).length;
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[1100px] w-full mx-auto">
+    <div className="page-container">
       {actionSuccess && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-[12px] bg-[#1C1B19] px-4 py-3 text-[13px] font-medium text-white shadow-xl animate-in fade-in duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-md bg-[#1C1B19] px-4 py-3 text-[13px] font-medium text-white shadow-lg">
           <CheckCircle2 className="h-4 w-4 text-[var(--accent)]" />
           <span>{actionSuccess}</span>
         </div>
@@ -247,10 +247,10 @@ export default function AIAssistant() {
 
       <div>
         <div className="flex items-center gap-2.5">
-          <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[var(--text)]">
+          <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
             {t.smartAssistantTitle}
           </h1>
-          <span className="rounded-full bg-[var(--surface-soft)] border border-[var(--border)] px-2.5 py-0.5 text-[11.5px] font-semibold text-[var(--accent)]">
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-positive before:h-1.5 before:w-1.5 before:rounded-full before:bg-positive before:content-['']">
             {t.activeBadge}
           </span>
         </div>
@@ -260,10 +260,10 @@ export default function AIAssistant() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+        <div className="flex flex-col justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 min-h-[150px]">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[var(--accent-soft)] text-[var(--accent)]">
+              <div className="text-[var(--text-secondary)]">
                 <Package className="h-4 w-4" />
               </div>
               <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.inventoryAuditTitle}</span>
@@ -283,10 +283,10 @@ export default function AIAssistant() {
           </button>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+        <div className="flex flex-col justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 min-h-[150px]">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#EBF2F9] text-[#1E5F8B]">
+              <div className="text-[var(--text-secondary)]">
                 <Send className="h-4 w-4" />
               </div>
               <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.channelSyncTitle}</span>
@@ -306,10 +306,10 @@ export default function AIAssistant() {
           </button>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xs min-h-[160px]">
+        <div className="flex flex-col justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 min-h-[150px]">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#FEF6E9] text-[#965A1A]">
+              <div className="text-[var(--text-secondary)]">
                 <Zap className="h-4 w-4" />
               </div>
               <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.healthCheckTitle}</span>
@@ -336,9 +336,9 @@ export default function AIAssistant() {
 
       {actionResult && (
         <div
-          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-[16px] border p-4 sm:p-5 shadow-2xs animate-in fade-in duration-200 ${
+          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border p-4 sm:p-5 ${
             actionResult.severity === 'warning'
-              ? 'border-[#E7C794] bg-[#FFFBF4]'
+              ? 'border-[#E7C794] bg-warning-soft'
               : actionResult.severity === 'success'
               ? 'border-[var(--accent-line)] bg-[#FAFDFC]'
               : 'border-[var(--border)] bg-[var(--surface)]'
@@ -346,9 +346,9 @@ export default function AIAssistant() {
         >
           <div className="flex items-start gap-3.5 min-w-0 flex-1">
             <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] ${
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${
                 actionResult.severity === 'warning'
-                  ? 'bg-[#FEF6E9] text-[#965A1A]'
+                  ? 'bg-warning-soft text-warning'
                   : 'bg-[var(--accent-soft)] text-[var(--accent)]'
               }`}
             >
@@ -398,7 +398,7 @@ export default function AIAssistant() {
             <button
               type="button"
               onClick={() => setActionResult(null)}
-              className="rounded-[6px] p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors"
+              className="rounded-sm p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors"
               title={isUk ? 'Закрити' : 'Dismiss'}
             >
               <X className="h-4 w-4" />
@@ -407,11 +407,11 @@ export default function AIAssistant() {
         </div>
       )}
 
-      <div className="flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_2px_8px_rgba(28,27,25,0.03)]">
+      <div className="flex flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6">
         <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
             <Sliders className="h-4 w-4 text-[var(--accent)]" />
-            <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+            <h2 className="text-[16px] font-semibold tracking-tight text-[var(--text)]">
               {t.workflowRulesTitle}
             </h2>
           </div>
@@ -446,7 +446,7 @@ export default function AIAssistant() {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
                       rule.enabled ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />

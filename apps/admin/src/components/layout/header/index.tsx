@@ -97,7 +97,7 @@ export default function Header() {
               {t.commandTriggerText}
             </span>
           </div>
-          <kbd className="hidden sm:inline-flex items-center font-mono text-[10.5px] font-semibold rounded-[5px] border border-[var(--border)] bg-[var(--surface)] px-[5.5px] py-[1px] text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)] shadow-2xs shrink-0">
+          <kbd className="hidden sm:inline-flex items-center font-mono text-[10.5px] font-semibold rounded-sm border border-[var(--border)] bg-[var(--surface)] px-[5.5px] py-[1px] text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)] shadow-2xs shrink-0">
             ⌘K
           </kbd>
         </button>

@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { LayoutGrid, ArrowLeft, Receipt, Tag, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ComingSoonFeature {
@@ -15,99 +13,39 @@ export interface ComingSoonProps {
   badge?: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   features: ComingSoonFeature[];
 }
 
-export default function ComingSoon({
-  badge,
-  title,
-  description,
-  icon,
-  features,
-}: ComingSoonProps) {
-  const { isUk } = useTranslation();
+export default function ComingSoon({ badge, title, description, features }: ComingSoonProps) {
+  const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8 max-w-[900px] w-full mx-auto">
-      <div className="relative overflow-hidden rounded-[22px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-10 shadow-[var(--shadow-md)] flex flex-col items-center text-center">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[340px] h-[160px] bg-[#0F6B4F]/10 blur-[70px] rounded-full"
-        />
-
-        <div className="flex h-14 w-14 items-center justify-center rounded-[16px] bg-[var(--accent-soft)] text-[var(--accent)] mb-4 shadow-2xs">
-          {icon}
-        </div>
-
-        <span className="rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)] mb-3">
-          {badge || (isUk ? 'Скоро у доступі' : 'Coming Soon')}
-        </span>
-
-        <h1 className="text-[24px] sm:text-[30px] font-bold tracking-tight text-[var(--text)] mb-2.5 max-w-[600px]">
-          {title}
-        </h1>
-
-        <p className="max-w-[560px] text-[13.5px] sm:text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-6">
-          {description}
-        </p>
-
-        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-4 py-2.5 text-[13px] font-semibold shadow-xs transition-colors"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            <span>{isUk ? 'На головну' : 'To Dashboard'}</span>
-          </Link>
-
-          <Link
-            href="/orders"
-            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--text)] px-4 py-2.5 text-[13px] font-semibold shadow-xs transition-colors"
-          >
-            <Receipt className="h-4 w-4 text-[var(--text-secondary)]" />
-            <span>{isUk ? 'Замовлення' : 'Orders'}</span>
-          </Link>
-
-          <Link
-            href="/storage"
-            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--text)] px-4 py-2.5 text-[13px] font-semibold shadow-xs transition-colors"
-          >
-            <Tag className="h-4 w-4 text-[var(--text-secondary)]" />
-            <span>{isUk ? 'Склад і товари' : 'Storage'}</span>
-          </Link>
-        </div>
+    <div className="page-container">
+      <div className="flex max-w-[640px] flex-col gap-2">
+        <span className="text-[12.5px] font-medium text-[var(--text-tertiary)]">{badge || t.comingSoonBadge}</span>
+        <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">{title}</h1>
+        <p className="text-[14px] leading-relaxed text-[var(--text-secondary)]">{description}</p>
       </div>
 
-      <div className="flex flex-col gap-3.5">
-        <div className="flex items-center gap-2 px-1">
-          <Sparkles className="h-4 w-4 text-[var(--accent)]" />
-          <h2 className="text-[17px] font-bold text-[var(--text)]">
-            {isUk ? 'Заплановані можливості модуля' : 'Planned Module Capabilities'}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5">
-          {features.map((feat, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col justify-between gap-4 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7 shadow-xs min-h-[175px] transition-all hover:shadow-sm"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--accent-soft)] text-[var(--accent)] shrink-0">
-                  {feat.icon}
-                </div>
-                <h3 className="font-semibold text-[15px] text-[var(--text)] leading-snug">
-                  {feat.title}
-                </h3>
-                <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
-                  {feat.description}
-                </p>
+      <section className="max-w-[720px] rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+        <h2 className="border-b border-[var(--border)] px-5 py-3.5 text-[13px] font-semibold text-[var(--text)]">
+          {t.comingSoonPlanned}
+        </h2>
+        <ul className="divide-y divide-[var(--border)]">
+          {features.map((feature) => (
+            <li key={feature.title} className="flex gap-3.5 px-5 py-4">
+              <span className="mt-0.5 shrink-0 text-[var(--text-tertiary)]" aria-hidden>
+                {feature.icon}
+              </span>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-[14px] font-medium text-[var(--text)]">{feature.title}</span>
+                <span className="text-[13px] leading-relaxed text-[var(--text-secondary)]">{feature.description}</span>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
+      </section>
     </div>
   );
 }

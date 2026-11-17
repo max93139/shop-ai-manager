@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RefreshCw, Download, ShoppingCart } from 'lucide-react';
+import { RefreshCw, Download } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export interface OrdersHeaderProps {
@@ -23,13 +23,10 @@ export default function OrdersHeader({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent-soft)] text-[var(--accent)]">
-            <ShoppingCart className="h-5 w-5" />
-          </div>
-          <h1 className="text-[24px] font-bold text-[var(--text)] tracking-tight">
+          <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-tight text-[var(--text)]">
             {t.ordersTitle}
           </h1>
-          <span className="rounded-full bg-[var(--surface-sunken)] border border-[var(--border)] px-2.5 py-0.5 text-[12px] font-bold text-[var(--text-secondary)]">
+          <span className="text-[13px] font-medium tabular-nums text-[var(--text-tertiary)]">
             {totalOrders} {t.totalOrdersBadge}
           </span>
         </div>
@@ -43,7 +40,7 @@ export default function OrdersHeader({
           type="button"
           onClick={onRefresh}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all active:scale-95 disabled:opacity-50 shadow-xs"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>{t.refreshBtn}</span>
@@ -52,7 +49,7 @@ export default function OrdersHeader({
         <button
           type="button"
           onClick={onExport}
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all active:scale-95 shadow-xs"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-colors"
         >
           <Download className="h-3.5 w-3.5" />
           <span>{t.exportCsvBtn}</span>
