@@ -5,29 +5,22 @@ import {
   TelegramBotHeader,
   BotStatusCard,
   ConnectedChannelCard,
-  QueueStatusCard,
   RecentOrderedProductsCard,
   type RecentOrderItem,
 } from './mainComponents/telegramBot';
 
 export interface TelegramBotData {
   botStatus: {
-    handle: string;
-    uptime: string;
-    messagesToday: number;
-    activeChats: number;
+    handle: string | null;
+    ordersToday: number;
+    customersCount: number;
     isOnline: boolean;
   };
   connectedChannel: {
-    name: string;
-    handle: string;
-    subscribersCount: string;
+    name: string | null;
+    handle: string | null;
+    subscribersCount: string | null;
     isConnected: boolean;
-  };
-  queueStatus: {
-    pendingPosts: number;
-    scheduledToday: number;
-    failedCount: number;
   };
   recentOrders: RecentOrderItem[];
 }
@@ -77,25 +70,19 @@ export default function TelegramBot() {
         {/* Left Column (Status & Queue) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           <BotStatusCard
-            handle={data?.botStatus?.handle}
-            uptime={data?.botStatus?.uptime}
-            messagesToday={data?.botStatus?.messagesToday}
-            activeChats={data?.botStatus?.activeChats}
+            handle={data?.botStatus?.handle ?? undefined}
+            ordersToday={data?.botStatus?.ordersToday}
+            customersCount={data?.botStatus?.customersCount}
             isOnline={data?.botStatus?.isOnline}
           />
 
           <ConnectedChannelCard
-            channelName={data?.connectedChannel?.name}
-            channelHandle={data?.connectedChannel?.handle}
-            subscribersCount={data?.connectedChannel?.subscribersCount}
+            channelName={data?.connectedChannel?.name ?? undefined}
+            channelHandle={data?.connectedChannel?.handle ?? undefined}
+            subscribersCount={data?.connectedChannel?.subscribersCount ?? undefined}
             isConnected={data?.connectedChannel?.isConnected}
           />
 
-          <QueueStatusCard
-            pendingPosts={data?.queueStatus?.pendingPosts}
-            scheduledToday={data?.queueStatus?.scheduledToday}
-            failedCount={data?.queueStatus?.failedCount}
-          />
         </div>
 
         {/* Right Column (Recent Ordered Products) */}

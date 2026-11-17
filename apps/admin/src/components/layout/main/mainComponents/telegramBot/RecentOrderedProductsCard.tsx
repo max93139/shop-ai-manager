@@ -3,15 +3,19 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Package } from 'lucide-react';
+import { OrderStatus } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatMoney, formatRelativeTime } from '@/utils/format';
 
 export interface RecentOrderItem {
   id: string;
   name: string;
   sku: string;
-  timeAgo: string;
-  price: string;
-  status: 'Paid' | 'Processing' | 'Delivered' | 'Pending';
+  createdAt: string;
+  /** Line total in UAH. */
+  price: number;
+  quantity: number;
+  status: OrderStatus;
   image?: string;
 }
 
@@ -24,21 +28,15 @@ export default function RecentOrderedProductsCard({
   orders,
   loading = false,
 }: RecentOrderedProductsCardProps) {
-  const { t, isUk } = useTranslation();
+  const { t, language } = useTranslation();
 
-  const getStatusText = (status: RecentOrderItem['status']) => {
-    switch (status) {
-      case 'Paid':
-        return isUk ? 'Оплачено' : 'Paid';
-      case 'Processing':
-        return isUk ? 'В обробці' : 'Processing';
-      case 'Delivered':
-        return isUk ? 'Доставлено' : 'Delivered';
-      case 'Pending':
-        return isUk ? 'Очікує' : 'Pending';
-      default:
-        return status;
-    }
+  const statusLabels: Record<OrderStatus, string> = {
+    [OrderStatus.PENDING]: t.orderStatusPending,
+    [OrderStatus.PAID]: t.orderStatusPaid,
+    [OrderStatus.PROCESSING]: t.orderStatusProcessing,
+    [OrderStatus.SHIPPED]: t.orderStatusShipped,
+    [OrderStatus.DELIVERED]: t.orderStatusDelivered,
+    [OrderStatus.CANCELLED]: t.orderStatusCancelled,
   };
 
   return (
@@ -101,16 +99,17 @@ export default function RecentOrderedProductsCard({
                 <div className="flex flex-col min-w-0">
                   <span className="text-[14px] font-semibold text-[var(--text)] truncate">
                     {item.name}
+                    {item.quantity > 1 && <span className="font-normal text-[var(--text-secondary)]"> × {item.quantity}</span>}
                   </span>
                   <span className="text-[12px] text-[var(--text-secondary)] truncate">
-                    {t.recentOrderedTimePrefix} · {item.timeAgo}
+                    {t.recentOrderedTimePrefix} · {formatRelativeTime(item.createdAt, language)}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col items-end shrink-0 ml-3">
-                <span className="text-[14px] font-semibold tabular-nums text-[var(--text)]">{item.price}</span>
-                <span className="text-[12px] text-[var(--text-secondary)]">{getStatusText(item.status)}</span>
+                <span className="text-[14px] font-semibold tabular-nums text-[var(--text)]">{formatMoney(item.price, language)}</span>
+                <span className="text-[12px] text-[var(--text-secondary)]">{statusLabels[item.status]}</span>
               </div>
             </div>
           ))

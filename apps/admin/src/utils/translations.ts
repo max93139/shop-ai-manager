@@ -266,6 +266,7 @@ export interface TranslationDictionary {
   goodEvening: string;
   dashboardSubtitlePrefix: string;
   dashboardSubtitleToday: string;
+  dashboardSubtitleNoName: string;
   priceFieldLabel: string;
   uploadImages: string;
   uploadHint: string;
@@ -382,18 +383,13 @@ export interface TranslationDictionary {
   botStatusTitle: string;
   botOnline: string;
   botOffline: string;
+  botCustomersLabel: string;
+  botOrdersTodayLabel: string;
   botHandleLabel: string;
-  botUptimeLabel: string;
-  botMessagesTodayLabel: string;
-  botActiveChatsLabel: string;
   connectedChannelTitle: string;
   subscribersSuffix: string;
   channelConnected: string;
   channelDisconnected: string;
-  queueStatusTitle: string;
-  queuePendingPosts: string;
-  queueScheduledToday: string;
-  queueFailedReview: string;
   recentOrderedTitle: string;
   recentOrderedSubtitle: string;
   recentOrderedViewAll: string;
@@ -843,6 +839,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Доброго вечора',
     dashboardSubtitlePrefix: 'Ось що відбувається в магазині',
     dashboardSubtitleToday: 'сьогодні',
+    dashboardSubtitleNoName: 'Ось що відбувається в магазині сьогодні, {date}.',
     priceFieldLabel: 'Ціна, ₴',
     uploadImages: 'Завантажити фото',
     uploadHint: 'Натисніть або перетягніть файли сюди',
@@ -957,20 +954,15 @@ export const translations: Record<Language, TranslationDictionary> = {
     telegramBotSubtitle: 'Керування ботом-помічником вашого інтернет-магазину',
     botSettingsBtn: 'Налаштування бота',
     botStatusTitle: 'Статус бота',
-    botOnline: 'В мережі',
-    botOffline: 'Не в мережі',
+    botOnline: 'Токен активний',
+    botOffline: 'Токен не працює',
+    botCustomersLabel: 'Покупців у боті',
+    botOrdersTodayLabel: 'Замовлень сьогодні',
     botHandleLabel: 'Юзернейм бота',
-    botUptimeLabel: 'Час роботи',
-    botMessagesTodayLabel: 'Повідомлень сьогодні',
-    botActiveChatsLabel: 'Активних діалогів',
     connectedChannelTitle: 'Підключений канал',
     subscribersSuffix: 'підписників',
     channelConnected: 'Підключено',
     channelDisconnected: 'Відключено',
-    queueStatusTitle: 'Черга публікацій',
-    queuePendingPosts: 'В очікуванні',
-    queueScheduledToday: 'Заплановано на сьогодні',
-    queueFailedReview: 'Помилка (потребує перевірки)',
     recentOrderedTitle: 'Останні замовлені товари',
     recentOrderedSubtitle: 'Останні покупки клієнтів',
     recentOrderedViewAll: 'Всі замовлення',
@@ -1253,6 +1245,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     goodEvening: 'Good evening',
     dashboardSubtitlePrefix: "Here's what's happening at",
     dashboardSubtitleToday: 'today',
+    dashboardSubtitleNoName: "Here's what's happening in your store today, {date}.",
     priceFieldLabel: 'Price, ₴',
     uploadImages: 'Upload images',
     uploadHint: 'Click or drag and drop files here',
@@ -1367,20 +1360,15 @@ export const translations: Record<Language, TranslationDictionary> = {
     telegramBotSubtitle: 'Manage the assistant connected to your store',
     botSettingsBtn: 'Bot settings',
     botStatusTitle: 'Bot status',
-    botOnline: 'Online',
-    botOffline: 'Offline',
+    botOnline: 'Token valid',
+    botOffline: 'Token invalid',
+    botCustomersLabel: 'Customers in the bot',
+    botOrdersTodayLabel: 'Orders today',
     botHandleLabel: 'Bot handle',
-    botUptimeLabel: 'Uptime',
-    botMessagesTodayLabel: 'Messages today',
-    botActiveChatsLabel: 'Active chats',
     connectedChannelTitle: 'Connected channel',
     subscribersSuffix: 'subscribers',
     channelConnected: 'Connected',
     channelDisconnected: 'Disconnected',
-    queueStatusTitle: 'Queue status',
-    queuePendingPosts: 'Pending posts',
-    queueScheduledToday: 'Scheduled today',
-    queueFailedReview: 'Failed (needs review)',
     recentOrderedTitle: 'Recent ordered products',
     recentOrderedSubtitle: 'Latest customer purchases',
     recentOrderedViewAll: 'View all',

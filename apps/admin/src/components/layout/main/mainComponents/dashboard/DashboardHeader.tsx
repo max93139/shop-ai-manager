@@ -8,9 +8,7 @@ export interface DashboardHeaderProps {
   storeName?: string;
 }
 
-export default function DashboardHeader({
-  storeName = 'Atelier',
-}: DashboardHeaderProps) {
+export default function DashboardHeader({ storeName }: DashboardHeaderProps) {
   const { t, language } = useTranslation();
 
   const getGreeting = () => {
@@ -20,7 +18,10 @@ export default function DashboardHeader({
     return t.goodAfternoon;
   };
 
-  const subtitle = `${t.dashboardSubtitlePrefix} ${storeName} ${t.dashboardSubtitleToday}, ${formatShortDate(new Date(), language)}.`;
+  const date = formatShortDate(new Date(), language);
+  const subtitle = storeName
+    ? `${t.dashboardSubtitlePrefix} ${storeName} ${t.dashboardSubtitleToday}, ${date}.`
+    : t.dashboardSubtitleNoName.replace('{date}', date);
 
   return (
     <div className="flex flex-col gap-1">
