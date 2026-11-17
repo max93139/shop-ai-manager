@@ -129,6 +129,14 @@ export interface TranslationDictionary {
 
   actionDelete: string;
   actionCancel: string;
+  actionEdit: string;
+  editProductTitle: string;
+  editProductDesc: string;
+  editProductRequired: string;
+  editProductFailed: string;
+  editProductPhotos: string;
+  editProductRemovePhoto: string;
+  editProductAddPhoto: string;
   deleteTooltip: string;
   decreaseStock: string;
   increaseStock: string;
@@ -708,6 +716,14 @@ export const translations: Record<Language, TranslationDictionary> = {
 
     actionDelete: 'Видалити',
     actionCancel: 'Скасувати',
+    actionEdit: 'Редагувати',
+    editProductTitle: 'Редагування товару',
+    editProductDesc: 'Зміни застосуються до всіх розмірів і кольорів цього товару.',
+    editProductRequired: 'Вкажіть назву і категорію',
+    editProductFailed: 'Не вдалося зберегти товар',
+    editProductPhotos: 'Фото',
+    editProductRemovePhoto: 'Прибрати фото',
+    editProductAddPhoto: 'Додати фото',
     deleteTooltip: 'Видалити',
     decreaseStock: 'Зменшити залишок',
     increaseStock: 'Збільшити залишок',
@@ -1120,6 +1136,14 @@ export const translations: Record<Language, TranslationDictionary> = {
 
     actionDelete: 'Delete',
     actionCancel: 'Cancel',
+    actionEdit: 'Edit',
+    editProductTitle: 'Edit product',
+    editProductDesc: 'Changes apply to every size and colour of this product.',
+    editProductRequired: 'Enter a name and a category',
+    editProductFailed: 'Could not save the product',
+    editProductPhotos: 'Photos',
+    editProductRemovePhoto: 'Remove photo',
+    editProductAddPhoto: 'Add photo',
     deleteTooltip: 'Delete',
     decreaseStock: 'Decrease stock',
     increaseStock: 'Increase stock',

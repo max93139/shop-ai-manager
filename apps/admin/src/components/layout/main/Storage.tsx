@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { toCompressedDataUrl } from '@/utils/images';
 import { StorageHeader, CreateProductForm } from './mainComponents/storage';
 
 export default function Storage() {
@@ -63,31 +64,6 @@ export default function Storage() {
     }
   };
 
-  const convertBlobToBase64 = async (url: string): Promise<string> => {
-    if (url.startsWith('data:')) return url;
-    if (!url.startsWith('blob:')) return url;
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return new Promise<string>((resolve, reject) => {
-      const img = new window.Image();
-      const imgUrl = URL.createObjectURL(blob);
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width;
-        let h = img.height;
-        const MAX = 800;
-        if (w > h && w > MAX) { h *= MAX / w; w = MAX; }
-        else if (h > MAX) { w *= MAX / h; h = MAX; }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(imgUrl);
-        resolve(canvas.toDataURL('image/jpeg', 0.75));
-      };
-      img.onerror = () => { URL.revokeObjectURL(imgUrl); reject(new Error('img load fail')); };
-      img.src = imgUrl;
-    });
-  };
 
   const handleSaveProduct = async (formData: any) => {
     try {
@@ -103,7 +79,7 @@ export default function Storage() {
       let images: string[] = [];
       if (formData.imageUrls && formData.imageUrls.length > 0) {
         images = await Promise.all(
-          formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
+          formData.imageUrls.slice(0, 5).map((url: string) => toCompressedDataUrl(url)),
         );
       }
 
