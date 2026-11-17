@@ -1,15 +1,20 @@
 import { NovaPoshtaSettlement, NovaPoshtaWarehouse } from '@shop-ai/types';
 
 const API_URL = 'https://api.novaposhta.ua/v2.0/json/';
-const API_KEY = process.env.NOVA_POSHTA_API_KEY || '8aadbaf933314a55d56888629dfe0e24';
 
 async function callNp<T = any>(modelName: string, calledMethod: string, methodProperties: Record<string, any>): Promise<T[]> {
+  // Read at call time: this module is imported before index.ts runs dotenv.config().
+  const apiKey = process.env.NOVA_POSHTA_API_KEY;
+  if (!apiKey) {
+    console.error('NOVA_POSHTA_API_KEY is not configured');
+    return [];
+  }
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        apiKey: API_KEY,
+        apiKey,
         modelName,
         calledMethod,
         methodProperties,

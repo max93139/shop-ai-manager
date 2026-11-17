@@ -10,15 +10,19 @@ import {
 export class NovaPoshtaService {
   private readonly logger = new Logger(NovaPoshtaService.name);
   private readonly apiUrl = 'https://api.novaposhta.ua/v2.0/json/';
-  private readonly apiKey = process.env.NOVA_POSHTA_API_KEY || '8aadbaf933314a55d56888629dfe0e24';
 
   private async callNpApi<T = any>(modelName: string, calledMethod: string, methodProperties: Record<string, any>): Promise<T[]> {
+    const apiKey = process.env.NOVA_POSHTA_API_KEY;
+    if (!apiKey) {
+      this.logger.error('NOVA_POSHTA_API_KEY is not configured');
+      return [];
+    }
     try {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          apiKey: this.apiKey,
+          apiKey,
           modelName,
           calledMethod,
           methodProperties,
