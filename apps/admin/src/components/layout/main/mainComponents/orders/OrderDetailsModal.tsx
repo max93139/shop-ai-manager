@@ -15,7 +15,7 @@ import {
 import BaseModal from '../../../../common/BaseModal';
 import { ORDER_STATUS_TRANSITIONS, OrderStatus, canTransitionOrder, type AdminOrder } from '@shop-ai/types';
 import { useTranslation } from '@/hooks/useTranslation';
-import { formatMoney } from '@/utils/format';
+import { formatMoney, formatShortDate } from '@/utils/format';
 
 export interface OrderDetailsModalProps {
   order: AdminOrder | null;
@@ -32,12 +32,13 @@ export default function OrderDetailsModal({
   onUpdateStatus,
   onDeleteOrder,
 }: OrderDetailsModalProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [ttnInput, setTtnInput] = useState(order?.ttn || '');
   const [currentTtn, setCurrentTtn] = useState(order?.ttn || '');
   const [isSavingTtn, setIsSavingTtn] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
   if (!order) return null;
 
@@ -109,6 +110,32 @@ export default function OrderDetailsModal({
     [OrderStatus.SHIPPED]: t.orderStatusShipped,
     [OrderStatus.DELIVERED]: t.orderStatusDelivered,
     [OrderStatus.CANCELLED]: t.orderStatusCancelled,
+  };
+
+  const handleCheckPayment = async () => {
+    try {
+      setCheckingPayment(true);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/payments/orders/${order.id}/sync`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        alert(body?.message || t.paymentCheckFailed);
+        return;
+      }
+      if (body?.invoiceStatus === 'success') {
+        order.paidAt = order.paidAt ?? new Date().toISOString();
+        await onUpdateStatus(order.id, body.orderStatus);
+      } else {
+        alert(t.paymentNotPaidYet);
+      }
+    } finally {
+      setCheckingPayment(false);
+    }
   };
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
@@ -267,6 +294,29 @@ export default function OrderDetailsModal({
                   </span>
                 </div>
               )}
+
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[var(--text-tertiary)]">{t.paymentLabel}:</span>
+                {order.paidAt ? (
+                  <span className="font-semibold text-positive">
+                    {t.paymentPaidOnline.replace('{date}', formatShortDate(order.paidAt, language))}
+                  </span>
+                ) : order.paymentUrl ? (
+                  <span className="inline-flex items-center gap-2 text-[var(--text-secondary)]">
+                    <span>{t.paymentLinkSent}</span>
+                    <button
+                      type="button"
+                      disabled={checkingPayment}
+                      onClick={handleCheckPayment}
+                      className="rounded-[6px] border border-[var(--border)] bg-[var(--surface-soft)] px-2 py-0.5 text-[11.5px] font-semibold text-[var(--text)] hover:bg-[var(--surface-hover)] disabled:opacity-50"
+                    >
+                      {checkingPayment ? '...' : t.paymentCheckBtn}
+                    </button>
+                  </span>
+                ) : (
+                  <span className="text-[var(--text-secondary)]">{t.paymentOnDelivery}</span>
+                )}
+              </div>
             </div>
           </div>
 

@@ -170,6 +170,9 @@ export interface AdminOrder {
   deliveryCityRef?: string;
   deliveryWarehouseRef?: string;
   telegramId?: string;
+  /** Set when the bot issued a Monobank payment link. */
+  paymentUrl?: string;
+  paidAt?: string;
   items: AdminOrderItemDetail[];
   itemsCount: number;
   createdAt: string;

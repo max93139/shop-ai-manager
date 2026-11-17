@@ -333,6 +333,8 @@ export class OrdersService {
         ttn: ord.ttn || undefined,
         deliveryCityRef: ord.deliveryCityRef || undefined,
         deliveryWarehouseRef: ord.deliveryWarehouseRef || undefined,
+        paymentUrl: ord.paymentUrl || undefined,
+        paidAt: ord.paidAt?.toISOString(),
         telegramId: ord.user?.telegramId ? ord.user.telegramId.toString() : undefined,
         items: itemsDetail,
         itemsCount: totalItemsCount,
