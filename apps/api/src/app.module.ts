@@ -8,6 +8,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { NovaPoshtaModule } from './modules/nova-poshta/nova-poshta.module';
 
 @Controller()
 export class AppController {
@@ -28,6 +29,7 @@ export class AppController {
     AiModule,
     NotificationsModule,
     SettingsModule,
+    NovaPoshtaModule,
   ],
   controllers: [AppController],
 })

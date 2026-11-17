@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import BaseModal from '../../../../../common/BaseModal';
 import type { ColorOption } from './VariantBuilder';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface AddColorModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function AddColorModal({
   onClose,
   onAddColor,
 }: AddColorModalProps) {
+  const { t, translateColor } = useTranslation();
   const [hex, setHex] = useState('#7A6A54');
   const [colorName, setColorName] = useState('');
 
@@ -46,8 +48,8 @@ export default function AddColorModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add custom color"
-      description="Drag the color picker or select a preset color."
+      title={t.customColorModalTitle}
+      description={t.customColorModalDesc}
     >
       <div className="flex flex-col gap-4 pt-1">
         {/* Visual Color Picker (react-colorful) */}
@@ -67,7 +69,7 @@ export default function AddColorModal({
           />
           <div className="flex flex-1 flex-col gap-0.5">
             <label className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
-              Hex Code
+              {t.hexCodeLabel}
             </label>
             <input
               type="text"
@@ -82,13 +84,13 @@ export default function AddColorModal({
         {/* Color Name Input */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[12.5px] font-semibold text-[var(--text-secondary)]">
-            Color name
+            {t.colorNameLabel}
           </label>
           <input
             type="text"
             value={colorName}
             onChange={(e) => setColorName(e.target.value)}
-            placeholder="e.g. Camel, Forest Green, Oat"
+            placeholder={t.colorNamePlaceholder}
             className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2.5 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
           />
         </div>
@@ -96,7 +98,7 @@ export default function AddColorModal({
         {/* Popular Color Presets */}
         <div>
           <label className="text-[12px] font-semibold text-[var(--text-tertiary)] mb-2 block">
-            Popular presets
+            {t.popularPresetsLabel}
           </label>
           <div className="flex flex-wrap gap-2">
             {PRESET_SWATCHES.map((preset) => (
@@ -110,7 +112,7 @@ export default function AddColorModal({
                   className="h-3.5 w-3.5 rounded-full border border-black/15 shrink-0"
                   style={{ backgroundColor: preset.hex }}
                 />
-                <span>{preset.name}</span>
+                <span>{translateColor(preset.name)}</span>
               </button>
             ))}
           </div>
@@ -123,14 +125,14 @@ export default function AddColorModal({
             onClick={onClose}
             className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)] transition-all"
           >
-            Cancel
+            {t.actionCancel}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] transition-all active:scale-95"
           >
-            Add color
+            {t.addColorBtn}
           </button>
         </div>
       </div>

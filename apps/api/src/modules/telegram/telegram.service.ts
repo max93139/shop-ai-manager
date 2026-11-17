@@ -116,12 +116,12 @@ export class TelegramService {
 
         recentOrders.push({
           id: item.id,
-          name: p?.name || 'Product',
-          sku: item.variant?.sku || 'SKU',
+          name: item.productName ?? p?.name ?? 'Product',
+          sku: item.sku ?? item.variant?.sku ?? 'SKU',
           timeAgo,
           price: `$${Number(item.price)}`,
           status: ord.status === 'PAID' ? 'Paid' : 'Processing',
-          image: p?.images?.[0] || undefined,
+          image: item.image ?? p?.images?.[0] ?? undefined,
         });
       });
     });

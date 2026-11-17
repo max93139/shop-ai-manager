@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Send, CheckCircle2, Image as ImageIcon, FileText } from 'lucide-react';
 import BaseModal from '../../../../../common/BaseModal';
 
 export interface TelegramPublishModalProps {
   isOpen: boolean;
   onClose: () => void;
   productData: {
+    id?: string;
     name: string;
     category: string;
     brand: string;
@@ -23,12 +24,46 @@ export default function TelegramPublishModal({
   onClose,
   productData,
 }: TelegramPublishModalProps) {
-  const { name, category, brand, price, selectedSizes, selectedColors, imageUrls } = productData;
+  const { id, name, category, brand, price, selectedSizes, selectedColors, imageUrls } = productData;
 
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [postText, setPostText] = useState<string>('');
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [isPublished, setIsPublished] = useState<boolean>(false);
+  const [liveBotUsername, setLiveBotUsername] = useState<string>(
+    (
+      process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ||
+      process.env.NEXT_PUBLIC_BOT_USERNAME ||
+      'atelier_store_bot'
+    ).replace(/^@/, '')
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBotInfo = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(`${apiUrl}/telegram/stats`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const stats = await res.json();
+          const handle = stats.botStatus?.handle?.replace(/^@/, '');
+          if (handle && isMounted) {
+            setLiveBotUsername(handle);
+          }
+        }
+      } catch {
+        // Fallback to env or default
+      }
+    };
+    fetchBotInfo();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Auto-generate post text when modal opens
   useEffect(() => {
@@ -36,17 +71,26 @@ export default function TelegramPublishModal({
       const prodTitle = name.trim() || 'New product';
       const brandStr = brand ? `🏷️ Brand: ${brand}\n` : '';
       const catStr = category ? `📁 Category: ${category}\n` : '';
-      const priceStr = price ? `💵 Price: ${price.startsWith('$') ? price : `$${price}`}\n` : '';
+      const formattedPrice = price
+        ? price.endsWith('₴') || price.startsWith('$')
+          ? price
+          : `${price} ₴`
+        : '';
+      const priceStr = formattedPrice ? `💵 Price: ${formattedPrice}\n` : '';
       const sizesStr = selectedSizes.length > 0 ? `📏 Sizes: ${selectedSizes.join(' · ')}\n` : '';
       const colorsStr = selectedColors.length > 0 ? `🎨 Colors: ${selectedColors.join(' · ')}\n` : '';
 
-      const generated = `🔥 NEW ARRIVAL: ${prodTitle.toUpperCase()}\n\n${brandStr}${catStr}${priceStr}${sizesStr}${colorsStr}\n✨ High quality items in stock. Tap below to order!\n\n🛒 #${category.toLowerCase().replace(/[^a-z0-9]/g, '')} #${prodTitle.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      const deepLink = id
+        ? `https://t.me/${liveBotUsername}?start=prod_${id}`
+        : `https://t.me/${liveBotUsername}`;
+
+      const generated = `🔥 NEW ARRIVAL: ${prodTitle.toUpperCase()}\n\n${brandStr}${catStr}${priceStr}${sizesStr}${colorsStr}\n✨ High quality items in stock. Tap below to order!\n\n👉 Замовити в боті: ${deepLink}\n\n🛒 #${category.toLowerCase().replace(/[^a-z0-9]/g, '')} #${prodTitle.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 
       setPostText(generated);
       setIsPublished(false);
       setSelectedImageIndex(0);
     }
-  }, [isOpen, name, category, brand, price, selectedSizes, selectedColors]);
+  }, [isOpen, id, name, category, brand, price, selectedSizes, selectedColors, liveBotUsername]);
 
   const handlePublish = async () => {
     try {
@@ -149,7 +193,7 @@ export default function TelegramPublishModal({
           <div className="flex flex-col gap-3.5">
             <div className="flex items-center justify-between">
               <label className="text-[12.5px] font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-[var(--accent)]" />
+                <FileText className="h-3.5 w-3.5 text-[var(--accent)]" />
                 <span>Post caption</span>
               </label>
               <span className="text-[11px] font-mono text-[var(--text-tertiary)]">

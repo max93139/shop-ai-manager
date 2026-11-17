@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+
+      - name: Lint and Type Check
+        run: |
+          pnpm lint
+          pnpm check-types
+
+      - name: Build All Packages
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/shop_ai
+          JWT_SECRET: ci-test-secret-at-least-32-chars-long-123456
+          BOT_TOKEN: ci-dummy-bot-token

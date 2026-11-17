@@ -49,17 +49,9 @@ export default function Dashboard() {
     };
   }, []);
 
-  const handleExport = () => {
-    // Export handler
-  };
-
-  const handleNewProduct = () => {
-    // New product modal handler
-  };
-
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-7 lg:p-8">
-      <DashboardHeader onExport={handleExport} onNewProduct={handleNewProduct} />
+      <DashboardHeader />
       <DashboardStats data={dashboardData?.stats} loading={loading} />
       <RevenueChart
         peakInfo={dashboardData?.revenueChart?.peakInfo}

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchProducts,
@@ -16,9 +17,15 @@ import {
   ProductsTable,
   ProductsPagination,
 } from './mainComponents/products';
+import { CreateProductForm } from './mainComponents/storage';
 
 export default function Inventory() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isCreating, setIsCreating] = useState(false);
+
   const {
     items,
     totalCount,
@@ -32,6 +39,29 @@ export default function Inventory() {
     viewMode,
   } = useAppSelector((state) => state.products);
 
+  // Sync URL query params with product filters or creation mode
+  useEffect(() => {
+    const statusParam = searchParams.get('status') as any;
+    const searchParam = searchParams.get('search');
+    const actionParam = searchParams.get('action');
+    const modeParam = searchParams.get('mode');
+
+    if (actionParam === 'create' || modeParam === 'create') {
+      setIsCreating(true);
+    }
+
+    if (statusParam || searchParam) {
+      dispatch(
+        setFilters({
+          ...(statusParam && ['all', 'active', 'low_stock', 'out_of_stock'].includes(statusParam)
+            ? { status: statusParam }
+            : {}),
+          ...(searchParam ? { search: searchParam } : {}),
+        })
+      );
+    }
+  }, [searchParams, dispatch]);
+
   // Initial load: fetch filter options once
   useEffect(() => {
     dispatch(fetchFilterOptions());
@@ -42,9 +72,132 @@ export default function Inventory() {
     dispatch(fetchProducts());
   }, [dispatch, page, filters]);
 
+  const convertBlobToBase64 = async (url: string): Promise<string> => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    if (!url.startsWith('blob:')) return url;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise<string>((resolve) => {
+        const img = new window.Image();
+        const imgUrl = URL.createObjectURL(blob);
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width;
+          let h = img.height;
+          const MAX = 800;
+          if (w > h && w > MAX) {
+            w *= MAX / w;
+            w = MAX;
+          } else if (h > MAX) {
+            w *= MAX / h;
+            h = MAX;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(imgUrl);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(imgUrl);
+          resolve('');
+        };
+        img.src = imgUrl;
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  const handleSaveProduct = async (formData: any) => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      let images: string[] = [];
+      if (formData.imageUrls && formData.imageUrls.length > 0) {
+        const converted = await Promise.all(
+          formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
+        );
+        images = converted.filter(Boolean);
+      }
+
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        brand: formData.brand,
+        price: formData.price,
+        selectedSizes: formData.selectedSizes,
+        selectedColors: formData.selectedColors,
+        sizeStocks: formData.sizeStocks,
+        variantStocks: formData.sizeStocks,
+        colorStocks: formData.colorStocks,
+        images,
+      };
+
+      const res = await fetch(`${apiUrl}/products`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setIsCreating(false);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('shop_ai_storage_mode');
+          localStorage.removeItem('shop_ai_create_product_draft');
+        }
+        const action = searchParams.get('action');
+        const mode = searchParams.get('mode');
+        if (action || mode) {
+          router.replace(pathname || '/inventory', { scroll: false });
+        }
+        dispatch(fetchProducts());
+        dispatch(fetchFilterOptions());
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || 'Failed to save product to database');
+      }
+    } catch (err) {
+      console.error('Error saving product to DB:', err);
+      alert('Network error while saving product');
+    }
+  };
+
+  const handleBackFromCreate = () => {
+    setIsCreating(false);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('shop_ai_storage_mode');
+    }
+    const action = searchParams.get('action');
+    const mode = searchParams.get('mode');
+    if (action || mode) {
+      router.replace(pathname || '/inventory', { scroll: false });
+    }
+  };
+
+  if (isCreating) {
+    return (
+      <div className="flex flex-col w-full animate-in fade-in slide-in-from-right-4 duration-200">
+        <CreateProductForm onBack={handleBackFromCreate} onSave={handleSaveProduct} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5 sm:p-7 lg:p-8">
-      <ProductsHeader totalCount={totalCount} loading={loading} />
+      <ProductsHeader
+        totalCount={totalCount}
+        loading={loading}
+        onAddItem={() => setIsCreating(true)}
+      />
 
       <ProductsFilters
         filters={filters}

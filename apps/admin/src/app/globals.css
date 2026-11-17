@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,650&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -23,13 +23,20 @@
   --accent-line: #BFDDD0;
 
   --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: 18px;
 
   --shadow-md: 0 6px 16px rgba(28,27,25,.06), 0 1px 2px rgba(28,27,25,.04);
   --shadow-lg: 0 24px 48px rgba(28,27,25,.09), 0 2px 8px rgba(28,27,25,.05);
 
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', -apple-system, sans-serif;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-bevel: inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  --glass-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 8px 32px rgba(28, 27, 25, 0.08);
+
+  --font-display: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 * {
@@ -50,6 +57,14 @@ body {
   color: var(--text);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+input, button, select, textarea {
+  font-family: inherit;
 }
 
 :focus-visible {
@@ -127,4 +142,12 @@ input[type="color"]::-moz-color-swatch {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.liquid-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }

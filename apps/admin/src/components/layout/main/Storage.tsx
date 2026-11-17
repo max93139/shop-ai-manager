@@ -114,6 +114,8 @@ export default function Storage() {
         price: formData.price,
         selectedSizes: formData.selectedSizes,
         selectedColors: formData.selectedColors,
+        sizeStocks: formData.sizeStocks,
+        variantStocks: formData.sizeStocks,
         colorStocks: formData.colorStocks,
         images,
       };

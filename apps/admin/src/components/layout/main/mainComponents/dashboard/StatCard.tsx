@@ -25,7 +25,7 @@ export default function StatCard({
   const isIncrease = changeType === 'increase';
 
   return (
-    <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] transition-all duration-200 hover:shadow-[0_6px_16px_rgba(28,27,25,0.06)]">
+    <div className="flex flex-col justify-between rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_2px_8px_rgba(28,27,25,0.03)] transition-all duration-200 hover:shadow-[0_6px_16px_rgba(28,27,25,0.06)] min-h-[148px]">
       {/* Card Header: Title & Icon */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-[13px] font-semibold text-[var(--text-secondary)]">
@@ -39,7 +39,7 @@ export default function StatCard({
       </div>
 
       {/* Metric Value */}
-      <div className="my-3 font-['Fraunces',Georgia,serif] text-[26px] sm:text-[30px] font-[650] tracking-[-0.02em] text-[var(--text)]">
+      <div className="my-3 font-sans text-[26px] sm:text-[30px] font-bold tracking-tight tabular-nums text-[var(--text)]">
         {value}
       </div>
 

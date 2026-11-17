@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductsPaginationProps {
   page: number;
@@ -18,11 +19,13 @@ export default function ProductsPagination({
   limit,
   onPageChange,
 }: ProductsPaginationProps) {
+  const { t } = useTranslation();
+
   if (totalPages <= 1) {
     return (
       <div className="flex justify-between items-center">
         <span className="text-[13px] text-[var(--text-tertiary)]">
-          Showing 1–{totalCount} of {totalCount}
+          {t.showingPrefix} 1–{totalCount} {t.showingOf} {totalCount}
         </span>
       </div>
     );
@@ -31,16 +34,13 @@ export default function ProductsPagination({
   const startItem = (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, totalCount);
 
-  // Calculate which page buttons to show
   const getPageNumbers = (): (number | 'ellipsis')[] => {
     const pages: (number | 'ellipsis')[] = [];
     const maxVisible = 5;
 
     if (totalPages <= maxVisible + 2) {
-      // Show all pages
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      // Always show first page
       pages.push(1);
 
       if (page > 3) pages.push('ellipsis');
@@ -51,7 +51,6 @@ export default function ProductsPagination({
 
       if (page < totalPages - 2) pages.push('ellipsis');
 
-      // Always show last page
       pages.push(totalPages);
     }
 
@@ -63,11 +62,10 @@ export default function ProductsPagination({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
       <span className="text-[13px] text-[var(--text-tertiary)] order-2 sm:order-1">
-        Showing {startItem}–{endItem} of {totalCount}
+        {t.showingPrefix} {startItem}–{endItem} {t.showingOf} {totalCount}
       </span>
 
       <div className="flex items-center gap-1 order-1 sm:order-2">
-        {/* Previous */}
         <button
           type="button"
           disabled={page === 1}
@@ -77,7 +75,6 @@ export default function ProductsPagination({
           <ChevronLeft className="h-4 w-4" />
         </button>
 
-        {/* Page numbers */}
         {pageNumbers.map((p, idx) =>
           p === 'ellipsis' ? (
             <span
@@ -99,10 +96,9 @@ export default function ProductsPagination({
             >
               {p}
             </button>
-          ),
+          )
         )}
 
-        {/* Next */}
         <button
           type="button"
           disabled={page === totalPages}

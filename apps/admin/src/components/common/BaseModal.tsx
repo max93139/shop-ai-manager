@@ -47,18 +47,18 @@ export default function BaseModal({
 
       {/* Modal Dialog Card */}
       <div
-        className={`relative z-10 w-full ${maxWidthClass} rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative z-10 w-full ${maxWidthClass} max-h-[90vh] flex flex-col rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-2xl transition-all duration-150`}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between pb-4">
-          <div>
+        <div className="flex items-start justify-between pb-4 shrink-0 border-b border-[var(--border)] mb-4">
+          <div className="min-w-0 pr-2">
             {title && (
-              <h3 className="font-['Fraunces',Georgia,serif] text-[18px] sm:text-[20px] font-[650] text-[var(--text)]">
+              <h3 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-[var(--text)] truncate">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-[12.5px] text-[var(--text-tertiary)] mt-0.5">
+              <p className="text-[12.5px] text-[var(--text-tertiary)] mt-0.5 truncate">
                 {description}
               </p>
             )}
@@ -66,14 +66,14 @@ export default function BaseModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[8px] p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors"
+            className="rounded-[8px] p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div>{children}</div>
+        <div className="overflow-y-auto no-scrollbar flex-1 min-h-0">{children}</div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import AddColorModal from './AddColorModal';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ColorOption {
   name: string;
@@ -15,25 +16,17 @@ export interface VariantBuilderProps {
   customSizes: string[];
   colors: ColorOption[];
   selectedColors: string[];
-  colorStocks: Record<string, number>;
+  sizeStocks: Record<string, number>;
   onProductTypeChange: (typeKey: string) => void;
   onSizeModeChange: (modeKey: string) => void;
   onSelectedSizesChange: (sizes: string[] | ((prev: string[]) => string[])) => void;
   onCustomSizesChange: (sizes: string[] | ((prev: string[]) => string[])) => void;
   onColorsChange: (colors: ColorOption[] | ((prev: ColorOption[]) => ColorOption[])) => void;
   onSelectedColorsChange: (colors: string[] | ((prev: string[]) => string[])) => void;
-  onColorStocksChange: (
+  onSizeStocksChange: (
     stocks: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)
   ) => void;
 }
-
-const PRODUCT_TYPES = [
-  { key: 'apparel', label: 'Apparel', sizeMode: 'clothing' },
-  { key: 'footwear', label: 'Footwear', sizeMode: 'shoe' },
-  { key: 'headwear', label: 'Headwear', sizeMode: 'onesize' },
-  { key: 'accessory', label: 'Accessories (belts, bags…)', sizeMode: 'onesize' },
-  { key: 'other', label: 'Other', sizeMode: 'custom' },
-];
 
 const SIZE_PRESETS: Record<string, string[]> = {
   clothing: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -42,13 +35,6 @@ const SIZE_PRESETS: Record<string, string[]> = {
   custom: [],
 };
 
-const SIZE_MODES = [
-  { key: 'clothing', label: 'Clothing (XS–XXL)' },
-  { key: 'shoe', label: 'Shoe size (EU)' },
-  { key: 'onesize', label: 'One size' },
-  { key: 'custom', label: 'Custom' },
-];
-
 export default function VariantBuilder({
   productType,
   sizeMode,
@@ -56,19 +42,35 @@ export default function VariantBuilder({
   customSizes,
   colors,
   selectedColors,
-  colorStocks,
+  sizeStocks,
   onProductTypeChange,
   onSizeModeChange,
   onSelectedSizesChange,
   onCustomSizesChange,
   onColorsChange,
   onSelectedColorsChange,
-  onColorStocksChange,
+  onSizeStocksChange,
 }: VariantBuilderProps) {
+  const { t, isUk, translateColor } = useTranslation();
   const [showAddSizeInput, setShowAddSizeInput] = useState(false);
   const [newSizeInput, setNewSizeInput] = useState('');
+  const [bulkStockInput, setBulkStockInput] = useState('');
 
-  // Add Color Modal State
+  const productTypes = [
+    { key: 'apparel', label: isUk ? 'Одяг' : 'Apparel', sizeMode: 'clothing' },
+    { key: 'footwear', label: isUk ? 'Взуття' : 'Footwear', sizeMode: 'shoe' },
+    { key: 'headwear', label: isUk ? 'Головні убори' : 'Headwear', sizeMode: 'onesize' },
+    { key: 'accessory', label: isUk ? 'Аксесуари (ремені, сумки…)' : 'Accessories (belts, bags…)', sizeMode: 'onesize' },
+    { key: 'other', label: isUk ? 'Інше' : 'Other', sizeMode: 'custom' },
+  ];
+
+  const sizeModes = [
+    { key: 'clothing', label: isUk ? 'Одяг (XS–XXL)' : 'Clothing (XS–XXL)' },
+    { key: 'shoe', label: isUk ? 'Розмір взуття (EU)' : 'Shoe size (EU)' },
+    { key: 'onesize', label: isUk ? 'Один розмір' : 'One size' },
+    { key: 'custom', label: isUk ? 'Власний' : 'Custom' },
+  ];
+
   const [isAddColorModalOpen, setIsAddColorModalOpen] = useState(false);
 
   // Pointer / Drag Swipe Selection for Size Chips
@@ -144,14 +146,9 @@ export default function VariantBuilder({
   const toggleColorSelection = (colorName: string) => {
     onSelectedColorsChange((prev) => {
       const isSelected = prev.includes(colorName);
-      const updated = isSelected
+      return isSelected
         ? prev.filter((c) => c !== colorName)
         : [...prev, colorName];
-
-      if (!isSelected && !(colorName in colorStocks)) {
-        onColorStocksChange((oldStocks) => ({ ...oldStocks, [colorName]: 10 }));
-      }
-      return updated;
     });
   };
 
@@ -162,25 +159,65 @@ export default function VariantBuilder({
     if (!selectedColors.includes(newColor.name)) {
       onSelectedColorsChange((prev) => [...prev, newColor.name]);
     }
-    if (!(newColor.name in colorStocks)) {
-      onColorStocksChange((prev) => ({ ...prev, [newColor.name]: 10 }));
-    }
   };
 
   const handleRemoveColor = (colorName: string) => {
     onColorsChange((prev) => prev.filter((c) => c.name !== colorName));
     onSelectedColorsChange((prev) => prev.filter((c) => c !== colorName));
-    onColorStocksChange((prev) => {
-      const copy = { ...prev };
-      delete copy[colorName];
-      return copy;
+  };
+
+  // Helper to read stock value for a size (and optional color)
+  const getStockForSize = (size: string, colorName?: string): number => {
+    if (colorName) {
+      const variantKey = `${colorName}:::${size}`;
+      if (variantKey in sizeStocks) return sizeStocks[variantKey];
+      return selectedColors.length <= 1 ? (sizeStocks[size] ?? 0) : 0;
+    }
+    return sizeStocks[size] ?? 0;
+  };
+
+  // Stock Change Handler
+  const handleStockValueChange = (size: string, value: string, colorName?: string) => {
+    const parsed = parseInt(value, 10);
+    const num = isNaN(parsed) ? 0 : Math.max(0, parsed);
+
+    onSizeStocksChange((prev) => {
+      const updated = { ...prev };
+      if (colorName) {
+        updated[`${colorName}:::${size}`] = num;
+        const colorsList = selectedColors.length > 0 ? selectedColors : [colorName];
+        const aggregatedStock = colorsList.reduce((sum, c) => {
+          const key = `${c}:::${size}`;
+          return sum + (key in updated ? (updated[key] ?? 0) : (prev[key] ?? 0));
+        }, 0);
+        updated[size] = aggregatedStock;
+      } else {
+        updated[size] = num;
+      }
+      return updated;
     });
   };
 
-  const handleStockValueChange = (colorName: string, value: string) => {
-    const parsed = parseInt(value, 10);
+  // Bulk Apply Stock to all selected sizes
+  const handleApplyBulkStock = () => {
+    const parsed = parseInt(bulkStockInput, 10);
     const num = isNaN(parsed) ? 0 : Math.max(0, parsed);
-    onColorStocksChange((prev) => ({ ...prev, [colorName]: num }));
+
+    onSizeStocksChange((prev) => {
+      const updated = { ...prev };
+      for (const s of selectedSizes) {
+        if (selectedColors.length > 0) {
+          for (const c of selectedColors) {
+            updated[`${c}:::${s}`] = num;
+          }
+          updated[s] = num * selectedColors.length;
+        } else {
+          updated[s] = num;
+        }
+      }
+      return updated;
+    });
+    setBulkStockInput('');
   };
 
   const baseSizes = SIZE_PRESETS[sizeMode] || [];
@@ -189,9 +226,15 @@ export default function VariantBuilder({
     ...customSizes.filter((cs) => !baseSizes.includes(cs)),
   ];
 
-  const totalStockSum = selectedColors.reduce((acc, colName) => {
-    return acc + (colorStocks[colName] ?? 0);
-  }, 0);
+  // Calculate Total Stock Sum
+  const effectiveColors = selectedColors.length > 0 ? selectedColors : ['Standard'];
+  const effectiveSizes = selectedSizes.length > 0 ? selectedSizes : (sizeMode === 'onesize' ? ['One size'] : []);
+
+  const totalStockSum = selectedColors.length > 1
+    ? effectiveColors.reduce((acc, col) => {
+        return acc + effectiveSizes.reduce((sAcc, sz) => sAcc + getStockForSize(sz, col), 0);
+      }, 0)
+    : effectiveSizes.reduce((acc, sz) => acc + getStockForSize(sz), 0);
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm flex flex-col select-none">
@@ -204,12 +247,16 @@ export default function VariantBuilder({
 
       {/* Product Type */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)]">Product type</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)]">
+          {isUk ? 'Тип товару' : 'Product type'}
+        </h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Choosing a type sets a sensible size preset below — you can still edit it freely.
+          {isUk
+            ? 'Вибір типу встановлює шаблон розмірів — ви можете вільно редагувати його.'
+            : 'Choosing a type sets a sensible size preset below — you can still edit it freely.'}
         </p>
         <div className="flex flex-wrap gap-2">
-          {PRODUCT_TYPES.map((t) => (
+          {productTypes.map((t) => (
             <button
               key={t.key}
               type="button"
@@ -231,13 +278,17 @@ export default function VariantBuilder({
 
       {/* Sizes Section */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)] mb-1">Sizes</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)] mb-1">
+          {t.sizesSectionTitle}
+        </h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Pick a size format, then select or swipe across sizes to toggle multiple at once.
+          {isUk
+            ? 'Оберіть формат розмірів та натискайте або проводьте для вибору кількох.'
+            : 'Pick a size format, then select or swipe across sizes to toggle multiple at once.'}
         </p>
         {/* Segmented Control */}
         <div className="inline-flex rounded-[10px] bg-[var(--surface-sunken)] p-1 gap-1 mb-3.5 flex-wrap">
-          {SIZE_MODES.map((m) => (
+          {sizeModes.map((m) => (
             <button
               key={m.key}
               type="button"
@@ -263,7 +314,7 @@ export default function VariantBuilder({
               type="button"
               className="rounded-[8px] border border-[var(--accent)] bg-[var(--accent-soft)] px-3.5 py-2 text-[12.5px] font-semibold text-[var(--accent-hover)]"
             >
-              One size
+              {isUk ? 'Один розмір' : 'One size'}
             </button>
           ) : (
             <>
@@ -307,7 +358,7 @@ export default function VariantBuilder({
                 onClick={() => setShowAddSizeInput(!showAddSizeInput)}
                 className="rounded-[8px] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-3.5 py-2 text-[12.5px] font-semibold text-[var(--text-tertiary)] hover:text-[var(--text)] hover:border-[var(--text-tertiary)]"
               >
-                + Add
+                {isUk ? '+ Додати' : '+ Add'}
               </button>
             </>
           )}
@@ -321,7 +372,7 @@ export default function VariantBuilder({
               value={newSizeInput}
               onChange={(e) => setNewSizeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSize()}
-              placeholder="e.g. 56 cm, Kids M, 3XL"
+              placeholder={isUk ? 'напр. 56 см, Kids M, 3XL' : 'e.g. 56 cm, Kids M, 3XL'}
               className="max-w-[200px] rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
             />
             <button
@@ -329,7 +380,7 @@ export default function VariantBuilder({
               onClick={handleAddCustomSize}
               className="rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-soft)]"
             >
-              Add size
+              {t.addCustomSizeBtn}
             </button>
           </div>
         )}
@@ -340,9 +391,11 @@ export default function VariantBuilder({
 
       {/* Colors Section */}
       <div>
-        <h2 className="text-[15px] font-bold text-[var(--text)]">Colors</h2>
+        <h2 className="text-[15px] font-bold text-[var(--text)]">{t.colorsSectionTitle}</h2>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3">
-          Any color can be added — not limited to a fixed palette.
+          {isUk
+            ? 'Можна додати будь-який колір без обмежень палітри.'
+            : 'Any color can be added — not limited to a fixed palette.'}
         </p>
         <div className="flex flex-wrap gap-2.5 items-center">
           {colors.map((c) => {
@@ -363,7 +416,7 @@ export default function VariantBuilder({
                   className="h-4 w-4 rounded-full border border-black/15 shrink-0"
                   style={{ backgroundColor: c.hex }}
                 />
-                <span>{c.name}</span>
+                <span>{translateColor(c.name)}</span>
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
@@ -383,64 +436,146 @@ export default function VariantBuilder({
           onClick={() => setIsAddColorModalOpen(true)}
           className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--border-strong)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--text-tertiary)] hover:text-[var(--text)] hover:border-[var(--text-tertiary)] transition-colors"
         >
-          + Add color
+          {t.addColorBtn}
         </button>
       </div>
 
       {/* Dotted Divider */}
       <div className="my-5 h-[1px] w-full border-b border-dashed border-[var(--border-strong)]" />
 
-      {/* Inventory Section (Per-Color Stock Inputs) */}
+      {/* Inventory Section (Per-Size Stock Inputs) */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-[15px] font-bold text-[var(--text)]">Inventory</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h2 className="text-[15px] font-bold text-[var(--text)]">{t.stockPerSizeTitle}</h2>
           <span className="text-[12px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2.5 py-1 rounded-full">
-            Total: {totalStockSum} in stock
+            {isUk ? `Разом: ${totalStockSum} од. на складі` : `Total: ${totalStockSum} in stock`}
           </span>
         </div>
         <p className="text-[12px] text-[var(--text-tertiary)] mb-3.5">
-          Specify quantity in stock for each selected color.
+          {isUk
+            ? 'Вкажіть кількість в наявності для кожного обраного розміру.'
+            : 'Specify quantity in stock for each selected size.'}
         </p>
 
-        {selectedColors.length === 0 ? (
-          <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 text-[13px] text-[var(--text-tertiary)]">
-            Select at least one color above to set stock quantity.
+        {/* Quick Bulk Stock Fill Toolbar */}
+        {effectiveSizes.length > 1 && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface-soft)] p-2.5">
+            <span className="text-[12px] font-medium text-[var(--text-secondary)]">
+              {isUk ? 'Встановити всім розмірам:' : 'Set all sizes to:'}
+            </span>
+            <input
+              type="number"
+              min="0"
+              placeholder={isUk ? 'напр. 5' : 'e.g. 5'}
+              value={bulkStockInput}
+              onChange={(e) => setBulkStockInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleApplyBulkStock()}
+              className="w-20 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-center text-[12.5px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleApplyBulkStock}
+              className="rounded-[6px] bg-[var(--accent)] px-3 py-1 text-[12px] font-semibold text-white hover:bg-[var(--accent-hover)] transition-all"
+            >
+              {t.applyBtn}
+            </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        )}
+
+        {effectiveSizes.length === 0 ? (
+          <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 text-[13px] text-[var(--text-tertiary)]">
+            {isUk
+              ? 'Оберіть хоча б один розмір вище, щоб вказати залишок.'
+              : 'Select at least one size above to specify stock quantity.'}
+          </div>
+        ) : selectedColors.length > 1 ? (
+          /* Multi-color Matrix: Grouped by Selected Color */
+          <div className="flex flex-col gap-4">
             {selectedColors.map((colorName) => {
               const matchedColorObj = colors.find((c) => c.name === colorName);
               const hexVal = matchedColorObj?.hex || '#000000';
-              const stockVal = colorStocks[colorName] ?? 0;
 
               return (
                 <div
                   key={colorName}
-                  className="flex items-center justify-between rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 gap-3"
+                  className="rounded-[12px] border border-[var(--border)] bg-[var(--surface-soft)] p-3.5"
                 >
-                  <div className="flex items-center gap-2 shrink-0 overflow-hidden">
+                  <div className="flex items-center gap-2 mb-3">
                     <span
-                      className="h-4 w-4 rounded-full border border-black/15 shrink-0"
+                      className="h-3.5 w-3.5 rounded-full border border-black/15 shrink-0"
                       style={{ backgroundColor: hexVal }}
                     />
-                    <span className="text-[13px] font-semibold text-[var(--text)] truncate max-w-[120px]">
-                      {colorName}
+                    <span className="text-[13px] font-bold text-[var(--text)]">
+                      {translateColor(colorName)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11.5px] font-medium text-[var(--text-tertiary)]">
-                      Stock:
-                    </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+                    {effectiveSizes.map((sz) => {
+                      const stockVal = getStockForSize(sz, colorName);
+                      return (
+                        <div
+                          key={sz}
+                          className="flex items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-2 min-w-0"
+                        >
+                          <span className="flex h-8 min-w-[32px] shrink-0 items-center justify-center rounded-[6px] border border-[var(--border)] bg-[var(--surface-sunken)] px-1.5 text-[12.5px] font-bold text-[var(--text)]">
+                            {sz}
+                          </span>
+                          <div className="relative flex-1 min-w-0">
+                            <input
+                              type="number"
+                              min="0"
+                              value={stockVal === 0 ? '' : stockVal}
+                              placeholder="0"
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) =>
+                                handleStockValueChange(sz, e.target.value, colorName)
+                              }
+                              className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                            />
+                            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
+                              {isUk ? 'шт' : 'pcs'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Single Color or Default Color: Direct Grid of Size Inputs */
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+            {effectiveSizes.map((sz) => {
+              const primaryColor = selectedColors[0];
+              const stockVal = getStockForSize(sz, primaryColor);
+
+              return (
+                <div
+                  key={sz}
+                  className="flex items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--surface-soft)] p-2 min-w-0"
+                >
+                  <span className="flex h-8 min-w-[34px] shrink-0 items-center justify-center rounded-[6px] border border-[var(--border)] bg-[var(--surface)] px-1.5 text-[13px] font-bold text-[var(--text)] shadow-xs">
+                    {sz}
+                  </span>
+
+                  <div className="relative flex-1 min-w-0">
                     <input
                       type="number"
                       min="0"
                       value={stockVal === 0 ? '' : stockVal}
                       placeholder="0"
                       onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleStockValueChange(colorName, e.target.value)}
-                      className="w-20 rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1.5 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
+                      onChange={(e) =>
+                        handleStockValueChange(sz, e.target.value, primaryColor)
+                      }
+                      className="w-full rounded-[6px] border border-[var(--border-strong)] bg-[var(--surface)] py-1 pl-2 pr-7 text-center text-[13px] font-semibold text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                     />
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-medium text-[var(--text-tertiary)]">
+                      {isUk ? 'шт' : 'pcs'}
+                    </span>
                   </div>
                 </div>
               );

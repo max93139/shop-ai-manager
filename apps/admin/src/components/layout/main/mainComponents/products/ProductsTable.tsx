@@ -9,6 +9,7 @@ import {
   deleteVariant,
   type ProductItem,
 } from '../../../../../store/slices/productsSlice';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface ProductsTableProps {
   items: ProductItem[];
@@ -16,12 +17,17 @@ export interface ProductsTableProps {
   viewMode: 'table' | 'grid';
 }
 
-/* ─── Status badge ─── */
-function StatusBadge({ status }: { status: ProductItem['status'] }) {
+function StatusBadge({
+  status,
+  labels,
+}: {
+  status: ProductItem['status'];
+  labels: { active: string; low_stock: string; out_of_stock: string };
+}) {
   const config = {
-    active: { label: 'Active', dot: 'bg-[#0F6B4F]', bg: 'bg-[#E7F2ED]', text: 'text-[#0F6B4F]' },
-    low_stock: { label: 'Low stock', dot: 'bg-[#B7791F]', bg: 'bg-[#FEFCBF]', text: 'text-[#B7791F]' },
-    out_of_stock: { label: 'Out of stock', dot: 'bg-[#B84343]', bg: 'bg-[#FBECEC]', text: 'text-[#B84343]' },
+    active: { label: labels.active, dot: 'bg-[#0F6B4F]', bg: 'bg-[#E7F2ED]', text: 'text-[#0F6B4F]' },
+    low_stock: { label: labels.low_stock, dot: 'bg-[#B7791F]', bg: 'bg-[#FEFCBF]', text: 'text-[#B7791F]' },
+    out_of_stock: { label: labels.out_of_stock, dot: 'bg-[#B84343]', bg: 'bg-[#FBECEC]', text: 'text-[#B84343]' },
   }[status];
 
   return (
@@ -32,9 +38,7 @@ function StatusBadge({ status }: { status: ProductItem['status'] }) {
   );
 }
 
-/* ─── Color swatch ─── */
-function ColorSwatch({ color }: { color: string }) {
-  // Try to interpret the color string as a CSS color
+function ColorSwatch({ color, title }: { color: string; title?: string }) {
   const colorMap: Record<string, string> = {
     black: '#1a1a1a',
     white: '#f5f5f5',
@@ -75,17 +79,16 @@ function ColorSwatch({ color }: { color: string }) {
     <span
       className={`inline-block h-5 w-5 rounded-full shrink-0 ${isLight ? 'border border-[var(--border-strong)]' : 'border border-transparent'}`}
       style={{ backgroundColor: bg }}
-      title={color}
+      title={title || color}
     />
   );
 }
 
-/* ─── Product image thumbnail ─── */
 function ProductImage({ images, name }: { images: string[]; name: string }) {
   const src = images?.[0];
   if (!src) {
     return (
-      <div className="flex items-center justify-center bg-[var(--surface-sunken)] rounded-[10px] w-full aspect-[4/3] text-[var(--text-tertiary)]">
+      <div className="flex items-center justify-center bg-[var(--surface-sunken)] w-full h-full text-[var(--text-tertiary)]">
         <Package className="h-8 w-8" />
       </div>
     );
@@ -94,13 +97,12 @@ function ProductImage({ images, name }: { images: string[]; name: string }) {
     <img
       src={src}
       alt={name}
-      className="w-full aspect-[4/3] object-cover rounded-[10px] bg-[var(--surface-sunken)]"
+      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       loading="lazy"
     />
   );
 }
 
-/* ─── Small thumbnail for table rows ─── */
 function ProductThumb({ images, name }: { images: string[]; name: string }) {
   const src = images?.[0];
   if (!src) {
@@ -120,8 +122,13 @@ function ProductThumb({ images, name }: { images: string[]; name: string }) {
   );
 }
 
-/* ─── Interactive Stock Control (+ / - / click edit) ─── */
-function StockControl({ item }: { item: ProductItem }) {
+function StockControl({
+  item,
+  titles,
+}: {
+  item: ProductItem;
+  titles: { decrease: string; increase: string; clickToEdit: string };
+}) {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState(String(item.stock));
@@ -138,7 +145,7 @@ function StockControl({ item }: { item: ProductItem }) {
         onClick={() => handleUpdate(item.stock - 1)}
         disabled={item.stock <= 0}
         className="flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed"
-        title="Decrease stock"
+        title={titles.decrease}
       >
         -
       </button>
@@ -171,7 +178,7 @@ function StockControl({ item }: { item: ProductItem }) {
             setIsEditing(true);
           }}
           className="cursor-pointer min-w-[24px] text-center font-bold text-[var(--text)] hover:underline"
-          title="Click to edit stock"
+          title={titles.clickToEdit}
         >
           {item.stock}
         </span>
@@ -180,7 +187,7 @@ function StockControl({ item }: { item: ProductItem }) {
         type="button"
         onClick={() => handleUpdate(item.stock + 1)}
         className="flex h-6 w-6 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-soft)] text-[12px] font-bold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sunken)] hover:text-[var(--text)]"
-        title="Increase stock"
+        title={titles.increase}
       >
         +
       </button>
@@ -188,8 +195,13 @@ function StockControl({ item }: { item: ProductItem }) {
   );
 }
 
-/* ─── Interactive Price Control (click to edit / inline input) ─── */
-function PriceControl({ item }: { item: ProductItem }) {
+function PriceControl({
+  item,
+  title,
+}: {
+  item: ProductItem;
+  title: string;
+}) {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState(String(item.price));
@@ -207,7 +219,7 @@ function PriceControl({ item }: { item: ProductItem }) {
   if (isEditing) {
     return (
       <div className="flex items-center gap-0.5">
-        <span className="text-[13px] font-bold text-[var(--text-secondary)]">$</span>
+        <span className="text-[13px] font-bold text-[var(--text-secondary)]">₴</span>
         <input
           type="number"
           step="0.01"
@@ -232,16 +244,23 @@ function PriceControl({ item }: { item: ProductItem }) {
         setVal(String(item.price));
         setIsEditing(true);
       }}
-      className="cursor-pointer font-bold text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
-      title="Click to edit price"
+      className="cursor-pointer font-bold tabular-nums text-[var(--text)] hover:underline hover:text-[var(--accent)] transition-colors"
+      title={title}
     >
-      ${item.price}
+      ₴{item.price}
     </span>
   );
 }
 
-/* ─── Delete Button with Confirmation ─── */
-function DeleteButton({ variantId, productName }: { variantId: string; productName: string }) {
+function DeleteButton({
+  variantId,
+  productName,
+  labels,
+}: {
+  variantId: string;
+  productName: string;
+  labels: { delete: string; cancel: string; tooltip: string };
+}) {
   const dispatch = useAppDispatch();
   const [confirming, setConfirming] = useState(false);
 
@@ -251,20 +270,20 @@ function DeleteButton({ variantId, productName }: { variantId: string; productNa
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="rounded bg-[#B84343] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
-        >
-          Delete
-        </button>
+      <div className="flex items-center justify-end gap-1.5">
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] transition-colors"
+          className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] transition-colors"
         >
-          Cancel
+          {labels.cancel}
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="rounded bg-[#B84343] px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
+        >
+          {labels.delete}
         </button>
       </div>
     );
@@ -275,14 +294,13 @@ function DeleteButton({ variantId, productName }: { variantId: string; productNa
       type="button"
       onClick={() => setConfirming(true)}
       className="p-1.5 text-[var(--text-tertiary)] transition-colors hover:text-[#B84343] rounded hover:bg-[var(--surface-soft)]"
-      title={`Delete ${productName}`}
+      title={`${labels.tooltip} ${productName}`}
     >
       <Trash2 className="h-4 w-4" />
     </button>
   );
 }
 
-/* ─── Skeleton rows ─── */
 function TableSkeleton() {
   return (
     <>
@@ -309,51 +327,85 @@ function TableSkeleton() {
   );
 }
 
-/* ─── Grid card ─── */
-function ProductCard({ item }: { item: ProductItem }) {
-  return (
-    <div className="flex flex-col rounded-[14px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-      {/* Product Image */}
-      <ProductImage images={item.images} name={item.name} />
+function ProductCard({
+  item,
+}: {
+  item: ProductItem;
+}) {
+  const { t, translateCategory, translateColor } = useTranslation();
 
-      <div className="flex flex-col p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex flex-col min-w-0 flex-1 mr-2">
-            <span className="text-[14px] font-semibold text-[var(--text)] truncate">{item.name}</span>
-            <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">{item.sku}</span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <StatusBadge status={item.status} />
-            <DeleteButton variantId={item.variantId} productName={item.name} />
-          </div>
+  const statusLabels = {
+    active: t.statusActive,
+    low_stock: t.statusLowStock,
+    out_of_stock: t.statusOutOfStock,
+  };
+
+  const actionLabels = {
+    delete: t.actionDelete,
+    cancel: t.actionCancel,
+    tooltip: t.deleteTooltip,
+  };
+
+  const stockTitles = {
+    decrease: t.decreaseStock,
+    increase: t.increaseStock,
+    clickToEdit: t.clickToEditStock,
+  };
+
+  return (
+    <div className="group flex flex-col rounded-[16px] border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
+      <div className="relative w-full aspect-[4/3] bg-[var(--surface-sunken)] overflow-hidden">
+        <ProductImage images={item.images} name={item.name} />
+        <div className="absolute top-2.5 left-2.5 z-10">
+          <StatusBadge status={item.status} labels={statusLabels} />
+        </div>
+        <div className="absolute top-2.5 right-2.5 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
+          <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
+        </div>
+      </div>
+
+      <div className="flex flex-col p-4 gap-3 flex-1 justify-between">
+        <div className="flex flex-col gap-1 min-w-0">
+          <span className="text-[14.5px] font-semibold text-[var(--text)] line-clamp-2 leading-snug">
+            {item.name}
+          </span>
+          <span className="text-[11.5px] text-[var(--text-tertiary)] font-mono">
+            {item.sku}
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 mb-2.5">
-          <ColorSwatch color={item.color} />
-          <span className="text-[13px] text-[var(--text-secondary)]">{item.color}</span>
-          <span className="text-[var(--text-tertiary)]">·</span>
-          <span className="text-[13px] text-[var(--text-secondary)]">{item.size}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2 py-1">
+            <ColorSwatch color={item.color} title={translateColor(item.color)} />
+            <span className="text-[12px] font-medium text-[var(--text-secondary)]">
+              {translateColor(item.color)}
+            </span>
+          </div>
+          <span className="inline-flex items-center rounded-md bg-[var(--surface-soft)] px-2 py-1 text-[12px] font-semibold text-[var(--text-secondary)]">
+            {item.size}
+          </span>
         </div>
 
         <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)]">
           <div className="flex flex-col">
-            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">Stock</span>
-            <StockControl item={item} />
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">
+              {t.thStock}
+            </span>
+            <StockControl item={item} titles={stockTitles} />
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">Price</span>
-            <PriceControl item={item} />
+            <span className="text-[11px] text-[var(--text-tertiary)] uppercase tracking-wide font-semibold mb-1">
+              {t.thPrice}
+            </span>
+            <PriceControl item={item} title={t.clickToEditPrice} />
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-[var(--border)]">
+        <div className="flex items-center justify-between text-[12px] text-[var(--text-secondary)] pt-2 border-t border-[var(--border)]">
+          <span className="font-medium truncate max-w-[140px]">{translateCategory(item.category)}</span>
           {item.brand && (
-            <>
-              <span className="text-[12px] text-[var(--text-secondary)] font-medium">{item.brand}</span>
-              <span className="text-[var(--text-tertiary)]">·</span>
-            </>
+            <span className="font-semibold text-[var(--text-tertiary)] truncate max-w-[100px]">{item.brand}</span>
           )}
-          <span className="text-[12px] text-[var(--text-secondary)]">{item.category}</span>
         </div>
       </div>
     </div>
@@ -361,6 +413,26 @@ function ProductCard({ item }: { item: ProductItem }) {
 }
 
 export default function ProductsTable({ items, loading, viewMode }: ProductsTableProps) {
+  const { t, translateCategory, translateColor } = useTranslation();
+
+  const statusLabels = {
+    active: t.statusActive,
+    low_stock: t.statusLowStock,
+    out_of_stock: t.statusOutOfStock,
+  };
+
+  const actionLabels = {
+    delete: t.actionDelete,
+    cancel: t.actionCancel,
+    tooltip: t.deleteTooltip,
+  };
+
+  const stockTitles = {
+    decrease: t.decreaseStock,
+    increase: t.increaseStock,
+    clickToEdit: t.clickToEditStock,
+  };
+
   if (loading) {
     if (viewMode === 'grid') {
       return (
@@ -379,15 +451,15 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
             <thead>
               <tr className="border-b border-[var(--border)] text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                 <th className="pb-3 pt-4 pl-4 w-10" />
-                <th className="pb-3 pt-4 pl-3 font-bold">Product</th>
-                <th className="pb-3 pt-4 font-bold">Category</th>
-                <th className="pb-3 pt-4 font-bold">Brand</th>
-                <th className="pb-3 pt-4 font-bold">Color</th>
-                <th className="pb-3 pt-4 font-bold">Size</th>
-                <th className="pb-3 pt-4 font-bold">Stock</th>
-                <th className="pb-3 pt-4 font-bold">Price</th>
-                <th className="pb-3 pt-4 font-bold">Status</th>
-                <th className="pb-3 pt-4 pr-4 font-bold text-right">Actions</th>
+                <th className="pb-3 pt-4 pl-3 font-bold">{t.thProduct}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thCategory}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thBrand}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thColor}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thSize}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thStock}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thPrice}</th>
+                <th className="pb-3 pt-4 font-bold">{t.thStatus}</th>
+                <th className="pb-3 pt-4 pr-4 font-bold text-right">{t.thActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -403,8 +475,8 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">
         <Package className="h-10 w-10 text-[var(--text-tertiary)] mb-3" />
-        <p className="text-[15px] font-medium text-[var(--text-secondary)]">No products found</p>
-        <p className="text-[13px] text-[var(--text-tertiary)] mt-1">Try adjusting your filters or search query.</p>
+        <p className="text-[15px] font-medium text-[var(--text-secondary)]">{t.noProductsFound}</p>
+        <p className="text-[13px] text-[var(--text-tertiary)] mt-1">{t.noProductsFoundSub}</p>
       </div>
     );
   }
@@ -428,26 +500,24 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
               <th className="pb-3 pt-4 pl-4 w-10">
                 <input type="checkbox" className="rounded border-[var(--border-strong)] accent-[var(--accent)]" />
               </th>
-              <th className="pb-3 pt-4 pl-3 font-bold">Product</th>
-              <th className="pb-3 pt-4 font-bold">Category</th>
-              <th className="pb-3 pt-4 font-bold">Brand</th>
-              <th className="pb-3 pt-4 font-bold">Color</th>
-              <th className="pb-3 pt-4 font-bold">Size</th>
-              <th className="pb-3 pt-4 font-bold">Stock</th>
-              <th className="pb-3 pt-4 font-bold">Price</th>
-              <th className="pb-3 pt-4 font-bold">Status</th>
-              <th className="pb-3 pt-4 pr-4 font-bold text-right">Actions</th>
+              <th className="pb-3 pt-4 pl-3 font-bold">{t.thProduct}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thCategory}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thBrand}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thColor}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thSize}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thStock}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thPrice}</th>
+              <th className="pb-3 pt-4 font-bold">{t.thStatus}</th>
+              <th className="pb-3 pt-4 pr-4 font-bold text-right">{t.thActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)] text-[13.5px]">
             {items.map((item) => (
               <tr key={item.variantId} className="transition-colors hover:bg-[var(--surface-soft)]">
-                {/* Checkbox */}
                 <td className="py-3.5 pl-4">
                   <input type="checkbox" className="rounded border-[var(--border-strong)] accent-[var(--accent)]" />
                 </td>
 
-                {/* Product image + name + SKU */}
                 <td className="py-3.5 pl-3">
                   <div className="flex items-center gap-3">
                     <ProductThumb images={item.images} name={item.name} />
@@ -458,41 +528,32 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                   </div>
                 </td>
 
-                {/* Category */}
-                <td className="py-3.5 text-[var(--text-secondary)]">{item.category}</td>
-
-                {/* Brand */}
+                <td className="py-3.5 text-[var(--text-secondary)]">{translateCategory(item.category)}</td>
                 <td className="py-3.5 text-[var(--text-secondary)]">{item.brand || '—'}</td>
 
-                {/* Color */}
                 <td className="py-3.5">
                   <div className="flex items-center gap-2">
-                    <ColorSwatch color={item.color} />
-                    <span className="text-[var(--text-secondary)] hidden lg:inline">{item.color}</span>
+                    <ColorSwatch color={item.color} title={translateColor(item.color)} />
+                    <span className="text-[var(--text-secondary)] hidden lg:inline">{translateColor(item.color)}</span>
                   </div>
                 </td>
 
-                {/* Size */}
                 <td className="py-3.5 text-[var(--text-secondary)]">{item.size}</td>
 
-                {/* Stock - Interactive +/- and click to edit */}
                 <td className="py-3.5 font-semibold text-[var(--text)]">
-                  <StockControl item={item} />
+                  <StockControl item={item} titles={stockTitles} />
                 </td>
 
-                {/* Price - Interactive click to edit */}
                 <td className="py-3.5 font-semibold text-[var(--text)]">
-                  <PriceControl item={item} />
+                  <PriceControl item={item} title={t.clickToEditPrice} />
                 </td>
 
-                {/* Status */}
                 <td className="py-3.5">
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} labels={statusLabels} />
                 </td>
 
-                {/* Actions (Delete) */}
                 <td className="py-3.5 pr-4 text-right">
-                  <DeleteButton variantId={item.variantId} productName={item.name} />
+                  <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
                 </td>
               </tr>
             ))}

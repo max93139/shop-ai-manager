@@ -14,6 +14,7 @@ import type { ColorOption } from './form/VariantBuilder';
 export interface CreateProductFormProps {
   onBack: () => void;
   onSave?: (data: any) => void;
+  productId?: string;
 }
 
 const DEFAULT_COLORS: ColorOption[] = [
@@ -70,7 +71,7 @@ const CATEGORIES = [
 
 const DRAFT_STORAGE_KEY = 'shop_ai_create_product_draft';
 
-export default function CreateProductForm({ onBack, onSave }: CreateProductFormProps) {
+export default function CreateProductForm({ onBack, onSave, productId }: CreateProductFormProps) {
   // Product Basic State
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Outerwear');
@@ -80,10 +81,9 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
   // Telegram Publish Modal State
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
 
-  // Per-color Stock State
-  const [colorStocks, setColorStocks] = useState<Record<string, number>>({
-    Charcoal: 20,
-    Camel: 14,
+  // Per-Size Stock State (maps size name or 'color:::size' to quantity)
+  const [sizeStocks, setSizeStocks] = useState<Record<string, number>>({
+    M: 5,
   });
 
   // Image Upload State
@@ -120,7 +120,18 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         if (parsed.customSizes) setCustomSizes(parsed.customSizes);
         if (parsed.colors) setColors(parsed.colors);
         if (parsed.selectedColors) setSelectedColors(parsed.selectedColors);
-        if (parsed.colorStocks) setColorStocks(parsed.colorStocks);
+        if (parsed.sizeStocks) {
+          setSizeStocks(parsed.sizeStocks);
+        } else if (parsed.colorStocks) {
+          // Backward compatibility migration for old drafts
+          const migrated: Record<string, number> = {};
+          if (parsed.selectedSizes) {
+            for (const sz of parsed.selectedSizes) {
+              migrated[sz] = 5;
+            }
+          }
+          setSizeStocks(migrated);
+        }
       }
     } catch (err) {
       console.error('Failed to restore draft from localStorage:', err);
@@ -142,7 +153,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         customSizes,
         colors,
         selectedColors,
-        colorStocks,
+        sizeStocks,
       };
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
     } catch (err) {
@@ -159,7 +170,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
     customSizes,
     colors,
     selectedColors,
-    colorStocks,
+    sizeStocks,
   ]);
 
   const handleProductTypeChange = (typeKey: string) => {
@@ -174,12 +185,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         : 'clothing';
 
     setSizeMode(presetMode);
-    setSelectedSizes(presetMode === 'onesize' ? ['One size'] : []);
+    const initialSizes = presetMode === 'onesize' ? ['One size'] : [];
+    setSelectedSizes(initialSizes);
   };
 
   const handleSizeModeChange = (modeKey: string) => {
     setSizeMode(modeKey);
-    setSelectedSizes(modeKey === 'onesize' ? ['One size'] : []);
+    const initialSizes = modeKey === 'onesize' ? ['One size'] : [];
+    setSelectedSizes(initialSizes);
   };
 
   const handleAddBrandOption = (newBrand: string) => {
@@ -202,7 +215,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
       price,
       selectedSizes,
       selectedColors,
-      colorStocks,
+      sizeStocks,
       imageUrls,
     });
   };
@@ -214,6 +227,7 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
         isOpen={isTelegramModalOpen}
         onClose={() => setIsTelegramModalOpen(false)}
         productData={{
+          id: productId,
           name,
           category,
           brand,
@@ -250,14 +264,14 @@ export default function CreateProductForm({ onBack, onSave }: CreateProductFormP
             customSizes={customSizes}
             colors={colors}
             selectedColors={selectedColors}
-            colorStocks={colorStocks}
+            sizeStocks={sizeStocks}
             onProductTypeChange={handleProductTypeChange}
             onSizeModeChange={handleSizeModeChange}
             onSelectedSizesChange={setSelectedSizes}
             onCustomSizesChange={setCustomSizes}
             onColorsChange={setColors}
             onSelectedColorsChange={setSelectedColors}
-            onColorStocksChange={setColorStocks}
+            onSizeStocksChange={setSizeStocks}
           />
         </div>
 
