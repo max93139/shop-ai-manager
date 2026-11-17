@@ -5,6 +5,7 @@ import { prisma } from '@shop-ai/database';
 import { LOW_STOCK_THRESHOLD } from '@shop-ai/types';
 import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
 import { createPrismaSessionStorage } from './session-storage';
+import { createMonobankInvoice } from './monobank';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
@@ -1259,6 +1260,23 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
         reply_markup: getMainMenuKeyboard(),
       },
     );
+
+    const payment = await createMonobankInvoice({
+      orderId: order.id,
+      orderNumber: `#${shortOrderNum}`,
+      total: totalAmount,
+      redirectUrl: `https://t.me/${ctx.me.username}`,
+    });
+    if (payment) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentInvoiceId: payment.invoiceId, paymentUrl: payment.pageUrl },
+      });
+      await ctx.reply(
+        `💳 Можна оплатити замовлення #${shortOrderNum} карткою зараз або готівкою при отриманні на пошті. Посилання дійсне 24 години.`,
+        { reply_markup: new InlineKeyboard().url(`Оплатити ${totalAmount.toFixed(2)} ₴`, payment.pageUrl) },
+      );
+    }
   } catch (err) {
     console.error('Error creating order from Telegram Bot:', err);
     await ctx.reply('Помилка під час оформлення замовлення. Спробуйте пізніше.');
