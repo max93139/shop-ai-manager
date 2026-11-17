@@ -23,15 +23,17 @@ enum OrderStatus {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  telegramId BigInt?  @unique
-  email      String?  @unique
-  password   String?
-  name       String
-  role       Role     @default(CUSTOMER)
-  orders     Order[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                String    @id @default(uuid())
+  telegramId        BigInt?   @unique
+  email             String?   @unique
+  password          String?
+  /// Tokens issued before this moment are rejected, so a password change signs out other sessions.
+  passwordChangedAt DateTime?
+  name              String
+  role              Role      @default(CUSTOMER)
+  orders            Order[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@map("users")
 }
