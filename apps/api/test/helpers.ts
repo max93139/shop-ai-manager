@@ -27,9 +27,13 @@ export async function loginAsAdmin(app: INestApplication): Promise<string> {
   return res.body.access_token;
 }
 
+let telegramIdSeq = 0;
+/** telegramId is unique, so concurrent checkouts in the same millisecond need distinct ids. */
+const nextTelegramId = () => BigInt(Date.now()) * 1000n + BigInt(telegramIdSeq++ % 1000);
+
 /** Same steps as the bot checkout: reserve stock atomically, then store the order with item snapshots. */
 export async function placeOrder(variantId: string, quantity: number, overrides: Record<string, unknown> = {}) {
-  const user = await prisma.user.create({ data: { name: 'Buyer', telegramId: BigInt(Date.now()) } });
+  const user = await prisma.user.create({ data: { name: 'Buyer', telegramId: nextTelegramId() } });
   return prisma.$transaction(async (tx) => {
     const reserved = await tx.productVariant.updateMany({
       where: { id: variantId, stock: { gte: quantity } },
