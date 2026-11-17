@@ -91,6 +91,8 @@ export interface TranslationDictionary {
   confirmPasswordLabel: string;
   updatePasswordBtn: string;
   passwordUpdatedSuccess: string;
+  passwordCurrentWrong: string;
+  passwordChangeFailed: string;
   passwordMinLength: string;
   passwordsMismatch: string;
 
@@ -664,6 +666,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     confirmPasswordLabel: 'Підтвердження нового пароля',
     updatePasswordBtn: 'Оновити пароль адміністратора',
     passwordUpdatedSuccess: 'Пароль адміністратора успішно оновлено',
+    passwordCurrentWrong: 'Поточний пароль невірний',
+    passwordChangeFailed: 'Не вдалося змінити пароль',
     passwordMinLength: 'Новий пароль має містити щонайменше 8 символів',
     passwordsMismatch: 'Паролі не співпадають',
 
@@ -1070,6 +1074,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     confirmPasswordLabel: 'Confirm New Password',
     updatePasswordBtn: 'Update Admin Password',
     passwordUpdatedSuccess: 'Admin password updated successfully',
+    passwordCurrentWrong: 'Current password is incorrect',
+    passwordChangeFailed: 'Could not change the password',
     passwordMinLength: 'New password must be at least 8 characters long',
     passwordsMismatch: 'Passwords do not match',
 
