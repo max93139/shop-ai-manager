@@ -44,16 +44,20 @@ shop-ai-manager/
    ```bash
    pnpm dev
    ```
+   `@shop-ai/database` і `@shop-ai/types` збираються в `dist` (`pnpm dev` робить це сам і перезбирає їх у watch-режимі). Якщо запускаєте один застосунок через `pnpm --filter`, спершу виконайте `pnpm --filter "./packages/*" build`.
 
 4. **Збірка усіх додатків**:
    ```bash
    pnpm build
    ```
 
-5. **Запуск через Docker Compose**:
+5. **Запуск через Docker Compose** (секрети беруться з `.env`, див. `.env.example`):
    ```bash
-   docker-compose up --build
+   docker compose up -d postgres
+   docker compose run --rm api pnpm db:push
+   docker compose up -d --build
    ```
+   Адреса API для адмінки вшивається під час збірки: `NEXT_PUBLIC_API_URL=https://api.example.com docker compose build admin`.
 
 6. **E2E-тести API** (окрема база, яку тести очищають; у назві має бути `test`):
    ```bash

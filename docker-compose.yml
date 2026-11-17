@@ -1,17 +1,21 @@
-version: '3.8'
-
+# Production-like stack. Secrets come from .env (see .env.example).
+# First run: docker compose up -d postgres && docker compose run --rm api pnpm db:push
 services:
   postgres:
     image: postgres:16-alpine
     container_name: shop_ai_postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
       POSTGRES_DB: shop_ai_db
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
     restart: always
 
   api:
@@ -19,25 +23,26 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: shop_ai_api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/shop_ai_db?schema=public
+      PORT: 4000
     ports:
       - "4000:4000"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
-      PORT: 4000
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: always
 
   admin:
     build:
       context: .
       dockerfile: docker/Dockerfile.admin
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
     container_name: shop_ai_admin
     ports:
       - "3001:3001"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4000
-      PORT: 3001
     depends_on:
       - api
     restart: always
@@ -47,35 +52,13 @@ services:
       context: .
       dockerfile: docker/Dockerfile.bot
     container_name: shop_ai_bot
+    env_file: .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
-      TELEGRAM_BOT_TOKEN: your_telegram_bot_token_here
-      API_URL: http://api:4000
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/shop_ai_db?schema=public
     depends_on:
-      - postgres
-      - api
-    restart: always
-
-  redis:
-    image: redis:7-alpine
-    container_name: shop_ai_redis
-    ports:
-      - "6379:6379"
-    restart: always
-
-  worker:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.worker
-    container_name: shop_ai_worker
-    environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/shop_ai_db?schema=public
-      REDIS_URL: redis://redis:6379
-    depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
     restart: always
 
 volumes:
   postgres_data:
-
