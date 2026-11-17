@@ -9,6 +9,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NovaPoshtaModule } from './modules/nova-poshta/nova-poshta.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Controller()
 export class AppController {
@@ -30,6 +31,7 @@ export class AppController {
     NotificationsModule,
     SettingsModule,
     NovaPoshtaModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
 })

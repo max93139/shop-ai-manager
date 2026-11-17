@@ -187,6 +187,13 @@ export interface TranslationDictionary {
   trackOnNovaPoshta: string;
   generateTtnBtn: string;
   ttnCreateFailed: string;
+  paymentLabel: string;
+  paymentPaidOnline: string;
+  paymentLinkSent: string;
+  paymentOnDelivery: string;
+  paymentCheckBtn: string;
+  paymentNotPaidYet: string;
+  paymentCheckFailed: string;
   deleteOrderBtn: string;
   confirmDeleteOrder: string;
   closeBtn: string;
@@ -757,6 +764,13 @@ export const translations: Record<Language, TranslationDictionary> = {
     trackOnNovaPoshta: 'Відстежити на Новій Пошті',
     generateTtnBtn: 'Створити ТТН',
     ttnCreateFailed: 'Не вдалося створити ТТН',
+    paymentLabel: 'Оплата',
+    paymentPaidOnline: 'Онлайн, {date}',
+    paymentLinkSent: 'Посилання надіслано, не оплачено',
+    paymentOnDelivery: 'При отриманні',
+    paymentCheckBtn: 'Перевірити',
+    paymentNotPaidYet: 'Monobank: оплати ще немає',
+    paymentCheckFailed: 'Не вдалося перевірити оплату',
     deleteOrderBtn: 'Видалити замовлення',
     confirmDeleteOrder: 'Ви впевнені, що хочете видалити це замовлення?',
     closeBtn: 'Закрити',
@@ -1160,6 +1174,13 @@ export const translations: Record<Language, TranslationDictionary> = {
     trackOnNovaPoshta: 'Track on Nova Poshta',
     generateTtnBtn: 'Generate TTN',
     ttnCreateFailed: 'Could not create the TTN',
+    paymentLabel: 'Payment',
+    paymentPaidOnline: 'Online, {date}',
+    paymentLinkSent: 'Link sent, not paid',
+    paymentOnDelivery: 'On delivery',
+    paymentCheckBtn: 'Check',
+    paymentNotPaidYet: 'Monobank: not paid yet',
+    paymentCheckFailed: 'Could not check the payment',
     deleteOrderBtn: 'Delete Order',
     confirmDeleteOrder: 'Are you sure you want to delete this order?',
     closeBtn: 'Close',
