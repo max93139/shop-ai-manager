@@ -12,13 +12,12 @@ export interface BroadcastPostDto {
 @Injectable()
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
-  private readonly startTime = Date.now();
 
   async getBotStats() {
     const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
     let channelId = (process.env.TELEGRAM_CHANNEL_ID || '').trim();
 
-    let botHandle = '@atelier_store_bot';
+    let botHandle: string | null = null;
     let isOnline = false;
 
     if (botToken) {
@@ -36,18 +35,18 @@ export class TelegramService {
       }
     }
 
-    let channelName = 'Atelier Store';
-    let channelHandle = channelId ? (channelId.startsWith('@') ? channelId : `@${channelId}`) : '@atelier.store';
-    let subscribersCount = '8.4k';
+    let channelName: string | null = null;
+    let channelHandle: string | null = channelId ? (channelId.startsWith('@') ? channelId : `@${channelId}`) : null;
+    let subscribersCount: string | null = null;
     let isConnected = false;
 
     if (botToken && channelId) {
       try {
-        const chatRes = await fetch(`https://api.telegram.org/bot${botToken}/getChat?chat_id=${encodeURIComponent(channelHandle)}`);
+        const chatRes = await fetch(`https://api.telegram.org/bot${botToken}/getChat?chat_id=${encodeURIComponent(channelHandle ?? channelId)}`);
         if (chatRes.ok) {
           const chatData = await chatRes.json();
           if (chatData.ok) {
-            channelName = chatData.result?.title || channelName;
+            channelName = chatData.result?.title ?? null;
             if (chatData.result?.username) {
               channelHandle = `@${chatData.result.username}`;
             }
@@ -55,7 +54,7 @@ export class TelegramService {
           }
         }
 
-        const countRes = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${encodeURIComponent(channelHandle)}`);
+        const countRes = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${encodeURIComponent(channelHandle ?? channelId)}`);
         if (countRes.ok) {
           const countData = await countRes.json();
           if (countData.ok && typeof countData.result === 'number') {
@@ -68,19 +67,17 @@ export class TelegramService {
       }
     }
 
-    const uptimeMs = Date.now() - this.startTime;
-    const uptimeDays = Math.floor(uptimeMs / (1000 * 60 * 60 * 24));
-    const uptimeHours = Math.floor((uptimeMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const uptime = uptimeDays > 0 ? `${uptimeDays}d ${uptimeHours}h` : `${uptimeHours}h 1m`;
-
-    const activeChats = await prisma.user.count({ where: { role: 'CUSTOMER' } });
-    const messagesToday = await prisma.order.count();
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const [ordersToday, customersCount] = await Promise.all([
+      prisma.order.count({ where: { createdAt: { gte: startOfToday } } }),
+      prisma.user.count({ where: { role: 'CUSTOMER', telegramId: { not: null } } }),
+    ]);
 
     const orders = await prisma.order.findMany({
       take: 6,
       orderBy: { createdAt: 'desc' },
       include: {
-        user: true,
         items: {
           include: {
             variant: {
@@ -93,65 +90,24 @@ export class TelegramService {
       },
     });
 
-    const recentOrders: Array<{
-      id: string;
-      name: string;
-      sku: string;
-      timeAgo: string;
-      price: string;
-      status: 'Paid' | 'Processing' | 'Delivered' | 'Pending';
-      image?: string;
-    }> = [];
-
-    orders.forEach((ord: any) => {
-      ord.items.forEach((item: any) => {
-        const p = item.variant?.product;
-        const timeDiffMinutes = Math.floor((Date.now() - new Date(ord.createdAt).getTime()) / (1000 * 60));
-        let timeAgo = `${timeDiffMinutes}m ago`;
-        if (timeDiffMinutes >= 1440) {
-          timeAgo = `${Math.floor(timeDiffMinutes / 1440)}d ago`;
-        } else if (timeDiffMinutes >= 60) {
-          timeAgo = `${Math.floor(timeDiffMinutes / 60)}h ago`;
-        }
-
-        recentOrders.push({
-          id: item.id,
-          name: item.productName ?? p?.name ?? 'Product',
-          sku: item.sku ?? item.variant?.sku ?? 'SKU',
-          timeAgo,
-          price: `$${Number(item.price)}`,
-          status: ord.status === 'PAID' ? 'Paid' : 'Processing',
-          image: item.image ?? p?.images?.[0] ?? undefined,
-        });
-      });
-    });
-
-    if (recentOrders.length === 0) {
-      const products = await prisma.product.findMany({
-        take: 6,
-        orderBy: { createdAt: 'desc' },
-        include: { variants: true },
-      });
-
-      products.forEach((p: any, idx: number) => {
-        recentOrders.push({
-          id: p.id,
-          name: p.name,
-          sku: p.variants[0]?.sku || `SKU-${1000 + idx}`,
-          timeAgo: `${(idx + 1) * 2}h ago`,
-          price: `$${Number(p.variants[0]?.price || 0)}`,
-          status: 'Paid',
-          image: p.images?.[0] || undefined,
-        });
-      });
-    }
+    const recentOrders = orders.flatMap((ord) =>
+      ord.items.map((item) => ({
+        id: item.id,
+        name: item.productName ?? item.variant?.product?.name ?? 'Product',
+        sku: item.sku ?? item.variant?.sku ?? '',
+        createdAt: ord.createdAt.toISOString(),
+        price: Number(item.price) * item.quantity,
+        quantity: item.quantity,
+        status: ord.status,
+        image: item.image ?? item.variant?.product?.images?.[0] ?? undefined,
+      })),
+    );
 
     return {
       botStatus: {
         handle: botHandle,
-        uptime,
-        messagesToday: Math.max(messagesToday, 12),
-        activeChats: Math.max(activeChats, 4),
+        ordersToday,
+        customersCount,
         isOnline,
       },
       connectedChannel: {
@@ -159,11 +115,6 @@ export class TelegramService {
         handle: channelHandle,
         subscribersCount,
         isConnected,
-      },
-      queueStatus: {
-        pendingPosts: 0,
-        scheduledToday: 0,
-        failedCount: 0,
       },
       recentOrders,
     };
