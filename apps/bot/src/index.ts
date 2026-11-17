@@ -823,8 +823,9 @@ bot.on('message:text', async (ctx) => {
   const step = ctx.session.checkoutStep;
 
   if (step === 'AWAITING_FULL_NAME') {
-    if (text.length < 3) {
-      return ctx.reply('Будь ласка, введіть повне ПІБ (щонайменше 3 символи):');
+    // Nova Poshta needs at least a last and a first name to issue a TTN.
+    if (text.trim().split(/\s+/).length < 2) {
+      return ctx.reply('Будь ласка, введіть прізвище та ім\'я (по батькові за бажанням), наприклад: Шевченко Тарас:');
     }
     ctx.session.checkoutData.fullName = text;
     ctx.session.checkoutStep = 'AWAITING_PHONE';

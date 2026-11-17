@@ -186,6 +186,7 @@ export interface TranslationDictionary {
   savingTtn: string;
   trackOnNovaPoshta: string;
   generateTtnBtn: string;
+  ttnCreateFailed: string;
   deleteOrderBtn: string;
   confirmDeleteOrder: string;
   closeBtn: string;
@@ -735,6 +736,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     savingTtn: 'Збереження ТТН...',
     trackOnNovaPoshta: 'Відстежити на Новій Пошті',
     generateTtnBtn: 'Створити ТТН',
+    ttnCreateFailed: 'Не вдалося створити ТТН',
     deleteOrderBtn: 'Видалити замовлення',
     confirmDeleteOrder: 'Ви впевнені, що хочете видалити це замовлення?',
     closeBtn: 'Закрити',
@@ -1117,6 +1119,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     savingTtn: 'Saving TTN...',
     trackOnNovaPoshta: 'Track on Nova Poshta',
     generateTtnBtn: 'Generate TTN',
+    ttnCreateFailed: 'Could not create the TTN',
     deleteOrderBtn: 'Delete Order',
     confirmDeleteOrder: 'Are you sure you want to delete this order?',
     closeBtn: 'Close',
