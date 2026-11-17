@@ -1,9 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { prisma, OrderStatus } from '@shop-ai/database';
 import { canTransitionOrder, type OrderStatus as SharedOrderStatus } from '@shop-ai/types';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
+  constructor(private readonly notifications: NotificationsService) {}
+
   async getDashboardFullData() {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -350,7 +353,7 @@ export class OrdersService {
   }
 
   async updateOrderStatus(id: string, status: OrderStatus) {
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({
         where: { id },
         include: {
@@ -407,8 +410,14 @@ export class OrdersService {
         success: true,
         id: updated.id,
         status: updated.status,
+        changed: true,
       };
     });
+
+    if ('changed' in result) {
+      void this.notifications.notifyCustomerAboutStatus(id, status);
+    }
+    return { success: result.success, id: result.id, status: result.status };
   }
 
   async deleteOrder(id: string) {
