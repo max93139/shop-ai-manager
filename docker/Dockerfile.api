@@ -1,18 +1,16 @@
-FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+FROM node:20-alpine
+RUN apk add --no-cache openssl && corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json ./
-COPY prisma ./prisma
-COPY packages ./packages
-COPY apps/api ./apps/api
-
-RUN pnpm install --frozen-lockfile || pnpm install
+# The whole workspace is copied (see .dockerignore) so the frozen lockfile matches every project.
+COPY . .
+RUN pnpm install --frozen-lockfile
 RUN pnpm db:generate
-RUN pnpm --filter @shop-ai/api build
+RUN pnpm exec turbo run build --filter=@shop-ai/api...
 
-EXPOSE 3000
-ENV PORT=3000
+ENV NODE_ENV=production
+ENV PORT=4000
+EXPOSE 4000
 
-CMD ["pnpm", "--filter", "@shop-ai/api", "start"]
+CMD ["node", "apps/api/dist/main.js"]

@@ -1,6 +1,9 @@
 {
   "extends": "@shop-ai/config/tsconfig.base.json",
   "compilerOptions": {
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "rootDir": "src",
     "outDir": "dist"
   },
   "include": ["src/**/*"]
