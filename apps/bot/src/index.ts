@@ -1,7 +1,7 @@
 import { Bot, session, Context, SessionFlavor, Keyboard, InlineKeyboard, InputFile } from 'grammy';
 import dotenv from 'dotenv';
 import path from 'path';
-import { getStoreSettings, prisma } from '@shop-ai/database';
+import { brandOf, getStoreSettings, prisma } from '@shop-ai/database';
 import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
 import { createPrismaSessionStorage } from './session-storage';
 import { createMonobankInvoice } from './monobank';
@@ -289,8 +289,7 @@ bot.callbackQuery(/^cat_sel_(.+)$/, async (ctx) => {
         ? Math.min(...prod.variants.map((v) => Number(v.price)))
         : 0;
 
-      const brandMatch = prod.description?.match(/Brand:\s*(.+)/i);
-      const brandStr = brandMatch ? `${brandMatch[1].trim()} ` : '';
+      const brandStr = brandOf(prod) ? `${brandOf(prod)} ` : '';
       const stockBadge = activeVariants.length > 0 ? '' : ' (немає)';
 
       keyboard
@@ -333,8 +332,7 @@ async function showProductDetails(ctx: MyContext, productId: string) {
       });
     }
 
-    const brandMatch = product.description?.match(/Brand:\s*(.+)/i);
-    const brand = brandMatch ? brandMatch[1].trim() : '';
+    const brand = brandOf(product);
 
     const minPrice = product.variants.length > 0
       ? Math.min(...product.variants.map((v) => Number(v.price)))
@@ -522,8 +520,7 @@ bot.callbackQuery(/^var_card_(.+)$/, async (ctx) => {
     }
 
     const { product } = variant;
-    const brandMatch = product.description?.match(/Brand:\s*(.+)/i);
-    const brand = brandMatch ? brandMatch[1].trim() : '';
+    const brand = brandOf(product);
     const colorEmoji = getColorEmoji(variant.color);
 
     let caption = `🏷 **КАРТКА ТОВАРУ**\n\n`;

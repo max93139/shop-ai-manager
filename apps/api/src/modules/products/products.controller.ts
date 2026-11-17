@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Body, Query, Param, UseGuards } f
 import { ProductsService, type ProductsQueryDto } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('products')
@@ -30,6 +31,12 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   async createProduct(@Body() dto: CreateProductDto) {
     return this.productsService.createProduct(dto);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+    return this.productsService.updateProduct(id, dto);
   }
 
   @Patch('variants/:id')

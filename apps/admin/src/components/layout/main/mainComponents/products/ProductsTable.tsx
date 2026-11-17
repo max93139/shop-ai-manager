@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Package, Trash2 } from 'lucide-react';
+import { Package, Pencil, Trash2 } from 'lucide-react';
+import EditProductModal from './EditProductModal';
 import { useAppDispatch } from '../../../../../store';
 import {
   updateVariant,
@@ -253,6 +254,20 @@ function PriceControl({
   );
 }
 
+function EditButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      className="rounded-sm p-1.5 text-[var(--text-tertiary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors"
+    >
+      <Pencil className="h-3.5 w-3.5" />
+    </button>
+  );
+}
+
 function DeleteButton({
   variantId,
   productName,
@@ -330,8 +345,10 @@ function TableSkeleton() {
 
 function ProductCard({
   item,
+  onEdit,
 }: {
   item: ProductItem;
+  onEdit: (item: ProductItem) => void;
 }) {
   const { t, translateCategory, translateColor } = useTranslation();
 
@@ -360,7 +377,8 @@ function ProductCard({
         <div className="absolute top-2.5 left-2.5 z-10">
           <StatusBadge status={item.status} labels={statusLabels} />
         </div>
-        <div className="absolute top-2.5 right-2.5 z-10 bg-white/90 rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2.5 right-2.5 z-10 flex items-center bg-white/90 rounded-lg p-0.5 shadow-xs opacity-90 group-hover:opacity-100 transition-opacity">
+          <EditButton onClick={() => onEdit(item)} label={t.actionEdit} />
           <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
         </div>
       </div>
@@ -415,6 +433,8 @@ function ProductCard({
 
 export default function ProductsTable({ items, loading, viewMode }: ProductsTableProps) {
   const { t, translateCategory, translateColor } = useTranslation();
+  const [editing, setEditing] = useState<ProductItem | null>(null);
+  const editModal = <EditProductModal item={editing} onClose={() => setEditing(null)} />;
 
   const statusLabels = {
     active: t.statusActive,
@@ -486,8 +506,9 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((item) => (
-          <ProductCard key={item.variantId} item={item} />
+          <ProductCard key={item.variantId} item={item} onEdit={setEditing} />
         ))}
+        {editModal}
       </div>
     );
   }
@@ -554,13 +575,17 @@ export default function ProductsTable({ items, loading, viewMode }: ProductsTabl
                 </td>
 
                 <td className="py-3.5 pr-4 text-right">
-                  <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
+                  <div className="flex items-center justify-end gap-1">
+                    <EditButton onClick={() => setEditing(item)} label={t.actionEdit} />
+                    <DeleteButton variantId={item.variantId} productName={item.name} labels={actionLabels} />
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {editModal}
     </div>
   );
 }

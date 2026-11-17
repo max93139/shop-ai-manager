@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { toCompressedDataUrl } from '@/utils/images';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
@@ -72,44 +73,6 @@ export default function Inventory() {
     dispatch(fetchProducts());
   }, [dispatch, page, filters]);
 
-  const convertBlobToBase64 = async (url: string): Promise<string> => {
-    if (!url) return '';
-    if (url.startsWith('data:')) return url;
-    if (!url.startsWith('blob:')) return url;
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      return await new Promise<string>((resolve) => {
-        const img = new window.Image();
-        const imgUrl = URL.createObjectURL(blob);
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let w = img.width;
-          let h = img.height;
-          const MAX = 800;
-          if (w > h && w > MAX) {
-            w *= MAX / w;
-            w = MAX;
-          } else if (h > MAX) {
-            w *= MAX / h;
-            h = MAX;
-          }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
-          URL.revokeObjectURL(imgUrl);
-          resolve(canvas.toDataURL('image/jpeg', 0.75));
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(imgUrl);
-          resolve('');
-        };
-        img.src = imgUrl;
-      });
-    } catch {
-      return '';
-    }
-  };
 
   const handleSaveProduct = async (formData: any) => {
     try {
@@ -123,7 +86,7 @@ export default function Inventory() {
       let images: string[] = [];
       if (formData.imageUrls && formData.imageUrls.length > 0) {
         const converted = await Promise.all(
-          formData.imageUrls.slice(0, 5).map((url: string) => convertBlobToBase64(url)),
+          formData.imageUrls.slice(0, 5).map((url: string) => toCompressedDataUrl(url)),
         );
         images = converted.filter(Boolean);
       }

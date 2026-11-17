@@ -1,7 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { getStoreSettings, prisma } from '@shop-ai/database';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
+import { brandOf, getStoreSettings, prisma } from '@shop-ai/database';
 import type { CreateProductDto } from './dto/create-product.dto';
 import type { UpdateVariantDto } from './dto/update-variant.dto';
+import type { UpdateProductDto } from './dto/update-product.dto';
 
 /** Reads a stock value from a client map, rejecting anything that is not a whole number >= 0. */
 function parseStock(value: unknown, key: string): number {
@@ -10,6 +12,15 @@ function parseStock(value: unknown, key: string): number {
     throw new BadRequestException(`Stock for "${key}" must be a whole number of 0 or more`);
   }
   return stock;
+}
+
+/** Latin part of the name plus a random suffix; names without Latin letters fall back to "item". */
+function uniqueSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+  return `${base || 'item'}-${randomBytes(4).toString('hex')}`;
 }
 
 export interface ProductsQueryDto {
@@ -66,9 +77,12 @@ export class ProductsService {
       productWhere.category = { name: { equals: query.category.trim(), mode: 'insensitive' } };
     }
 
-    // Brand filter (stored in product.description as "Brand: XYZ")
     if (query.brand?.trim()) {
-      productWhere.description = { contains: query.brand.trim(), mode: 'insensitive' };
+      const brand = query.brand.trim();
+      productWhere.OR = [
+        { brand: { equals: brand, mode: 'insensitive' } },
+        { brand: null, description: { contains: `Brand: ${brand}`, mode: 'insensitive' } },
+      ];
     }
 
     if (Object.keys(productWhere).length > 0) {
@@ -131,8 +145,7 @@ export class ProductsService {
 
     // Map items to a flat structure for the frontend
     const products = items.map((v) => {
-      const brandMatch = v.product.description?.match(/Brand:\s*(.+)/i);
-      const brand = brandMatch ? brandMatch[1].trim() : '';
+      const brand = brandOf(v.product);
 
       let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
       if (v.stock === 0) status = 'out_of_stock';
@@ -174,7 +187,7 @@ export class ProductsService {
     const [categories, variants] = await Promise.all([
       prisma.category.findMany({ select: { name: true }, orderBy: { name: 'asc' } }),
       prisma.productVariant.findMany({
-        select: { color: true, size: true, product: { select: { description: true } } },
+        select: { color: true, size: true, product: { select: { brand: true, description: true } } },
       }),
     ]);
 
@@ -187,8 +200,8 @@ export class ProductsService {
     for (const v of variants) {
       if (v.color && v.color !== 'Standard') colors.add(v.color);
       if (v.size && v.size !== 'One size') sizes.add(v.size);
-      const brandMatch = v.product.description?.match(/Brand:\s*(.+)/i);
-      if (brandMatch) brands.add(brandMatch[1].trim());
+      const brand = brandOf(v.product);
+      if (brand) brands.add(brand);
     }
 
     return {
@@ -243,38 +256,9 @@ export class ProductsService {
       }
     }
 
-    // Generate unique slug
-    const baseSlug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-    const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
-    const slug = `${baseSlug}-${uniqueSuffix}`;
+    const slug = uniqueSlug(name);
 
-    // Category Slug
-    const categorySlug = categoryName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-
-    // 1. Find or Create Category
-    let category = await prisma.category.findFirst({
-      where: {
-        OR: [{ slug: categorySlug }, { name: categoryName }],
-      },
-    });
-
-    if (!category) {
-      category = await prisma.category.create({
-        data: {
-          name: categoryName,
-          slug: categorySlug,
-          description: `${categoryName} products`,
-        },
-      });
-    }
-
-    const categoryId = category.id;
+    const categoryId = await this.findOrCreateCategory(categoryName);
 
     // 2. Create the product and its variants together
     const product = await prisma.$transaction(async (tx) => {
@@ -283,7 +267,7 @@ export class ProductsService {
           name,
           slug,
           categoryId,
-          description: dto.brand ? `Brand: ${dto.brand}` : undefined,
+          brand: dto.brand?.trim() || null,
           images: dto.images || [],
         },
       });
@@ -316,6 +300,50 @@ export class ProductsService {
     });
   }
 
+  /** Matches by name, ignoring case; slugs are only an identifier, since Cyrillic names produce an empty Latin slug. */
+  private async findOrCreateCategory(categoryName: string): Promise<string> {
+    const existing = await prisma.category.findFirst({
+      where: { name: { equals: categoryName, mode: 'insensitive' } },
+    });
+    if (existing) return existing.id;
+
+    const created = await prisma.category.create({
+      data: { name: categoryName, slug: uniqueSlug(categoryName), description: `${categoryName} products` },
+    });
+    return created.id;
+  }
+
+  /** Edits product-level fields shared by all variants; stock and price stay per variant. */
+  async updateProduct(productId: string, dto: UpdateProductDto) {
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    const categoryId = dto.category !== undefined ? await this.findOrCreateCategory(dto.category.trim()) : undefined;
+
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+        ...(categoryId ? { categoryId } : {}),
+        ...(dto.brand !== undefined ? { brand: dto.brand.trim() || null } : {}),
+        // Clearing the legacy "Brand: X" text keeps it from shadowing an edited brand.
+        ...(dto.brand !== undefined && /Brand:/i.test(product.description ?? '') ? { description: null } : {}),
+        ...(dto.images !== undefined ? { images: dto.images } : {}),
+      },
+      include: { category: true },
+    });
+
+    return {
+      productId: updated.id,
+      name: updated.name,
+      category: updated.category.name,
+      brand: brandOf(updated),
+      images: updated.images,
+    };
+  }
+
   async updateVariant(variantId: string, dto: UpdateVariantDto) {
     const variant = await prisma.productVariant.findUnique({
       where: { id: variantId },
@@ -346,8 +374,7 @@ export class ProductsService {
       },
     });
 
-    const brandMatch = updated.product.description?.match(/Brand:\s*(.+)/i);
-    const brand = brandMatch ? brandMatch[1].trim() : '';
+    const brand = brandOf(updated.product);
 
     let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
     if (updated.stock === 0) status = 'out_of_stock';
