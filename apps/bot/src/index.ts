@@ -2,6 +2,7 @@ import { Bot, session, Context, SessionFlavor, Keyboard, InlineKeyboard, InputFi
 import dotenv from 'dotenv';
 import path from 'path';
 import { prisma } from '@shop-ai/database';
+import { LOW_STOCK_THRESHOLD } from '@shop-ai/types';
 import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
 import { createPrismaSessionStorage } from './session-storage';
 
@@ -1100,6 +1101,7 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
     try {
       order = await prisma.$transaction(async (tx) => {
         const snapshots = new Map<string, { productName: string; sku: string; size: string; color: string; image: string | null }>();
+        const stockAlerts: Array<{ variantId: string; productName: string; size: string; color: string; stock: number }> = [];
 
         // 1. Atomically verify stock and decrement inventory using row-level locking
         for (const item of cart) {
@@ -1142,10 +1144,19 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
             color: reserved?.color ?? item.color,
             image: reserved?.product.images[0] ?? null,
           });
+          if (reserved && reserved.stock <= LOW_STOCK_THRESHOLD) {
+            stockAlerts.push({
+              variantId: reserved.id,
+              productName: reserved.product.name,
+              size: reserved.size,
+              color: reserved.color,
+              stock: reserved.stock,
+            });
+          }
         }
 
         // 3. Create the Order
-        return tx.order.create({
+        const created = await tx.order.create({
           data: {
             userId: user.id,
             status: 'PENDING',
@@ -1166,6 +1177,29 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
             },
           },
         });
+
+        await tx.notification.createMany({
+          data: [
+            {
+              kind: 'NEW_ORDER' as const,
+              orderId: created.id,
+              data: {
+                orderNumber: `#${created.id.slice(0, 8).toUpperCase()}`,
+                customerName: checkoutData.fullName ?? '',
+                total: totalAmount,
+                itemsCount: cart.reduce((acc, i) => acc + i.quantity, 0),
+                city: checkoutData.city,
+              },
+            },
+            ...stockAlerts.map((alert) => ({
+              kind: alert.stock === 0 ? ('OUT_OF_STOCK' as const) : ('LOW_STOCK' as const),
+              orderId: created.id,
+              data: alert,
+            })),
+          ],
+        });
+
+        return created;
       });
     } catch (txErr: any) {
       if (txErr.message?.startsWith('INSUFFICIENT_STOCK:')) {
@@ -1202,6 +1236,16 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
 
     const shortOrderNum = order.id.slice(0, 8).toUpperCase();
 
+    await notifyManagers(
+      [
+        `🛒 Нове замовлення #${shortOrderNum}`,
+        `Сума: ${totalAmount.toFixed(2)} ₴`,
+        `Отримувач: ${checkoutData.fullName ?? '—'}, ${checkoutData.phone ?? '—'}`,
+        `Доставка: ${checkoutData.city ?? '—'}, ${checkoutData.postOffice ?? '—'}`,
+        ...cart.map((i) => `• ${i.productName} (${i.color} / ${i.size}) × ${i.quantity}`),
+      ].join('\n'),
+    );
+
     await ctx.reply(
       `🎉 **Дякуємо! Ваше замовлення #${shortOrderNum} успішно створено!**\n\n` +
         `👤 **Отримувач**: ${checkoutData.fullName}\n` +
@@ -1226,6 +1270,17 @@ bot.callbackQuery('cancel_order_final', async (ctx) => {
   await ctx.answerCallbackQuery({ text: 'Замовлення скасовано' });
   await ctx.reply('Замовлення скасовано.', { reply_markup: getMainMenuKeyboard() });
 });
+
+/** Sends a plain-text message to the staff chat; a failure is logged and never breaks checkout. */
+async function notifyManagers(text: string) {
+  const chatId = process.env.TELEGRAM_MANAGER_CHAT_ID?.trim();
+  if (!chatId) return;
+  try {
+    await bot.api.sendMessage(chatId, text);
+  } catch (err) {
+    console.error('Failed to notify the manager chat:', err);
+  }
+}
 
 // 📦 My Orders View
 async function showMyOrders(ctx: MyContext) {

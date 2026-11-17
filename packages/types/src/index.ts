@@ -252,16 +252,41 @@ export interface AnalyticsData {
   };
 }
 
-export interface StoreNotification {
+/** Variants at or below this stock raise a LOW_STOCK notification after a sale. */
+export const LOW_STOCK_THRESHOLD = 5;
+
+export type NotificationKind = 'NEW_ORDER' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+
+export interface NewOrderNotificationData {
+  orderNumber: string;
+  customerName: string;
+  total: number;
+  itemsCount: number;
+  city?: string;
+}
+
+export interface StockNotificationData {
+  variantId: string;
+  productName: string;
+  size: string;
+  color: string;
+  stock: number;
+}
+
+interface StoreNotificationBase {
   id: string;
-  title: string;
-  message: string;
-  type: 'order' | 'inventory' | 'system';
-  severity: 'info' | 'warning' | 'success';
   read: boolean;
-  timestamp: string;
-  actionUrl?: string;
-  actionLabel?: string;
+  createdAt: string;
+  orderId?: string;
+}
+
+export type StoreNotification =
+  | (StoreNotificationBase & { kind: 'NEW_ORDER'; data: NewOrderNotificationData })
+  | (StoreNotificationBase & { kind: 'LOW_STOCK' | 'OUT_OF_STOCK'; data: StockNotificationData });
+
+export interface NotificationsResponse {
+  notifications: StoreNotification[];
+  unreadCount: number;
 }
 
 export interface StoreSettings {

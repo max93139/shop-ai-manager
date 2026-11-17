@@ -7,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { prisma, OrderStatus } from '@shop-ai/database';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   NovaPoshtaSettlement,
   NovaPoshtaWarehouse,
@@ -46,6 +47,8 @@ export class NovaPoshtaService {
   private readonly logger = new Logger(NovaPoshtaService.name);
   private readonly apiUrl = 'https://api.novaposhta.ua/v2.0/json/';
   private readonly ttnInFlight = new Set<string>();
+  constructor(private readonly notifications: NotificationsService) {}
+
   private senderCache: {
     counterpartyRef: string;
     contactRef: string;
@@ -182,13 +185,17 @@ export class NovaPoshtaService {
     const cleanTtn = ttn.trim();
     const trackingInfo = await this.trackDocument(cleanTtn);
 
-    return prisma.order.update({
+    const updated = await prisma.order.update({
       where: { id: orderId },
       data: {
         ttn: cleanTtn,
         status: this.statusAfterTtn(order.status),
       },
     });
+    if (updated.status === OrderStatus.SHIPPED && updated.ttn !== order.ttn) {
+      void this.notifications.notifyCustomerAboutStatus(orderId, OrderStatus.SHIPPED);
+    }
+    return updated;
   }
 
   async createTtnForOrder(orderId: string, options: { weight?: number } = {}) {
@@ -292,6 +299,9 @@ export class NovaPoshtaService {
         where: { id: orderId },
         data: { ttn: String(ttn), status: nextStatus },
       });
+      if (nextStatus === OrderStatus.SHIPPED) {
+        void this.notifications.notifyCustomerAboutStatus(orderId, OrderStatus.SHIPPED);
+      }
 
       return {
         success: true,
