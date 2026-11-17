@@ -1,8 +1,7 @@
 import { Bot, session, Context, SessionFlavor, Keyboard, InlineKeyboard, InputFile } from 'grammy';
 import dotenv from 'dotenv';
 import path from 'path';
-import { prisma } from '@shop-ai/database';
-import { LOW_STOCK_THRESHOLD } from '@shop-ai/types';
+import { getStoreSettings, prisma } from '@shop-ai/database';
 import { searchNpSettlements, getNpWarehouses } from './nova-poshta';
 import { createPrismaSessionStorage } from './session-storage';
 import { createMonobankInvoice } from './monobank';
@@ -149,7 +148,7 @@ bot.command('start', async (ctx) => {
 
       if (product) {
         await ctx.reply(
-          `👋 **Вітаємо в нашому магазині!**\n\n` +
+          `👋 **${await greetingTitle()}**\n\n` +
             `Відкриваємо обраний товар зі списку:`,
           {
             parse_mode: 'Markdown',
@@ -163,7 +162,7 @@ bot.command('start', async (ctx) => {
   }
 
   await ctx.reply(
-    `👋 **Вітаємо в нашому магазині!**\n\n` +
+    `👋 **${await greetingTitle()}**\n\n` +
       `Тут ви можете переглянути доступні товари та оформити замовлення прямо у Telegram.\n\n` +
       `Оберіть необхідний розділ у меню нижче:`,
     {
@@ -245,11 +244,7 @@ bot.hears(['📦 Мої замовлення', '/orders'], async (ctx) => {
 bot.hears(['ℹ️ Допомога', '/help'], async (ctx) => {
   ctx.session.checkoutStep = 'IDLE';
   await ctx.reply(
-    `ℹ️ **Допомога та підтримка**\n\n` +
-      `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
-      `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
-      `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
-      `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`,
+    await helpText(),
     { parse_mode: 'Markdown', reply_markup: getMainMenuKeyboard() },
   );
 });
@@ -811,11 +806,7 @@ bot.on('message:text', async (ctx) => {
     }
     if (['ℹ️ Допомога', '/help'].includes(text)) {
       return ctx.reply(
-        `ℹ️ **Допомога та підтримка**\n\n` +
-          `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
-          `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
-          `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
-          `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`,
+        await helpText(),
         { parse_mode: 'Markdown', reply_markup: getMainMenuKeyboard() },
       );
     }
@@ -1097,6 +1088,8 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
     let totalAmount = 0;
     cart.forEach((i) => (totalAmount += i.price * i.quantity));
 
+    const { lowStockThreshold } = await getStoreSettings();
+
     // Atomic transaction: verify stock, decrement inventory, and create order
     let order;
     try {
@@ -1145,7 +1138,7 @@ bot.callbackQuery('confirm_order_final', async (ctx) => {
             color: reserved?.color ?? item.color,
             image: reserved?.product.images[0] ?? null,
           });
-          if (reserved && reserved.stock <= LOW_STOCK_THRESHOLD) {
+          if (reserved && reserved.stock <= lowStockThreshold) {
             stockAlerts.push({
               variantId: reserved.id,
               productName: reserved.product.name,
@@ -1289,9 +1282,35 @@ bot.callbackQuery('cancel_order_final', async (ctx) => {
   await ctx.reply('Замовлення скасовано.', { reply_markup: getMainMenuKeyboard() });
 });
 
+/** Escapes Markdown control characters in text an admin typed, so it cannot break a formatted message. */
+const plainMarkdown = (value: string) => value.replace(/([*_`\[])/g, '\\$1');
+
+async function greetingTitle() {
+  const settings = await getStoreSettings().catch(() => null);
+  return settings?.storeName ? `Вітаємо в магазині ${plainMarkdown(settings.storeName)}!` : 'Вітаємо в нашому магазині!';
+}
+
+async function helpText() {
+  const settings = await getStoreSettings().catch(() => null);
+  const contacts = [
+    settings?.supportPhone ? `📞 ${plainMarkdown(settings.supportPhone)}` : null,
+    settings?.supportEmail ? `✉️ ${plainMarkdown(settings.supportEmail)}` : null,
+  ].filter(Boolean);
+  return (
+    `ℹ️ **Допомога та підтримка**\n\n` +
+    `• Для перегляду товарів виберіть 🛍 **Каталог товарів**\n` +
+    `• Оберіть категорію ➡️ модель ➡️ колір ➡️ розмір\n` +
+    `• Для оформлення замовлення перейдіть у 🛒 **Мій кошик** та заповніть контактні дані\n` +
+    (contacts.length
+      ? `• Якщо у вас виникли запитання, звертайтесь:\n${contacts.join('\n')}`
+      : `• Якщо у вас виникли запитання, наш менеджер завжди на зв'язку.`)
+  );
+}
+
 /** Sends a plain-text message to the staff chat; a failure is logged and never breaks checkout. */
 async function notifyManagers(text: string) {
-  const chatId = process.env.TELEGRAM_MANAGER_CHAT_ID?.trim();
+  const settings = await getStoreSettings().catch(() => null);
+  const chatId = settings?.managerChatId || process.env.TELEGRAM_MANAGER_CHAT_ID?.trim();
   if (!chatId) return;
   try {
     await bot.api.sendMessage(chatId, text);

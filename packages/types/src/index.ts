@@ -257,9 +257,6 @@ export interface AnalyticsData {
   };
 }
 
-/** Variants at or below this stock raise a LOW_STOCK notification after a sale. */
-export const LOW_STOCK_THRESHOLD = 5;
-
 export type NotificationKind = 'NEW_ORDER' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 
 export interface NewOrderNotificationData {
