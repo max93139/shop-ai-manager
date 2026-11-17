@@ -41,6 +41,21 @@ export interface TranslationDictionary {
   adminBreadcrumb: string;
 
   storeSettingsTitle: string;
+  settingsLoadFailed: string;
+  settingsSaveFailed: string;
+  storeNamePlaceholder: string;
+  languageLocalHint: string;
+  connectionsTitle: string;
+  connBot: string;
+  connMonobank: string;
+  connNovaPoshta: string;
+  connConfigured: string;
+  connNotConfigured: string;
+  connectionsHint: string;
+  channelFromEnvHint: string;
+  managerChatLabel: string;
+  managerChatDesc: string;
+  managerChatEnvHint: string;
   storeSettingsSubtitle: string;
   saveChanges: string;
   saving: string;
@@ -56,8 +71,6 @@ export interface TranslationDictionary {
   storeNameLabel: string;
   supportPhoneLabel: string;
   supportEmailLabel: string;
-  currencyLabel: string;
-  timezoneLabel: string;
   languageLabel: string;
   langUk: string;
   langEn: string;
@@ -66,22 +79,13 @@ export interface TranslationDictionary {
   telegramTitle: string;
   telegramDesc: string;
   telegramChannelLabel: string;
-  autoPublishLabel: string;
-  autoPublishDesc: string;
-  adminIdLabel: string;
-  adminIdDesc: string;
   botTokenStatusLabel: string;
-  botTokenConfigured: string;
   saveTelegramBtn: string;
 
   inventoryTitle: string;
   inventoryDesc: string;
   lowStockThresholdLabel: string;
   lowStockDesc: string;
-  soundAlertsLabel: string;
-  soundAlertsDesc: string;
-  autoArchiveLabel: string;
-  autoArchiveDesc: string;
   saveInventoryBtn: string;
 
   securityTitle: string;
@@ -616,6 +620,21 @@ export const translations: Record<Language, TranslationDictionary> = {
     adminBreadcrumb: 'Адмін',
 
     storeSettingsTitle: 'Налаштування магазину',
+    settingsLoadFailed: 'Не вдалося завантажити налаштування',
+    settingsSaveFailed: 'Не вдалося зберегти налаштування',
+    storeNamePlaceholder: 'Назва, яку бачать покупці в боті',
+    languageLocalHint: 'Мова панелі зберігається в цьому браузері.',
+    connectionsTitle: 'Підключення',
+    connBot: 'Telegram-бот',
+    connMonobank: 'Оплата Monobank',
+    connNovaPoshta: 'Відправлення Новою Поштою',
+    connConfigured: 'Налаштовано',
+    connNotConfigured: 'Не налаштовано',
+    connectionsHint: 'Ключі та токени задаються у файлі .env на сервері.',
+    channelFromEnvHint: 'Канал задається змінною TELEGRAM_CHANNEL_ID; бот має бути адміністратором каналу.',
+    managerChatLabel: 'Чат для сповіщень менеджерам',
+    managerChatDesc: 'ID чату або групи, куди бот надсилає кожне нове замовлення. Додайте бота в групу.',
+    managerChatEnvHint: 'Зараз використовується значення з .env.',
     storeSettingsSubtitle: 'Конфігурація магазину, автоматизація Telegram, мова інтерфейсу та безпека',
     saveChanges: 'Зберегти зміни',
     saving: 'Збереження...',
@@ -627,36 +646,25 @@ export const translations: Record<Language, TranslationDictionary> = {
     tabSecurity: 'Безпека та пароль',
 
     generalInfoTitle: 'Загальна інформація про магазин',
-    generalInfoDesc: 'Дані бренду, які бачать покупці у Telegram-чеках та сповіщеннях',
+    generalInfoDesc: 'Назва і контакти, які покупці бачать у привітанні та довідці бота',
     storeNameLabel: 'Назва магазину',
     supportPhoneLabel: 'Телефон підтримки',
     supportEmailLabel: 'Email підтримки',
-    currencyLabel: 'Валюта магазину',
-    timezoneLabel: 'Часовий пояс',
     languageLabel: 'Мова панелі керування (Language)',
     langUk: 'Українська (UK)',
     langEn: 'English (EN)',
     saveProfileBtn: 'Зберегти налаштування профілю',
 
     telegramTitle: 'Інтеграція з Telegram',
-    telegramDesc: 'Канал для автоматичної публікації товарів та ідентифікатор адміна',
+    telegramDesc: 'Канал магазину, стан бота і чат для сповіщень менеджерам',
     telegramChannelLabel: 'Telegram-канал (Username)',
-    autoPublishLabel: 'Автоматична публікація нових товарів',
-    autoPublishDesc: 'Товари з фото публікуватимуться в канал одразу після створення',
-    adminIdLabel: 'Telegram ID адміністратора',
-    adminIdDesc: 'Отримання сповіщень про нові замовлення у приватні повідомлення',
     botTokenStatusLabel: 'Статус токена бота',
-    botTokenConfigured: 'Налаштовано в .env (Працює)',
     saveTelegramBtn: 'Зберегти налаштування Telegram',
 
     inventoryTitle: 'Залишки та пороги сповіщень',
-    inventoryDesc: 'Керування тригерами закінчення товару та звуковими сповіщеннями',
+    inventoryDesc: 'Поріг, з якого товар вважається таким, що закінчується',
     lowStockThresholdLabel: 'Поріг низького залишку (од.)',
-    lowStockDesc: 'Товари з такою або меншою кількістю позначатимуться як "Низький залишок"',
-    soundAlertsLabel: 'Звукові сповіщення в браузері',
-    soundAlertsDesc: 'Відтворювати звук при появі нового замовлення',
-    autoArchiveLabel: 'Автоархівація виконаних замовлень',
-    autoArchiveDesc: 'Автоматично приховувати замовлення зі статусом "Доставлено" через 30 днів',
+    lowStockDesc: 'Варіанти з такою або меншою кількістю позначаються як «Мало на складі», а після продажу приходить сповіщення.',
     saveInventoryBtn: 'Зберегти налаштування складу',
 
     securityTitle: 'Безпека облікового запису',
@@ -1024,6 +1032,21 @@ export const translations: Record<Language, TranslationDictionary> = {
     adminBreadcrumb: 'Admin',
 
     storeSettingsTitle: 'Store Settings',
+    settingsLoadFailed: 'Could not load settings',
+    settingsSaveFailed: 'Could not save settings',
+    storeNamePlaceholder: 'Name customers see in the bot',
+    languageLocalHint: 'The interface language is stored in this browser.',
+    connectionsTitle: 'Connections',
+    connBot: 'Telegram bot',
+    connMonobank: 'Monobank payments',
+    connNovaPoshta: 'Nova Poshta shipping',
+    connConfigured: 'Configured',
+    connNotConfigured: 'Not configured',
+    connectionsHint: 'Keys and tokens are set in the server .env file.',
+    channelFromEnvHint: 'Set with TELEGRAM_CHANNEL_ID; the bot must be a channel administrator.',
+    managerChatLabel: 'Manager alert chat',
+    managerChatDesc: 'Chat or group id where the bot posts every new order. Add the bot to the group.',
+    managerChatEnvHint: 'The value from .env is used for now.',
     storeSettingsSubtitle: 'Configure store profile, Telegram integration, language, and credentials',
     saveChanges: 'Save changes',
     saving: 'Saving...',
@@ -1035,36 +1058,25 @@ export const translations: Record<Language, TranslationDictionary> = {
     tabSecurity: 'Security & Access',
 
     generalInfoTitle: 'General Store Profile',
-    generalInfoDesc: 'Store branding visible on customer receipts and order confirmations',
+    generalInfoDesc: 'Name and contacts customers see in the bot greeting and help',
     storeNameLabel: 'Store Name',
     supportPhoneLabel: 'Support Phone',
     supportEmailLabel: 'Support Email',
-    currencyLabel: 'Default Currency',
-    timezoneLabel: 'Timezone',
     languageLabel: 'Dashboard Language',
     langUk: 'Ukrainian (UK)',
     langEn: 'English (EN)',
     saveProfileBtn: 'Save Profile Settings',
 
     telegramTitle: 'Telegram Integration',
-    telegramDesc: 'Connected broadcast channel and administrator recipient ID',
+    telegramDesc: 'Store channel, bot status and the manager alert chat',
     telegramChannelLabel: 'Telegram Channel Username',
-    autoPublishLabel: 'Auto-publish New Products',
-    autoPublishDesc: 'Broadcast products to Telegram channel immediately upon creation',
-    adminIdLabel: 'Admin Telegram ID',
-    adminIdDesc: 'Receive order alerts in personal Telegram chat',
     botTokenStatusLabel: 'Bot Token Status',
-    botTokenConfigured: 'Configured via .env (Active)',
     saveTelegramBtn: 'Save Telegram Settings',
 
     inventoryTitle: 'Inventory Triggers & Alerts',
-    inventoryDesc: 'Set inventory stock thresholds and operational preferences',
+    inventoryDesc: 'The stock level at which an item counts as running low',
     lowStockThresholdLabel: 'Low Stock Threshold (Units)',
-    lowStockDesc: 'Items at or below this count will show the "Low Stock" badge',
-    soundAlertsLabel: 'Browser Sound Alerts',
-    soundAlertsDesc: 'Play sound when high-priority notifications arrive',
-    autoArchiveLabel: 'Auto-archive Completed Orders',
-    autoArchiveDesc: 'Automatically archive orders marked "Delivered" after 30 days',
+    lowStockDesc: 'Variants at or below this count are marked low stock, and a sale that reaches it sends an alert.',
     saveInventoryBtn: 'Save Inventory Settings',
 
     securityTitle: 'Security & Access Credentials',

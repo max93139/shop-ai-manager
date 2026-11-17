@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { prisma, OrderStatus } from '@shop-ai/database';
+import { getStoreSettings, prisma, OrderStatus } from '@shop-ai/database';
 import { canTransitionOrder, type OrderStatus as SharedOrderStatus } from '@shop-ai/types';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -170,7 +170,10 @@ export class OrdersService {
       };
     });
 
+    const { storeName } = await getStoreSettings();
+
     return {
+      storeName: storeName || undefined,
       stats,
       revenueChart: {
         peakInfo,

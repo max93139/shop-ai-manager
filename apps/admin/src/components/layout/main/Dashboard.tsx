@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   return (
     <div className="page-container">
-      <DashboardHeader />
+      <DashboardHeader storeName={dashboardData?.storeName} />
       <DashboardStats data={dashboardData?.stats} loading={loading} />
       <RevenueChart
         peakInfo={dashboardData?.revenueChart?.peakInfo}
