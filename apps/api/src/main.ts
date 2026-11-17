@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
+import type { RawBodyRequest } from './modules/payments/raw-body';
 
 // Load env files from local and root workspace
 dotenv.config();
@@ -15,7 +16,15 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(json({ limit: '50mb' }));
+  app.use(
+    json({
+      limit: '50mb',
+      // Payment webhooks are signed over the exact bytes received.
+      verify: (req, _res, buf) => {
+        (req as RawBodyRequest).rawBody = buf;
+      },
+    }),
+  );
   app.use(urlencoded({ extended: true, limit: '50mb' }));
   
   app.use(cookieParser());

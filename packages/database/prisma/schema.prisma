@@ -92,6 +92,10 @@ model Order {
   ttn                  String?
   deliveryCityRef      String?
   deliveryWarehouseRef String?
+  /// Monobank acquiring invoice; the webhook and the admin sync look the order up by it.
+  paymentInvoiceId     String?     @unique
+  paymentUrl           String?
+  paidAt               DateTime?
   items                OrderItem[]
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
