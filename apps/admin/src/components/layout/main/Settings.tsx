@@ -6,36 +6,36 @@ import {
   Send,
   Bell,
   Shield,
-  Save,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   Key,
-  Globe,
   Smartphone,
   Mail,
   Building,
   Languages,
 } from 'lucide-react';
-import type { StoreSettings } from '@shop-ai/types';
+import type { StoreSettings, StoreSettingsResponse } from '@shop-ai/types';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { setLanguage } from '../../../store/slices/uiSlice';
 import { translations } from '../../../utils/translations';
 
-const defaultSettings: StoreSettings = {
-  storeName: 'Atelier Premium Clothing',
-  supportPhone: '+380 (67) 123-45-67',
-  supportEmail: 'support@atelier-store.ua',
-  currency: 'UAH',
-  timezone: 'Europe/Kyiv (UTC+3)',
-  language: 'uk',
-  telegramChannel: '@shop_channel',
-  telegramBotTokenSet: true,
-  autoPublishNewProducts: true,
-  telegramAdminId: '98451294',
+const emptySettings: StoreSettingsResponse = {
+  storeName: '',
+  supportPhone: '',
+  supportEmail: '',
+  managerChatId: '',
   lowStockThreshold: 5,
-  soundAlerts: true,
-  autoArchiveCompleted: false,
+  botTokenConfigured: false,
+  telegramChannel: null,
+  managerChatFromEnv: false,
+  monobankConfigured: false,
+  novaPoshtaSenderConfigured: false,
+};
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const authHeaders = (): Record<string, string> => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export default function Settings() {
@@ -43,10 +43,8 @@ export default function Settings() {
   const currentLang = useAppSelector((state) => state.ui.language);
   const t = translations[currentLang] || translations.uk;
 
-  const [settings, setSettings] = useState<StoreSettings>({
-    ...defaultSettings,
-    language: currentLang,
-  });
+  const [settings, setSettings] = useState<StoreSettingsResponse>(emptySettings);
+  const [loadError, setLoadError] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'telegram' | 'inventory' | 'security'>('profile');
 
   useEffect(() => {
@@ -57,9 +55,9 @@ export default function Settings() {
   }, []);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  // Security password fields
   const [passwords, setPasswords] = useState({
     currentPassword: '',
     newPassword: '',
@@ -67,20 +65,11 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem('shop_manager_settings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const resolvedLang = parsed.language || currentLang;
-        setSettings({ ...defaultSettings, ...parsed, language: resolvedLang });
-        if (parsed.language && (parsed.language === 'uk' || parsed.language === 'en')) {
-          dispatch(setLanguage(parsed.language));
-        }
-      } catch {
-        setSettings({ ...defaultSettings, language: currentLang });
-      }
-    }
-  }, [dispatch, currentLang]);
+    fetch(`${apiUrl}/settings`, { headers: authHeaders(), credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data: StoreSettingsResponse) => setSettings(data))
+      .catch(() => setLoadError(true));
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -89,23 +78,35 @@ export default function Settings() {
     }, 3500);
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setIsSaving(true);
-
+    setSaveError(null);
     try {
-      localStorage.setItem('shop_manager_settings', JSON.stringify(settings));
-      if (settings.language) {
-        localStorage.setItem('shop_manager_language', settings.language);
-        dispatch(setLanguage(settings.language));
+      const editable: StoreSettings = {
+        storeName: settings.storeName,
+        supportPhone: settings.supportPhone,
+        supportEmail: settings.supportEmail,
+        managerChatId: settings.managerChatId,
+        lowStockThreshold: settings.lowStockThreshold,
+      };
+      const res = await fetch(`${apiUrl}/settings`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(editable),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        setSaveError((Array.isArray(body?.message) ? body.message[0] : body?.message) || t.settingsSaveFailed);
+        return;
       }
-      setTimeout(() => {
-        setIsSaving(false);
-        showToast(t.savedSuccess);
-      }, 300);
-    } catch (err) {
+      setSettings(body);
+      showToast(t.savedSuccess);
+    } catch {
+      setSaveError(t.settingsSaveFailed);
+    } finally {
       setIsSaving(false);
-      console.error('Failed to save settings:', err);
     }
   };
 
@@ -206,6 +207,12 @@ export default function Settings() {
         })}
       </div>
 
+      {(loadError || saveError) && (
+        <p className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-danger-soft px-4 py-3 text-[13px] text-danger">
+          {saveError ?? t.settingsLoadFailed}
+        </p>
+      )}
+
       {/* Tab Panels */}
       <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7">
         {/* Tab 1: Store Profile */}
@@ -230,7 +237,7 @@ export default function Settings() {
                     value={settings.storeName}
                     onChange={(e) => setSettings({ ...settings, storeName: e.target.value })}
                     className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-                    placeholder="e.g. Atelier Store"
+                    placeholder={t.storeNamePlaceholder}
                   />
                 </div>
               </div>
@@ -263,32 +270,6 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.currencyLabel}</label>
-                <select
-                  value={settings.currency}
-                  onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
-                  className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 px-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-                >
-                  <option value="UAH">Ukrainian Hryvnia (₴ UAH)</option>
-                  <option value="USD">US Dollar ($ USD)</option>
-                  <option value="EUR">Euro (€ EUR)</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.timezoneLabel}</label>
-                <div className="relative">
-                  <Globe className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
-                  <input
-                    type="text"
-                    value={settings.timezone}
-                    onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
-                    className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-                  />
-                </div>
-              </div>
-
               <div className="sm:col-span-2 flex flex-col gap-1.5">
                 <label className="text-[12.5px] font-semibold text-[var(--text)]">
                   {t.languageLabel}
@@ -296,28 +277,42 @@ export default function Settings() {
                 <div className="relative">
                   <Languages className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
                   <select
-                    value={settings.language || currentLang}
-                    onChange={(e) => {
-                      const newLang = e.target.value as 'uk' | 'en';
-                      setSettings({ ...settings, language: newLang });
-                      dispatch(setLanguage(newLang));
-                    }}
+                    value={currentLang}
+                    onChange={(e) => dispatch(setLanguage(e.target.value as 'uk' | 'en'))}
                     className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 pl-9 pr-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                   >
                     <option value="uk">{t.langUk}</option>
                     <option value="en">{t.langEn}</option>
                   </select>
                 </div>
-                <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  Перемикайте мову панелі керування на українську або англійську. Налаштування зберігається автоматично.
-                </span>
+                <span className="text-[11.5px] text-[var(--text-tertiary)]">{t.languageLocalHint}</span>
               </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h3 className="text-[13px] font-semibold text-[var(--text)]">{t.connectionsTitle}</h3>
+              <div className="divide-y divide-[var(--border)] rounded-md border border-[var(--border)]">
+                {[
+                  { label: t.connBot, ok: settings.botTokenConfigured },
+                  { label: t.connMonobank, ok: settings.monobankConfigured },
+                  { label: t.connNovaPoshta, ok: settings.novaPoshtaSenderConfigured },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between px-3.5 py-2.5 text-[13px]">
+                    <span className="text-[var(--text)]">{item.label}</span>
+                    <span className={item.ok ? 'font-semibold text-positive' : 'text-[var(--text-tertiary)]'}>
+                      {item.ok ? t.connConfigured : t.connNotConfigured}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <span className="text-[11.5px] text-[var(--text-tertiary)]">{t.connectionsHint}</span>
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
               >
                 {t.saveProfileBtn}
               </button>
@@ -339,74 +334,31 @@ export default function Settings() {
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.telegramChannelLabel}</label>
-                <input
-                  type="text"
-                  value={settings.telegramChannel}
-                  onChange={(e) => setSettings({ ...settings, telegramChannel: e.target.value })}
-                  className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 px-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-                  placeholder="@your_channel_handle"
-                />
-                <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  {currentLang === 'uk'
-                    ? 'Бота потрібно додати до каналу адміністратором із правом публікувати повідомлення.'
-                    : 'The bot must be added to the channel as an administrator with permission to post messages.'}
-                </span>
+                <span className="text-[12.5px] font-semibold text-[var(--text)]">{t.telegramChannelLabel}</span>
+                <span className="text-[13.5px] text-[var(--text)]">{settings.telegramChannel ?? '—'}</span>
+                <span className="text-[11.5px] text-[var(--text-tertiary)]">{t.channelFromEnvHint}</span>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12.5px] font-semibold text-[var(--text)]">{t.adminIdLabel}</label>
+                <label htmlFor="manager-chat" className="text-[12.5px] font-semibold text-[var(--text)]">{t.managerChatLabel}</label>
                 <input
+                  id="manager-chat"
                   type="text"
-                  value={settings.telegramAdminId}
-                  onChange={(e) => setSettings({ ...settings, telegramAdminId: e.target.value })}
+                  value={settings.managerChatId}
+                  onChange={(e) => setSettings({ ...settings, managerChatId: e.target.value })}
                   className="w-full rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 px-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
-                  placeholder="e.g. 98451294"
+                  placeholder="-1001234567890"
                 />
                 <span className="text-[11.5px] text-[var(--text-tertiary)]">
-                  {t.adminIdDesc}
+                  {t.managerChatDesc}
+                  {!settings.managerChatId && settings.managerChatFromEnv ? ` ${t.managerChatEnvHint}` : ''}
                 </span>
               </div>
 
-              {/* Toggles */}
               <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    {t.autoPublishLabel}
-                  </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
-                    {t.autoPublishDesc}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSettings({ ...settings, autoPublishNewProducts: !settings.autoPublishNewProducts })
-                  }
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    settings.autoPublishNewProducts ? 'bg-[var(--accent)]' : 'bg-[#D0CCC2]'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      settings.autoPublishNewProducts ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    {t.botTokenStatusLabel}
-                  </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
-                    {t.botTokenConfigured}
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-positive-soft px-2.5 py-1 text-[11.5px] font-semibold text-positive">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  {currentLang === 'uk' ? 'Підключено' : 'Connected'}
+                <span className="font-semibold text-[13.5px] text-[var(--text)]">{t.botTokenStatusLabel}</span>
+                <span className={settings.botTokenConfigured ? 'text-[12.5px] font-semibold text-positive' : 'text-[12.5px] text-[var(--text-tertiary)]'}>
+                  {settings.botTokenConfigured ? t.connConfigured : t.connNotConfigured}
                 </span>
               </div>
             </div>
@@ -414,7 +366,8 @@ export default function Settings() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
               >
                 {t.saveTelegramBtn}
               </button>
@@ -441,11 +394,11 @@ export default function Settings() {
                 </label>
                 <input
                   type="number"
-                  min="1"
-                  max="50"
+                  min="0"
+                  max="1000"
                   value={settings.lowStockThreshold}
                   onChange={(e) =>
-                    setSettings({ ...settings, lowStockThreshold: parseInt(e.target.value) || 1 })
+                    setSettings({ ...settings, lowStockThreshold: Math.max(0, parseInt(e.target.value, 10) || 0) })
                   }
                   className="w-full max-w-[180px] rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface)] py-2 px-3 text-[13.5px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                 />
@@ -454,61 +407,13 @@ export default function Settings() {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    {t.soundAlertsLabel}
-                  </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
-                    {t.soundAlertsDesc}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSettings({ ...settings, soundAlerts: !settings.soundAlerts })}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    settings.soundAlerts ? 'bg-[var(--accent)]' : 'bg-[#D0CCC2]'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      settings.soundAlerts ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)]">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-[13.5px] text-[var(--text)]">
-                    {t.autoArchiveLabel}
-                  </span>
-                  <span className="text-[12px] text-[var(--text-secondary)]">
-                    {t.autoArchiveDesc}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSettings({ ...settings, autoArchiveCompleted: !settings.autoArchiveCompleted })
-                  }
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    settings.autoArchiveCompleted ? 'bg-[var(--accent)]' : 'bg-[#D0CCC2]'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      settings.autoArchiveCompleted ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2 text-[13px] font-semibold text-white shadow-xs hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
               >
                 {t.saveInventoryBtn}
               </button>

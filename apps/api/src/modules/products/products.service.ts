@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { prisma } from '@shop-ai/database';
+import { getStoreSettings, prisma } from '@shop-ai/database';
 import type { CreateProductDto } from './dto/create-product.dto';
 import type { UpdateVariantDto } from './dto/update-variant.dto';
 
@@ -47,6 +47,7 @@ export class ProductsService {
   }
 
   async getProducts(query: ProductsQueryDto) {
+    const { lowStockThreshold: low } = await getStoreSettings();
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 12));
     const skip = (page - 1) * limit;
@@ -91,10 +92,10 @@ export class ProductsService {
           where.stock = { equals: 0 };
           break;
         case 'low_stock':
-          where.stock = { gt: 0, lte: 5 };
+          where.stock = { gt: 0, lte: low };
           break;
         case 'active':
-          where.stock = { gt: 5 };
+          where.stock = { gt: low };
           break;
       }
     }
@@ -121,8 +122,8 @@ export class ProductsService {
     delete baseWhere.stock;
 
     const [activeCount, lowStockCount, outOfStockCount] = await Promise.all([
-      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: 5 } } }),
-      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: 0, lte: 5 } } }),
+      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: low } } }),
+      prisma.productVariant.count({ where: { ...baseWhere, stock: { gt: 0, lte: low } } }),
       prisma.productVariant.count({ where: { ...baseWhere, stock: { equals: 0 } } }),
     ]);
 
@@ -135,7 +136,7 @@ export class ProductsService {
 
       let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
       if (v.stock === 0) status = 'out_of_stock';
-      else if (v.stock <= 5) status = 'low_stock';
+      else if (v.stock <= low) status = 'low_stock';
 
       return {
         variantId: v.id,
@@ -332,6 +333,7 @@ export class ProductsService {
       dataToUpdate.price = dto.price;
     }
 
+    const { lowStockThreshold: low } = await getStoreSettings();
     const updated = await prisma.productVariant.update({
       where: { id: variantId },
       data: dataToUpdate,
@@ -349,7 +351,7 @@ export class ProductsService {
 
     let status: 'active' | 'low_stock' | 'out_of_stock' = 'active';
     if (updated.stock === 0) status = 'out_of_stock';
-    else if (updated.stock <= 5) status = 'low_stock';
+    else if (updated.stock <= low) status = 'low_stock';
 
     return {
       variantId: updated.id,

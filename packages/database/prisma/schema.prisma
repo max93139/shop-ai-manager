@@ -144,6 +144,20 @@ model Notification {
   @@map("notifications")
 }
 
+/// Single row (id = 1) of store-wide settings shared by the API and the bot.
+model StoreSettings {
+  id                Int      @id @default(1)
+  storeName         String   @default("")
+  supportPhone      String   @default("")
+  supportEmail      String   @default("")
+  /// Telegram chat that gets new-order alerts; overrides TELEGRAM_MANAGER_CHAT_ID when set.
+  managerChatId     String   @default("")
+  lowStockThreshold Int      @default(5)
+  updatedAt         DateTime @updatedAt
+
+  @@map("store_settings")
+}
+
 model Session {
   key       String   @id
   value     String   @db.Text

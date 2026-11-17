@@ -137,6 +137,8 @@ export interface LatestOrderItem {
 }
 
 export interface DashboardFullData {
+  /** Empty store names are omitted. */
+  storeName?: string;
   stats: DashboardOverviewData;
   revenueChart: {
     peakInfo: string;
@@ -255,9 +257,6 @@ export interface AnalyticsData {
   };
 }
 
-/** Variants at or below this stock raise a LOW_STOCK notification after a sale. */
-export const LOW_STOCK_THRESHOLD = 5;
-
 export type NotificationKind = 'NEW_ORDER' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 
 export interface NewOrderNotificationData {
@@ -292,19 +291,21 @@ export interface NotificationsResponse {
   unreadCount: number;
 }
 
+/** Editable store settings, stored in the database and read by the API and the bot. */
 export interface StoreSettings {
   storeName: string;
   supportPhone: string;
   supportEmail: string;
-  currency: string;
-  timezone: string;
-  telegramChannel: string;
-  telegramBotTokenSet: boolean;
-  autoPublishNewProducts: boolean;
-  telegramAdminId: string;
+  managerChatId: string;
   lowStockThreshold: number;
-  soundAlerts: boolean;
-  autoArchiveCompleted: boolean;
-  language?: 'uk' | 'en';
+}
+
+/** Settings plus values that come from the server environment and are shown read-only. */
+export interface StoreSettingsResponse extends StoreSettings {
+  botTokenConfigured: boolean;
+  telegramChannel: string | null;
+  managerChatFromEnv: boolean;
+  monobankConfigured: boolean;
+  novaPoshtaSenderConfigured: boolean;
 }
 
